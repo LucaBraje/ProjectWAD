@@ -1,0 +1,25 @@
+REQUIREMENTS AND SPECIFICATIONS
+
+Title-
+Draft Euroleague
+
+Outline- The goal of the project is to create a dashboard that holds all the euroleague players and teams and allows the user to build whatever teams he desires trough a draft like experience and have multiple mini-games to enjoy an Euroleague experience.The dashboard will have 2 types of users and a log-in page to separate them properly.First type is player, player should have acces to all the minigames and be able to play them and interact with the team he built, for the two main minigames which are draft and fantasy.The fantasy is gonna allow the player based on a budget the build his team, to select different players and at the end of each competitive real life games to compete with other friends of his. The user can also add friends and manage his starting line-up. On the draft he'll be able to select players and build a team of his contanting all-time euroleague players and be rated accordingly.The other type of user will be admin, who can enter the database and edit the real-life players stats accordingly , modify real life teams and ensure all the stats of players are running smoothly.The application will provide a REST API responsible for providing EuroLeague data and performing game-related calculations.
+The API will provide endpoints for retrieving players, teams and statistics. It will also handle fantasy-related calculations, including calculating fantasy points based on real-life player statistics.
+Example API endpoints include:
+GET /api/players – retrieve all players.
+GET /api/players/{id} – retrieve information about a specific player.
+GET /api/teams – retrieve all teams.
+GET /api/teams/{id} – retrieve information about a specific team.
+GET /api/players/{id}/fantasy-points – calculate a player's fantasy score.
+GET /api/leaderboard – retrieve fantasy competition rankings.
+The API will return data in JSON format and will be used by the frontend to retrieve and display information.
+
+Technologies and Frameworks
+HTML5
+CSS
+JavaScript
+Bootstrap 5
+Python
+Flask
+SQL
+ 
