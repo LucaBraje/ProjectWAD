@@ -12,16 +12,14 @@
     >
 
    <link rel="stylesheet" href="{{ url_for('static', filename='css/players.css') }}">
+   <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/navbar.css') }}"
+>
 </head>
 
 <body>
-    <nav class="navbar navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/">Draft EuroLeague</a>
-            <a class="btn btn-outline-light btn-sm" href="/">Home</a>
-        </div>
-    </nav>
-
+{% include 'navbar.html' %}
     <main class="container page-container">
         <div class="mb-4">
             <h1 class="fw-bold">Player Directory</h1>

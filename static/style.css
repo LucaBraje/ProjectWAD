@@ -1,6 +1,6 @@
 
 body {
-    background-color: #f4f5f7;
+    background-color: #f7f6f4;
     color: #1c1a17;
     font-family: Arial, sans-serif;
 }
@@ -9,11 +9,33 @@ h1 {
     font-weight: 800;
     letter-spacing: -1px;
 }
+/* HOMEPAGE NAVIGATION BAR */
 
+.main-navbar {
+    background-color: #FA5500;
+    padding-top: 18px;
+    padding-bottom: 18px;
+    border-bottom: 3px solid #4d1900c5;
+}
+
+/* Website title */
+
+.main-navbar .navbar-brand {
+    color: rgb(0, 0, 0);
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+/* Hover effect */
+
+.main-navbar .navbar-brand:hover {
+    color: #ffa274c6;
+}
 .card {
     border: none;
     border-radius: 12px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 3px 12px rgba(58, 58, 58, 0.06);
 }
 
 .card h3 {

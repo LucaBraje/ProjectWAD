@@ -1,4 +1,4 @@
- cletountryCodeByName = new Map();
+const cletountryCodeByName = new Map();
 
 function normalizeCountryName(name) {
     return name

@@ -1,0 +1,154 @@
+
+/* INDIVIDUAL TEAM PROFILE */
+
+body {
+    background-color: #f7f6f4;
+    color: #1c1a17;
+    font-family: Arial, sans-serif;
+}
+
+/* Back navigation */
+
+.back-link {
+    color: #122a46;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    color: #d49b08;
+}
+
+/* Team profile header */
+
+.team-header {
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 36px;
+}
+
+.profile-team-logo {
+    width: 180px;
+    height: 180px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+/* Team information */
+
+.team-stat {
+    background-color: #f7f6f4;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.team-stat strong {
+    font-size: 22px;
+    color: #122a46;
+}
+
+/* Roster table */
+
+.roster-container {
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.roster-player-picture {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: 8px;
+    background-color: #f1f1f1;
+}
+
+.rating-badge {
+    display: inline-block;
+    background-color: #122a46;
+    color: white;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+}
+/* Roster table spacing */
+
+.roster-container table {
+    white-space: nowrap;
+}
+
+.roster-container th,
+.roster-container td {
+    padding: 14px 16px;
+    vertical-align: middle;
+}
+
+.roster-container th {
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+.roster-container td {
+    font-size: 14px;
+}
+
+/* Give the player column more room */
+
+.roster-container th:first-child,
+.roster-container td:first-child {
+    min-width: 220px;
+}/* SORTABLE ROSTER HEADERS */
+
+#rosterTable thead th {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+#rosterTable thead th:hover {
+    background-color: #344e70;
+}
+
+#rosterTable thead th.sort-asc::after {
+    content: " ▲";
+    color: #eab308;
+}
+
+#rosterTable thead th.sort-desc::after {
+    content: " ▼";
+    color: #eab308;
+}
+
+/* TEAM COUNTRY FLAG */
+
+.profile-country-flag {
+    width: 36px;
+    height: 24px;
+    object-fit: cover;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+/* PLAYER NATIONALITY FLAG */
+
+.player-country-flag {
+    width: 28px;
+    height: 19px;
+    object-fit: cover;
+    border-radius: 3px;
+    flex-shrink: 0;
+}

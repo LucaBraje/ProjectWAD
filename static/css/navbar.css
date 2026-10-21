@@ -1,0 +1,44 @@
+/* SHARED NAVIGATION BAR */
+
+.main-navbar {
+    background-color: #FA5500;
+    padding: 18px 24px;
+    border-bottom: 3px solid #0a0a0a8f;
+}
+/* EuroLeague logo */
+
+.navbar-logo {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+/* Website title */
+
+.main-navbar .navbar-brand {
+    color: rgb(0, 0, 0);
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-decoration: none;
+}
+
+/* Hover effect */
+
+.main-navbar .navbar-brand:hover,
+.main-navbar .navbar-brand:focus {
+    color: #ffffff;
+}
+
+/* Navigation links */
+
+.main-navbar .nav-link {
+    color: #000000;
+    font-weight: 500;
+}
+
+.main-navbar .nav-link:hover,
+.main-navbar .nav-link:focus {
+    color: #ffffff;
+}
+

@@ -1,0 +1,72 @@
+
+/* TEAMS DIRECTORY PAGE */
+
+body {
+    background-color: #f7f6f4;
+    color: #1c1a17;
+    font-family: Arial, sans-serif;
+}
+
+/* Clickable team card */
+
+.team-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    padding: 28px 16px;
+    height: 100%;
+    min-height: 220px;
+
+    text-decoration: none;
+    color: inherit;
+
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Card hover effect */
+
+.team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    color: inherit;
+}
+
+/* Team logo */
+
+.team-logo {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 18px;
+}
+
+/* Team name */
+
+.team-name {
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+/* Team country */
+
+.team-country {
+    font-size: 14px;
+    color: #6b7280;
+    text-align: center;
+    margin-bottom: 0;
+}
+.team-flag {
+    width: 32px;
+    height: 22px;
+    object-fit: cover;
+    border-radius: 3px;
+    margin-top: 10px;
+}

@@ -73,6 +73,28 @@ def player_directory():
     return render_template("players.html")
 
 
+# TEAMS OVERVIEW PAGE
+@app.route("/teams")
+def team_directory():
+    teams = Team.query.order_by(Team.name).all()
+    return render_template("teams.html", teams=teams)
+
+
+# INDIVIDUAL TEAM PROFILE PAGE
+@app.route("/teams/<int:team_id>")
+def team_profile(team_id):
+    team = Team.query.get_or_404(team_id)
+
+    players = Player.query.filter_by(
+        team_id=team.id
+    ).order_by(Player.rating.desc()).all()
+
+    return render_template(
+        "team_profile.html",
+        team=team,
+        players=players
+    )
+
 # DATABASE-POWERED PLAYER API
 @app.route("/api/players")
 def get_players():
