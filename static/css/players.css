@@ -1,0 +1,88 @@
+
+        body {
+            background: #f4f5f7;
+            color: #20242b;
+        }
+
+        .page-container {
+            max-width: 1200px;
+            margin: 40px auto;
+        }
+
+        .player-table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        #playerTable tbody tr {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        #playerTable tbody tr:hover {
+            background: #eef3ff;
+        }
+
+        .team-logo {
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+        }
+
+        .team-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ovr-badge {
+            display: inline-block;
+            min-width: 42px;
+            padding: 6px 8px;
+            border-radius: 7px;
+            background: #20242b;
+            color: white;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .player-picture {
+            width: 110px;
+            height: 110px;
+            object-fit: contain;
+            border-radius: 12px;
+            background: #f1f2f4;
+        }
+        [hidden] {
+    display: none !important;
+}
+
+        .player-ovr-large {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .stat-card {
+            background: #f4f5f7;
+            border-radius: 10px;
+            padding: 14px;
+            height: 100%;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .loading-message {
+            padding: 30px;
+            text-align: center;
+            color: #6c757d;
+        }
