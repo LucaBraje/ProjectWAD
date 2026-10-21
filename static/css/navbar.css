@@ -42,3 +42,20 @@
     color: #ffffff;
 }
 
+/* AUTHENTICATION NAVBAR */
+
+.navbar-username {
+    color: #eab308 !important;
+    font-weight: 600;
+}
+
+.navbar-logout {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+}
+
+.navbar-logout:hover {
+    color: #eab308 !important;
+}
