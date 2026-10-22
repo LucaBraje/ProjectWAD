@@ -44,8 +44,21 @@ def import_players():
                 ).first()
 
                 if existing:
-                    skipped += 1
-                    continue
+                existing.nationality = row.get("nationality", "").strip() or None
+                existing.position = row["position"].strip()
+                existing.rating = int(row.get("rating") or 70)
+                existing.defense = int(row.get("defense") or 70)
+                existing.offense = int(row.get("offense") or 70)
+                existing.points_per_game = float(row.get("points_per_game") or 0)
+                existing.assists_per_game = float(row.get("assists_per_game") or 0)
+                existing.rebounds_per_game = float(row.get("rebounds_per_game") or 0)
+                existing.blocks_per_game = float(row.get("blocks_per_game") or 0)
+                existing.steals_per_game = float(row.get("steals_per_game") or 0)
+                existing.fg_percentage = float(row.get("fg_percentage") or 0)
+                existing.picture_url = row.get("picture_url", "").strip() or None
+
+                skipped += 1
+                continue
 
                 
                 
