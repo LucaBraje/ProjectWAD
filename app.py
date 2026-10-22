@@ -52,6 +52,32 @@ class Team(db.Model):
     pictures = db.relationship("TeamPicture", backref="team", lazy=True)
 
 
+#Legends
+class Legend(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    nationality = db.Column(db.String(50))
+    position = db.Column(db.String(10), nullable=False)
+
+    rating = db.Column(db.Integer, default=90)
+    offense = db.Column(db.Integer, default=90)
+    defense = db.Column(db.Integer, default=90)
+
+    points_per_game = db.Column(db.Float, default=0.0)
+    assists_per_game = db.Column(db.Float, default=0.0)
+    rebounds_per_game = db.Column(db.Float, default=0.0)
+    blocks_per_game = db.Column(db.Float, default=0.0)
+    steals_per_game = db.Column(db.Float, default=0.0)
+    fg_percentage = db.Column(db.Float, default=0.0)
+
+    picture_url = db.Column(db.String(500))
+    peak_season = db.Column(db.String(20))
+    legendary_team = db.Column(db.String(100))
+
+
+
+
 # PLAYER DATABASE MODEL
 class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -1017,8 +1043,25 @@ def draft_mode():
 def draft_pool():
     teams = Team.query.order_by(Team.id).all()
     players = Player.query.order_by(Player.id).all()
+    legends = Legend.query.order_by(Legend.id).all()
 
     return jsonify({
+        "legends": [
+            {
+                "id": p.id, "name": p.name, "nationality": p.nationality,
+                "position": p.position, "rating": p.rating,
+                "offense": p.offense, "defense": p.defense,
+                "picture_url": p.picture_url,
+                "points_per_game": p.points_per_game,
+                "assists_per_game": p.assists_per_game,
+                "rebounds_per_game": p.rebounds_per_game,
+                "blocks_per_game": p.blocks_per_game,
+                "steals_per_game": p.steals_per_game,
+                "fg_percentage": p.fg_percentage,
+                "team_name": p.legendary_team,
+                "peak_season": p.peak_season, "is_legend": True
+            } for p in legends
+        ],
         'teams': [
             {
                 'id': team.id,
@@ -1340,37 +1383,36 @@ def simulate_draft_api():
         }), 400
 
     try:
-        player_ids = {
-            pos: int(lineup_data[pos])
-            for pos in DRAFT_POSITIONS
-        }
         club_id = int(club_id)
-    except (ValueError, TypeError):
+        references = {}
+        for pos in DRAFT_POSITIONS:
+            item = lineup_data[pos]
+            if not isinstance(item, dict) or item.get("type") not in ("player", "legend"):
+                raise ValueError("Invalid player reference")
+            player_id = int(item["id"])
+            if player_id <= 0:
+                raise ValueError("Invalid player ID")
+            references[pos] = {"type": item["type"], "id": player_id}
+    except (ValueError, TypeError, KeyError):
         return jsonify({"error": "Invalid player or club ID."}), 400
 
-    if len(set(player_ids.values())) != 5:
-        return jsonify({
-            "error": "You cannot draft the same player twice."
-        }), 400
+    keys = [(p["type"], p["id"]) for p in references.values()]
+    if len(set(keys)) != 5:
+        return jsonify({"error": "You cannot draft the same player twice."}), 400
+    if sum(p["type"] == "legend" for p in references.values()) > 1:
+        return jsonify({"error": "Only one legend is allowed per draft."}), 400
 
     club = db.session.get(Team, club_id)
-
     if club is None:
         return jsonify({"error": "Club not found."}), 404
 
-    players = Player.query.filter(
-        Player.id.in_(list(player_ids.values()))
-    ).all()
-
-    if len(players) != 5:
-        return jsonify({"error": "One or more players were not found."}), 400
-
-    players_by_id = {p.id: p for p in players}
-
-    lineup = {
-        pos: players_by_id[player_ids[pos]]
-        for pos in DRAFT_POSITIONS
-    }
+    lineup = {}
+    for pos, ref in references.items():
+        model = Legend if ref["type"] == "legend" else Player
+        entry = db.session.get(model, ref["id"])
+        if entry is None:
+            return jsonify({"error": "One or more players were not found."}), 400
+        lineup[pos] = entry
 
     rating = calculate_draft_rating(lineup)
 
@@ -1434,7 +1476,7 @@ def simulate_draft_api():
         losses=result["losses"],
         seed=result["seed"],
         outcome=result["outcome"],
-        lineup=player_ids,
+        lineup=references,
         run_token=token
     )
 
@@ -1672,6 +1714,51 @@ def profile_titles():
             for key, name in PROFILE_TITLES.items()
         ]
     })
+
+
+@app.route("/api/legends", methods=["GET"])
+def get_legends():
+    position = request.args.get("position", "").upper().strip()
+
+    query = Legend.query
+
+    if position:
+        if position not in ("PG", "SG", "SF", "PF", "C"):
+            return jsonify({"error": "Invalid position"}), 400
+
+        query = query.filter_by(position=position)
+
+    legends = query.order_by(
+        Legend.rating.desc(),
+        Legend.name.asc()
+    ).all()
+
+    return jsonify([
+        {
+            "id": legend.id,
+            "name": legend.name,
+            "nationality": legend.nationality,
+            "position": legend.position,
+            "rating": legend.rating,
+            "offense": legend.offense,
+            "defense": legend.defense,
+            "points_per_game": legend.points_per_game,
+            "assists_per_game": legend.assists_per_game,
+            "rebounds_per_game": legend.rebounds_per_game,
+            "blocks_per_game": legend.blocks_per_game,
+            "steals_per_game": legend.steals_per_game,
+            "fg_percentage": legend.fg_percentage,
+            "picture_url": legend.picture_url,
+            "peak_season": legend.peak_season,
+            "legendary_team": legend.legendary_team,
+            "stats_type": legend.stats_type,
+            "is_legend": True
+        }
+        for legend in legends
+    ])
+
+
+
 
 
 @app.route("/api/profile/titles/equip", methods=["POST"])

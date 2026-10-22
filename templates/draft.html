@@ -16,6 +16,7 @@
       <div class="heading-line"><div><h1>BUILD YOUR <span>DYNASTY.</span></h1><p>One club. Five picks. One starting lineup.</p></div><button id="restartBtn" class="secondary-btn" type="button">↻ Restart draft</button></div>
       <div class="round-meter"><div id="progressBar"></div></div><div id="roundLabel" class="round-label">Loading draft…</div>
     </header>
+    <div class="legend-setting"><label for="includeLegends"><input id="includeLegends" type="checkbox"><span><strong>Include EuroLeague Legends</strong><small>Choose one of five random legends after your club reveal.</small></span></label></div>
     <div id="errorBox" class="error-box" hidden></div>
     <div class="draft-layout">
       <section class="draft-main">
@@ -28,7 +29,7 @@
         </div>
         <div id="playersStage" class="stage-panel" hidden>
           <div class="stage-top"><div><div id="playerRoundEyebrow" class="eyebrow"></div><h2>CHOOSE YOUR PLAYER</h2></div><span class="stage-count">10 OPTIONS</span></div>
-          <p>Inspect any player, then choose one to add to your starting five.</p>
+          <p id="offersDescription">Inspect any player, then choose one to add to your starting five.</p>
           <div id="playerGrid" class="player-grid"></div>
         </div>
         <div id="positionStage" class="stage-panel" hidden>
@@ -40,7 +41,7 @@
         </div>
         <div id="finishStage" class="stage-panel" hidden>
           <div class="eyebrow">DRAFT COMPLETE</div><h2>YOUR STARTING FIVE IS READY</h2>
-          <p>You've assembled your squad. The league simulation and coach round can be added next.</p>
+          <p>You've assembled your squad. Simulate the season below!</p>
           <div id="summary" class="summary"></div>
           <button id="playAgainBtn" class="primary-btn" type="button">DRAFT AGAIN</button>
         </div>
