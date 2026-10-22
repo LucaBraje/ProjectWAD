@@ -8,12 +8,14 @@ from flask_login import (
     login_required,
     current_user
 )
-
+from functools import wraps
+from flask import abort
 from werkzeug.security import (
     generate_password_hash,
     check_password_hash
 )
 import os
+import math
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "development-only-change-me")
@@ -37,6 +39,7 @@ class Team(db.Model):
     country = db.Column(db.String(100))
     record = db.Column(db.String(20))
     image_url = db.Column(db.String(500))
+    biography = db.Column(db.Text, nullable=True)
 
     players = db.relationship("Player", backref="team", lazy=True)
     pictures = db.relationship("TeamPicture", backref="team", lazy=True)
@@ -110,7 +113,18 @@ class User(UserMixin, db.Model):
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
+# ADMIN ACCESS DECORATOR
+def admin_required(f):
+    @wraps(f)
+    @login_required
+    def decorated_function(*args, **kwargs):
 
+        if current_user.role != "admin":
+            abort(403)
+
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 # HOMEPAGE
 @app.route("/")
@@ -145,6 +159,260 @@ def team_profile(team_id):
         team=team,
         players=players
     )
+
+
+# ADMIN DASHBOARD
+@app.route("/admin")
+@admin_required
+def admin_dashboard():
+    return render_template("admin.html")
+
+
+# ADMIN - PLAYER MANAGEMENT
+@app.route("/admin/players")
+@admin_required
+def admin_players():
+    players = Player.query.order_by(Player.name).all()
+
+    return render_template(
+        "admin_players.html",
+        players=players
+    )
+
+
+# ADMIN - ADD PLAYER
+@app.route("/admin/players/add", methods=["GET", "POST"])
+@admin_required
+def admin_add_player():
+    teams = Team.query.order_by(Team.name).all()
+
+    if request.method == "POST":
+
+        # BASIC PLAYER INFORMATION
+        name = request.form.get("name", "").strip()
+        nationality = request.form.get("nationality", "").strip()
+        position = request.form.get("position", "").strip()
+        picture_url = request.form.get("picture_url", "").strip()
+
+        try:
+            # TEAM
+            team_id = int(request.form.get("team_id", ""))
+
+            # PLAYER RATINGS
+            rating = int(request.form.get("rating", "70"))
+            offense = int(request.form.get("offense", "70"))
+            defense = int(request.form.get("defense", "70"))
+
+            # PLAYER STATISTICS
+            points_per_game = float(request.form.get("points_per_game", "0"))
+            assists_per_game = float(request.form.get("assists_per_game", "0"))
+            rebounds_per_game = float(request.form.get("rebounds_per_game", "0"))
+            blocks_per_game = float(request.form.get("blocks_per_game", "0"))
+            steals_per_game = float(request.form.get("steals_per_game", "0"))
+            fg_percentage = float(request.form.get("fg_percentage", "0"))
+
+            # VALIDATE BASIC INFORMATION
+            if not name or not position:
+                raise ValueError("Name and position are required.")
+
+            if len(name) > 100 or len(nationality) > 50 or len(position) > 10:
+                raise ValueError("One or more text fields are too long.")
+
+            if position not in ["PG", "SG", "SF", "PF", "C"]:
+                raise ValueError("Invalid player position.")
+
+            if len(picture_url) > 200:
+                raise ValueError("Picture URL must be 200 characters or fewer.")
+
+            # VALIDATE RATINGS
+            if not all(math.isfinite(value) and 0 <= value <= 100 for value in stats):
+                raise ValueError("Ratings must be between 0 and 100.")
+
+            # VALIDATE STATISTICS
+            stats = [
+                points_per_game,
+                assists_per_game,
+                rebounds_per_game,
+                blocks_per_game,
+                steals_per_game
+            ]
+
+            if not all(math.isfinite(value) and 0 <= value <= 100 for value in stats):
+                raise ValueError("Statistics must be between 0 and 100.")
+
+            if not 0 <= fg_percentage <= 100:
+                raise ValueError("FG% must be between 0 and 100.")
+
+            # VALIDATE TEAM
+            team = db.session.get(Team, team_id)
+
+            if team is None:
+                raise ValueError("Please select a valid team.")
+
+        except (ValueError, TypeError) as error:
+            flash(f"Invalid player information: {error}", "danger")
+            return redirect(url_for("admin_add_player"))
+
+        # CREATE NEW PLAYER
+        player = Player(
+            name=name,
+            nationality=nationality,
+            position=position,
+            picture_url=picture_url,
+            rating=rating,
+            offense=offense,
+            defense=defense,
+            points_per_game=points_per_game,
+            assists_per_game=assists_per_game,
+            rebounds_per_game=rebounds_per_game,
+            blocks_per_game=blocks_per_game,
+            steals_per_game=steals_per_game,
+            fg_percentage=fg_percentage,
+            team_id=team_id
+        )
+
+        # SAVE TO DATABASE
+        db.session.add(player)
+        db.session.commit()
+
+        flash("Player added successfully!", "success")
+        return redirect(url_for("admin_players"))
+
+    return render_template(
+        "admin_player_form.html",
+        player=None,
+        teams=teams
+    )
+
+
+# ADMIN - EDIT PLAYER
+@app.route("/admin/players/<int:player_id>/edit", methods=["GET", "POST"])
+@admin_required
+def admin_edit_player(player_id):
+
+    player = db.get_or_404(Player, player_id)
+    teams = Team.query.order_by(Team.name).all()
+
+    if request.method == "POST":
+
+        # BASIC PLAYER INFORMATION
+        name = request.form.get("name", "").strip()
+        nationality = request.form.get("nationality", "").strip()
+        position = request.form.get("position", "").strip()
+        picture_url = request.form.get("picture_url", "").strip()
+
+        try:
+            # TEAM
+            team_id = int(request.form.get("team_id", ""))
+
+            # PLAYER RATINGS
+            rating = int(request.form.get("rating", "70"))
+            offense = int(request.form.get("offense", "70"))
+            defense = int(request.form.get("defense", "70"))
+
+            # PLAYER STATISTICS
+            points_per_game = float(request.form.get("points_per_game", "0"))
+            assists_per_game = float(request.form.get("assists_per_game", "0"))
+            rebounds_per_game = float(request.form.get("rebounds_per_game", "0"))
+            blocks_per_game = float(request.form.get("blocks_per_game", "0"))
+            steals_per_game = float(request.form.get("steals_per_game", "0"))
+            fg_percentage = float(request.form.get("fg_percentage", "0"))
+
+            # VALIDATE BASIC INFORMATION
+            if not name or not position:
+                raise ValueError("Name and position are required.")
+
+            if len(name) > 100 or len(nationality) > 50 or len(position) > 10:
+                raise ValueError("One or more text fields are too long.")
+
+            if position not in ["PG", "SG", "SF", "PF", "C"]:
+                raise ValueError("Invalid player position.")
+
+            if len(picture_url) > 200:
+                raise ValueError("Picture URL must be 200 characters or fewer.")
+
+            # VALIDATE RATINGS
+            if not all(0 <= value <= 100 for value in (rating, offense, defense)):
+                raise ValueError("Ratings must be between 0 and 100.")
+
+            # VALIDATE STATISTICS
+            stats = [
+                points_per_game,
+                assists_per_game,
+                rebounds_per_game,
+                blocks_per_game,
+                steals_per_game
+            ]
+
+            if not all(0 <= value <= 100 for value in stats):
+                raise ValueError("Statistics must be between 0 and 100.")
+
+            if not 0 <= fg_percentage <= 100:
+                raise ValueError("FG% must be between 0 and 100.")
+
+            # VALIDATE TEAM
+            team = db.session.get(Team, team_id)
+
+            if team is None:
+                raise ValueError("Please select a valid team.")
+
+        except (ValueError, TypeError) as error:
+            flash(f"Invalid player information: {error}", "danger")
+            return redirect(
+                url_for("admin_edit_player", player_id=player.id)
+            )
+
+        # UPDATE BASIC INFORMATION
+        player.name = name
+        player.nationality = nationality
+        player.position = position
+        player.picture_url = picture_url
+
+        # UPDATE RATINGS
+        player.rating = rating
+        player.offense = offense
+        player.defense = defense
+
+        # UPDATE STATISTICS
+        player.points_per_game = points_per_game
+        player.assists_per_game = assists_per_game
+        player.rebounds_per_game = rebounds_per_game
+        player.blocks_per_game = blocks_per_game
+        player.steals_per_game = steals_per_game
+        player.fg_percentage = fg_percentage
+
+        # UPDATE TEAM (TRANSFER PLAYER)
+        player.team_id = team_id
+
+        # SAVE CHANGES
+        db.session.commit()
+
+        flash("Player updated successfully!", "success")
+        return redirect(url_for("admin_players"))
+
+    return render_template(
+        "admin_player_form.html",
+        player=player,
+        teams=teams
+    )
+
+
+# ADMIN - DELETE PLAYER
+@app.route("/admin/players/<int:player_id>/delete", methods=["POST"])
+@admin_required
+def admin_delete_player(player_id):
+    player = db.get_or_404(Player, player_id)
+
+    player_name = player.name
+
+    db.session.delete(player)
+    db.session.commit()
+
+    flash(f"{player_name} was deleted.", "success")
+    return redirect(url_for("admin_players"))
+
+
+
 
 # DATABASE-POWERED PLAYER API
 @app.route("/api/players")
@@ -331,6 +599,146 @@ def logout():
     flash("You have been logged out.", "success")
 
     return redirect(url_for("home"))
+
+# USER PROFILE
+@app.route("/profile")
+@login_required
+def profile():
+    return render_template("profile.html")
+
+# ADMIN - TEAM MANAGEMENT
+@app.route("/admin/teams")
+@admin_required
+def admin_teams():
+    teams = Team.query.order_by(Team.name).all()
+
+    return render_template(
+        "admin_teams.html",
+        teams=teams
+    )
+# ADMIN - ADD TEAM
+@app.route("/admin/teams/add", methods=["GET", "POST"])
+@admin_required
+def admin_add_team():
+
+    if request.method == "POST":
+
+        name = request.form.get("name", "").strip()
+        country = request.form.get("country", "").strip()
+        record = request.form.get("record", "").strip()
+        image_url = request.form.get("image_url", "").strip()
+        biography = request.form.get("biography", "").strip()
+
+        if not name:
+            flash("Team name is required.", "danger")
+            return redirect(url_for("admin_add_team"))
+
+        if len(name) > 100 or len(country) > 100:
+            flash("Team name or country is too long.", "danger")
+            return redirect(url_for("admin_add_team"))
+
+        if len(record) > 20 or len(image_url) > 500:
+            flash("Record or logo path is too long.", "danger")
+            return redirect(url_for("admin_add_team"))
+
+        existing_team = Team.query.filter_by(name=name).first()
+
+        if existing_team:
+            flash("A team with this name already exists.", "danger")
+            return redirect(url_for("admin_add_team"))
+
+        team = Team(
+            name=name,
+            country=country,
+            record=record,
+            image_url=image_url,
+            biography=biography
+        )
+
+        db.session.add(team)
+        db.session.commit()
+
+        flash("Team added successfully!", "success")
+        return redirect(url_for("admin_teams"))
+
+    return render_template("admin_team_form.html", team=None)
+# ADMIN - EDIT TEAM
+@app.route("/admin/teams/<int:team_id>/edit", methods=["GET", "POST"])
+@admin_required
+def admin_edit_team(team_id):
+
+    team = db.get_or_404(Team, team_id)
+
+    if request.method == "POST":
+
+        name = request.form.get("name", "").strip()
+        country = request.form.get("country", "").strip()
+        record = request.form.get("record", "").strip()
+        image_url = request.form.get("image_url", "").strip()
+        biography = request.form.get("biography", "").strip()
+
+        if not name:
+            flash("Team name is required.", "danger")
+            return redirect(url_for("admin_edit_team", team_id=team.id))
+
+        if len(name) > 100 or len(country) > 100:
+            flash("Team name or country is too long.", "danger")
+            return redirect(url_for("admin_edit_team", team_id=team.id))
+
+        if len(record) > 20 or len(image_url) > 500:
+            flash("Record or logo path is too long.", "danger")
+            return redirect(url_for("admin_edit_team", team_id=team.id))
+
+        existing_team = Team.query.filter(
+            Team.name == name,
+            Team.id != team.id
+        ).first()
+
+        if existing_team:
+            flash("Another team already uses that name.", "danger")
+            return redirect(url_for("admin_edit_team", team_id=team.id))
+
+        team.name = name
+        team.country = country
+        team.record = record
+        team.image_url = image_url
+        team.biography = biography
+
+        db.session.commit()
+
+        flash("Team updated successfully!", "success")
+        return redirect(url_for("admin_teams"))
+
+    return render_template("admin_team_form.html", team=team)
+
+# ADMIN - DELETE TEAM
+@app.route("/admin/teams/<int:team_id>/delete", methods=["POST"])
+@admin_required
+def admin_delete_team(team_id):
+
+    team = db.get_or_404(Team, team_id)
+
+    if team.players:
+        flash(
+            "You cannot delete a team that still has players. "
+            "Transfer or delete its players first.",
+            "danger"
+        )
+        return redirect(url_for("admin_teams"))
+
+    team_name = team.name
+
+    # Remove associated team pictures first
+    for picture in team.pictures:
+        db.session.delete(picture)
+
+    db.session.delete(team)
+    db.session.commit()
+
+    flash(f"{team_name} was deleted.", "success")
+    return redirect(url_for("admin_teams"))
+
+
 
 
 initialize_database()

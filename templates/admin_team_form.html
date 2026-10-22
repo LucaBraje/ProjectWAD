@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ 'Edit Team' if team else 'Add Team' }} | Draft EuroLeague</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/navbar.css') }}">
+</head>
+
+<body>
+
+    {% include 'navbar.html' %}
+
+    <main class="container py-5" style="max-width: 850px;">
+
+        <h1 class="mb-4">
+            {{ 'Edit Team' if team else 'Add New Team' }}
+        </h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST"
+              action="{{ url_for('admin_edit_team', team_id=team.id) if team else url_for('admin_add_team') }}">
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label">Team Name</label>
+
+                    <input type="text"
+                           name="name"
+                           class="form-control"
+                           value="{{ team.name if team else '' }}"
+                           maxlength="100"
+                           required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Country</label>
+
+                    <input type="text"
+                           name="country"
+                           class="form-control"
+                           value="{{ team.country or '' if team else '' }}"
+                           maxlength="100">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Win-Loss Record</label>
+
+                    <input type="text"
+                           name="record"
+                           class="form-control"
+                           value="{{ team.record or '' if team else '' }}"
+                           placeholder="15-7"
+                           maxlength="20">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Team Logo Path</label>
+
+                    <input type="text"
+                           name="image_url"
+                           class="form-control"
+                           value="{{ team.image_url or '' if team else '' }}"
+                           placeholder="teams_logos/example.png"
+                           maxlength="500">
+
+                    <small class="text-muted">
+                        Enter a path relative to your static folder.
+                    </small>
+                </div>
+
+                <div class="col-12 mt-4">
+                    <h4>Team Biography</h4>
+                    <hr>
+
+                    <textarea name="biography"
+                              class="form-control"
+                              rows="8"
+                              placeholder="Write about the team's history, achievements, and identity...">{{ team.biography or '' if team else '' }}</textarea>
+                </div>
+
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+
+                <button type="submit" class="btn btn-success">
+                    {{ 'Save Changes' if team else 'Add Team' }}
+                </button>
+
+                <a href="{{ url_for('admin_teams') }}"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </main>
+
+</body>
+</html>

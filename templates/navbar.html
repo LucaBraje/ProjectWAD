@@ -32,9 +32,16 @@
 
             {% if current_user.is_authenticated %}
 
-                <span class="nav-link navbar-username">
-                    {{ current_user.username }}
-                </span>
+<a class="nav-link navbar-username"
+   href="{{ url_for('profile') }}">
+    {{ current_user.username }}
+</a>
+{% if current_user.role == "admin" %}
+    <a class="nav-link"
+       href="{{ url_for('admin_dashboard') }}">
+        Admin
+    </a>
+{% endif %}
 
                 <form method="POST"
                       action="{{ url_for('logout') }}"

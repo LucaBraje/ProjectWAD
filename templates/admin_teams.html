@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manage Teams | Draft EuroLeague</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/navbar.css') }}">
+</head>
+
+<body>
+
+    {% include 'navbar.html' %}
+
+    <main class="container py-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Manage Teams</h1>
+
+            <a href="{{ url_for('admin_add_team') }}"
+               class="btn btn-success">
+                + Add Team
+            </a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <!-- SEARCH BAR -->
+        <div class="mb-4">
+            <label for="teamSearch" class="form-label">
+                Search Teams
+            </label>
+
+            <input type="text"
+                   id="teamSearch"
+                   class="form-control"
+                   placeholder="Search by team name or country..."
+                   autocomplete="off">
+
+            <small id="teamSearchCount" class="text-muted"></small>
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-striped table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Logo</th>
+                        <th>Team</th>
+                        <th>Country</th>
+                        <th>Record</th>
+                        <th>Players</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="adminTeamsTable">
+
+                    {% for team in teams %}
+
+                    <tr>
+                        <td>
+                            {% if team.image_url %}
+                            <img src="{{ url_for('static', filename=team.image_url) }}"
+                                 alt="{{ team.name }}"
+                                 width="55"
+                                 height="55"
+                                 style="object-fit: contain;">
+                            {% endif %}
+                        </td>
+
+                        <td>{{ team.name }}</td>
+                        <td>{{ team.country }}</td>
+                        <td>{{ team.record or '-' }}</td>
+                        <td>{{ team.players | length }}</td>
+
+                        <td>
+                            <div class="d-flex flex-wrap gap-2">
+
+                                <a href="{{ url_for('team_profile', team_id=team.id) }}"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    View
+                                </a>
+
+                                <a href="{{ url_for('admin_edit_team', team_id=team.id) }}"
+                                   class="btn btn-sm btn-primary">
+                                    Edit
+                                </a>
+
+                                <form method="POST"
+                                      action="{{ url_for('admin_delete_team', team_id=team.id) }}"
+                                      onsubmit="return confirm('Delete this team permanently?');">
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-danger">
+                                        Delete
+                                    </button>
+
+                                </form>
+
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </main>
+
+    <script src="{{ url_for('static', filename='js/admin_teams.js') }}"></script>
+
+</body>
+</html>

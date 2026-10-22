@@ -89,7 +89,17 @@
 
             </div>
         </section>
+{% if team.biography %}
 
+<section class="team-biography my-4">
+
+    <h2>About {{ team.name }}</h2>
+
+    <p>{{ team.biography }}</p>
+
+</section>
+
+{% endif %}
         <!-- Team roster -->
         
 <!-- TEAM ROSTER -->

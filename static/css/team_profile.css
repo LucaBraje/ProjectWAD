@@ -152,3 +152,24 @@ body {
     border-radius: 3px;
     flex-shrink: 0;
 }
+/* TEAM BIOGRAPHY */
+
+.team-biography {
+    padding: 24px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.team-biography h2 {
+    color: #122a46;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.team-biography p {
+    line-height: 1.8;
+    white-space: pre-line;
+    margin-bottom: 0;
+}
