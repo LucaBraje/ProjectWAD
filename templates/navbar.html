@@ -20,7 +20,10 @@
                    href="{{ url_for('player_directory') }}">Players</a>
                 <a class="nav-link {% if request.endpoint in ['team_directory', 'team_profile'] %}active{% endif %}"
                    href="{{ url_for('team_directory') }}">Teams</a>
-                <span class="nav-link nav-link-soon" title="Draft mode is coming soon">Draft <small>SOON</small></span>
+                
+                <a class="nav-link {% if request.endpoint == 'draft' %}active{% endif %}"
+                    href="{{ url_for('draft_mode') }}"> Draft</a>
+
                 <span class="nav-link nav-link-soon" title="Fantasy mode is coming soon">Fantasy <small>SOON</small></span>
                 <span class="nav-link nav-link-soon" title="Other games are coming soon">Others <small>SOON</small></span>
 

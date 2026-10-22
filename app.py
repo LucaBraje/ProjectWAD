@@ -16,6 +16,13 @@ from werkzeug.security import (
 )
 import os
 import math
+from datetime import datetime, timezone
+from sqlalchemy import func
+import random
+from uuid import uuid4
+
+from flask import request, jsonify
+from sqlalchemy.exc import IntegrityError
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "development-only-change-me")
@@ -109,9 +116,271 @@ class User(UserMixin, db.Model):
         nullable=False,
         default="user"
     )
+    favorite_team_id = db.Column(
+    db.Integer,
+    db.ForeignKey("team.id"),
+    nullable=True
+)
+
+    favorite_team = db.relationship(
+        "Team",
+        foreign_keys=[favorite_team_id]
+    )
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
+
+
+
+# =====================================================
+# DRAFT MODE - SAVED RESULTS
+# =====================================================
+
+class DraftRun(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    run_token = db.Column(
+    db.String(36),
+    unique=True,
+    nullable=False
+)
+
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        nullable=False,
+        index=True
+    )
+
+    club_id = db.Column(
+        db.Integer,
+        db.ForeignKey("team.id"),
+        nullable=False
+    )
+
+    team_score = db.Column(db.Float, nullable=False)
+    base_score = db.Column(db.Float, nullable=False)
+
+    out_of_position = db.Column(db.Integer, nullable=False)
+
+    wins = db.Column(db.Integer, nullable=False)
+    losses = db.Column(db.Integer, nullable=False)
+    seed = db.Column(db.Integer, nullable=False)
+
+    outcome = db.Column(db.String(50), nullable=False)
+
+    # Example: {"PG": 12, "SG": 25, ...}
+    lineup = db.Column(db.JSON, nullable=False)
+
+    created_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+
+    user = db.relationship(
+        "User",
+        backref=db.backref("draft_runs", lazy=True)
+    )
+
+    club = db.relationship("Team")
+
+
+# =====================================================
+# USER ACHIEVEMENTS AND TITLES
+# =====================================================
+
+class UserAchievement(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        nullable=False,
+        index=True
+    )
+
+    achievement_key = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    unlocked_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+
+    user = db.relationship(
+        "User",
+        backref=db.backref("achievements", lazy=True)
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "user_id",
+            "achievement_key",
+            name="unique_user_achievement"
+        ),
+    )
+
+
+class UserTitle(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        nullable=False,
+        unique=True
+    )
+
+    # The title currently equipped by this user.
+    title_key = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    user = db.relationship(
+        "User",
+        backref=db.backref(
+            "equipped_title",
+            uselist=False
+        )
+    )
+
+
+DRAFT_ACHIEVEMENTS = {
+    "first_draft": {
+        "name": "Rookie GM",
+        "description": "Complete your first Draft Mode simulation.",
+        "title": "Rookie GM"
+    },
+    "first_playoffs": {
+        "name": "Playoff Contender",
+        "description": "Qualify for the EuroLeague playoffs.",
+        "title": "Playoff Contender"
+    },
+    "first_final_four": {
+        "name": "Final Four Veteran",
+        "description": "Reach the EuroLeague Final Four.",
+        "title": "Final Four Veteran"
+    },
+    "first_championship": {
+        "name": "EuroLeague Champion",
+        "description": "Win your first EuroLeague championship.",
+        "title": "EuroLeague Champion"
+    },
+    "five_championships": {
+        "name": "Dynasty Builder",
+        "description": "Win five EuroLeague championships.",
+        "title": "Dynasty Builder"
+    },
+    "elite_draft": {
+        "name": "Draft Master",
+        "description": "Build a team worth at least 180 points.",
+        "title": "Draft Master"
+    },
+    "perfect_positions": {
+        "name": "Perfect Architect",
+        "description": "Draft five players in their natural positions.",
+        "title": "Perfect Architect"
+    },
+    "draft_veteran": {
+        "name": "Draft Veteran",
+        "description": "Complete 50 drafts.",
+        "title": "Draft Veteran"
+    }
+}
+
+# =====================================================
+# DRAFT ACHIEVEMENT UNLOCKING
+# =====================================================
+
+def unlock_draft_achievements(user_id, draft_run):
+    """
+    Check which achievements the user has earned.
+
+    Call this only after a completed DraftRun
+    has been added to the database session.
+    """
+
+    unlocked = []
+
+    total_drafts = DraftRun.query.filter_by(
+        user_id=user_id
+    ).count()
+
+    championships = DraftRun.query.filter_by(
+        user_id=user_id,
+        outcome="EUROLEAGUE CHAMPIONS"
+    ).count()
+
+    playoff_outcomes = {
+        "PLAYOFF ELIMINATION",
+        "FINAL FOUR",
+        "EUROLEAGUE FINALIST",
+        "EUROLEAGUE CHAMPIONS"
+    }
+
+    final_four_outcomes = {
+        "FINAL FOUR",
+        "EUROLEAGUE FINALIST",
+        "EUROLEAGUE CHAMPIONS"
+    }
+
+    eligible = set()
+
+    if total_drafts >= 1:
+        eligible.add("first_draft")
+
+    if draft_run.outcome in playoff_outcomes:
+        eligible.add("first_playoffs")
+
+    if draft_run.outcome in final_four_outcomes:
+        eligible.add("first_final_four")
+
+    if championships >= 1:
+        eligible.add("first_championship")
+
+    if championships >= 5:
+        eligible.add("five_championships")
+
+    if draft_run.team_score >= 180:
+        eligible.add("elite_draft")
+
+    if draft_run.out_of_position == 0:
+        eligible.add("perfect_positions")
+
+    if total_drafts >= 50:
+        eligible.add("draft_veteran")
+
+    for achievement_key in eligible:
+
+        existing = UserAchievement.query.filter_by(
+            user_id=user_id,
+            achievement_key=achievement_key
+        ).first()
+
+        if existing:
+            continue
+
+        achievement = UserAchievement(
+            user_id=user_id,
+            achievement_key=achievement_key
+        )
+
+        db.session.add(achievement)
+
+        unlocked.append({
+            "key": achievement_key,
+            "name": DRAFT_ACHIEVEMENTS[achievement_key]["name"],
+            "title": DRAFT_ACHIEVEMENTS[achievement_key]["title"]
+        })
+
+    return unlocked
+
 
 # ADMIN ACCESS DECORATOR
 def admin_required(f):
@@ -737,6 +1006,726 @@ def admin_delete_team(team_id):
 
     flash(f"{team_name} was deleted.", "success")
     return redirect(url_for("admin_teams"))
+
+
+@app.route('/draft')
+def draft_mode():
+    return render_template('draft.html')
+
+
+@app.route('/api/draft/pool')
+def draft_pool():
+    teams = Team.query.order_by(Team.id).all()
+    players = Player.query.order_by(Player.id).all()
+
+    return jsonify({
+        'teams': [
+            {
+                'id': team.id,
+                'name': team.name,
+                'image_url': team.image_url,
+            }
+            for team in teams
+        ],
+        'players': [
+            {
+                'id': player.id,
+                'name': player.name,
+                'picture_url': player.picture_url,
+                'nationality': player.nationality,
+                'position': player.position,
+                'rating': player.rating,
+                'offense': player.offense,
+                'defense': player.defense,
+                'points_per_game': player.points_per_game,
+                'assists_per_game': player.assists_per_game,
+                'rebounds_per_game': player.rebounds_per_game,
+                "blocks_per_game": player.blocks_per_game,
+                "steals_per_game": player.steals_per_game,
+                'team_name': player.team.name if player.team else None,
+                'team_id': player.team_id,
+            }
+            for player in players
+        ],
+    })
+
+
+# =====================================================
+# SERVER-SIDE DRAFT SIMULATION
+# =====================================================
+
+DRAFT_POSITIONS = ("PG", "SG", "SF", "PF", "C")
+
+
+def draft_player_positions(player):
+    return {
+        value.strip().upper()
+        for value in (player.position or "").replace(",", "/").split("/")
+    }
+
+
+def calculate_draft_rating(lineup):
+    players = list(lineup.values())
+
+    def total(field):
+        return sum(float(getattr(p, field) or 0) for p in players)
+
+    def average(field):
+        return total(field) / 5
+
+    def normalize(value, target):
+        return max(0, min(100, value / target * 100))
+
+    overall = normalize(average("rating"), 100)
+    offense = normalize(average("offense"), 100)
+    defense = normalize(average("defense"), 100)
+
+    scoring = normalize(total("points_per_game"), 70)
+
+    all_around = (
+        normalize(total("assists_per_game"), 18) * 0.35
+        + normalize(total("rebounds_per_game"), 28) * 0.35
+        + normalize(total("steals_per_game"), 7) * 0.15
+        + normalize(total("blocks_per_game"), 4.5) * 0.15
+    )
+
+    base_score = (
+        overall * 0.15
+        + offense * 0.25
+        + defense * 0.25
+        + scoring * 0.20
+        + all_around * 0.15
+    )
+
+    # Match the current JavaScript rule: exact position only.
+    out_of_position = sum(
+        1
+        for pos, player in lineup.items()
+        if (player.position or "").strip().upper() != pos
+    )
+
+    multiplier = 2.0 - out_of_position * 0.3
+
+    return {
+        "base_score": base_score,
+        "out_of_position": out_of_position,
+        "position_multiplier": multiplier,
+        "total_points": base_score * multiplier
+    }
+
+
+def opponent_strength(team, players):
+    available = [
+        p for p in players
+        if p.team_id == team.id
+    ]
+
+    starters = []
+
+    for pos in DRAFT_POSITIONS:
+        if not available:
+            break
+
+        matching = [
+            p for p in available
+            if pos in draft_player_positions(p)
+        ]
+
+        pool = matching if matching else available
+
+        chosen = max(
+            pool,
+            key=lambda p: p.rating or 0
+        )
+
+        starters.append(chosen)
+        available.remove(chosen)
+
+    if not starters:
+        return 120.0
+
+    def avg(field):
+        return sum(
+            float(getattr(p, field) or 0)
+            for p in starters
+        ) / len(starters)
+
+    strength = (
+        avg("rating") * 0.20
+        + avg("offense") * 0.40
+        + avg("defense") * 0.40
+    ) * 1.65
+
+    return max(60, min(190, strength))
+
+
+def draft_game(a, b, home_advantage=0):
+    difference = (
+        a["strength"] - b["strength"] + home_advantage
+    )
+
+    probability = 1 / (1 + math.exp(-difference / 22))
+
+    return a if random.random() < probability else b
+
+
+def draft_series(a, b):
+    wins_a = 0
+    wins_b = 0
+
+    for home in (4, 4, -4, -4, 4):
+        winner = draft_game(a, b, home)
+
+        if winner is a:
+            wins_a += 1
+        else:
+            wins_b += 1
+
+        if wins_a == 3 or wins_b == 3:
+            break
+
+    return a if wins_a == 3 else b
+
+
+def run_draft_season(club, rating, teams, players):
+    user_team = {
+        "id": "drafted-team",
+        "name": club.name,
+        "strength": rating["total_points"],
+        "wins": 0,
+        "losses": 0
+    }
+
+    competitors = [user_team]
+
+    for team in teams:
+        competitors.append({
+            "id": team.id,
+            "name": team.name,
+            "strength": opponent_strength(team, players),
+            "wins": 0,
+            "losses": 0
+        })
+
+    # Double round-robin regular season.
+    for i in range(len(competitors)):
+        for j in range(i + 1, len(competitors)):
+            a = competitors[i]
+            b = competitors[j]
+
+            for home in (4, -4):
+                winner = draft_game(a, b, home)
+                loser = b if winner is a else a
+
+                winner["wins"] += 1
+                loser["losses"] += 1
+
+    standings = sorted(
+        competitors,
+        key=lambda t: (t["wins"], t["strength"]),
+        reverse=True
+    )
+
+    seed = standings.index(user_team) + 1
+
+    result = {
+        "wins": user_team["wins"],
+        "losses": user_team["losses"],
+        "seed": seed,
+        "totalTeams": len(competitors),
+        "teamStrength": rating["total_points"],
+        "outcome": "",
+        "details": ""
+    }
+
+    def finish(outcome, details):
+        result["outcome"] = outcome
+        result["details"] = details
+        return result
+
+    if seed > 10:
+        return finish(
+            "OUT OF PLAYOFFS",
+            "Your team failed to qualify for the postseason."
+        )
+
+    # Play-in: 7 vs 8 and 9 vs 10.
+    seventh = standings[6]
+    eighth = standings[7]
+    ninth = standings[8]
+    tenth = standings[9]
+
+    seventh_seed = draft_game(seventh, eighth, 4)
+    loser_78 = (
+        eighth if seventh_seed is seventh else seventh
+    )
+
+    winner_910 = draft_game(ninth, tenth, 4)
+    eighth_seed = draft_game(loser_78, winner_910, 4)
+
+    if seed >= 7 and user_team not in (
+        seventh_seed, eighth_seed
+    ):
+        return finish(
+            "PLAY-IN ELIMINATION",
+            "Your team reached the play-in but did not qualify for the playoffs."
+        )
+
+    playoff_teams = (
+        standings[:6] + [seventh_seed, eighth_seed]
+    )
+
+    matchups = [
+        (playoff_teams[0], playoff_teams[7]),
+        (playoff_teams[1], playoff_teams[6]),
+        (playoff_teams[2], playoff_teams[5]),
+        (playoff_teams[3], playoff_teams[4])
+    ]
+
+    final_four = [
+        draft_series(a, b)
+        for a, b in matchups
+    ]
+
+    if user_team not in final_four:
+        return finish(
+            "PLAYOFF ELIMINATION",
+            "Your team lost its best-of-five quarterfinal series."
+        )
+
+    final_four.sort(key=lambda t: standings.index(t))
+
+    finalist_a = draft_game(final_four[0], final_four[3])
+    finalist_b = draft_game(final_four[1], final_four[2])
+
+    if user_team not in (finalist_a, finalist_b):
+        return finish(
+            "FINAL FOUR",
+            "Your team reached the Final Four but lost in the semifinals."
+        )
+
+    champion = draft_game(finalist_a, finalist_b)
+
+    if champion is not user_team:
+        return finish(
+            "EUROLEAGUE FINALIST",
+            "Your team reached the final but finished as runner-up."
+        )
+
+    return finish(
+        "EUROLEAGUE CHAMPIONS",
+        "Congratulations! Your team won the EuroLeague!"
+    )
+
+
+
+
+@app.route("/api/draft/simulate", methods=["POST"])
+def simulate_draft_api():
+    data = request.get_json(silent=True)
+
+    if not isinstance(data, dict):
+        return jsonify({"error": "Invalid request."}), 400
+
+    club_id = data.get("club_id")
+    lineup_data = data.get("lineup")
+    run_token = data.get("run_token")
+
+    if not isinstance(lineup_data, dict):
+        return jsonify({"error": "Invalid lineup."}), 400
+
+    if set(lineup_data.keys()) != set(DRAFT_POSITIONS):
+        return jsonify({
+            "error": "Your lineup must contain PG, SG, SF, PF and C."
+        }), 400
+
+    try:
+        player_ids = {
+            pos: int(lineup_data[pos])
+            for pos in DRAFT_POSITIONS
+        }
+        club_id = int(club_id)
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid player or club ID."}), 400
+
+    if len(set(player_ids.values())) != 5:
+        return jsonify({
+            "error": "You cannot draft the same player twice."
+        }), 400
+
+    club = db.session.get(Team, club_id)
+
+    if club is None:
+        return jsonify({"error": "Club not found."}), 404
+
+    players = Player.query.filter(
+        Player.id.in_(list(player_ids.values()))
+    ).all()
+
+    if len(players) != 5:
+        return jsonify({"error": "One or more players were not found."}), 400
+
+    players_by_id = {p.id: p for p in players}
+
+    lineup = {
+        pos: players_by_id[player_ids[pos]]
+        for pos in DRAFT_POSITIONS
+    }
+
+    rating = calculate_draft_rating(lineup)
+
+    # Guests receive a result but don't save anything.
+    is_logged_in = current_user.is_authenticated
+
+    # For logged-in users, check whether this draft was saved already.
+    if is_logged_in:
+        try:
+            token = str(uuid4()) if run_token is None else str(
+                __import__("uuid").UUID(str(run_token))
+            )
+        except (ValueError, TypeError, AttributeError):
+            return jsonify({"error": "Invalid simulation token."}), 400
+
+        existing = DraftRun.query.filter_by(
+            run_token=token
+        ).first()
+
+        if existing:
+            if existing.user_id != current_user.id:
+                return jsonify({"error": "Invalid simulation token."}), 409
+
+            return jsonify({
+                "saved": True,
+                "already_saved": True,
+                "run_id": existing.id,
+                "result": {
+                    "wins": existing.wins,
+                    "losses": existing.losses,
+                    "seed": existing.seed,
+                    "totalTeams": Team.query.count() + 1,
+                    "teamStrength": existing.team_score,
+                    "outcome": existing.outcome,
+                    "details": "This simulation was already saved."
+                },
+                "new_achievements": []
+            })
+
+    all_teams = Team.query.order_by(Team.id).all()
+    all_players = Player.query.all()
+
+    result = run_draft_season(
+        club, rating, all_teams, all_players
+    )
+
+    if not is_logged_in:
+        return jsonify({
+            "saved": False,
+            "result": result,
+            "new_achievements": []
+        })
+
+    draft_run = DraftRun(
+        user_id=current_user.id,
+        club_id=club.id,
+        team_score=rating["total_points"],
+        base_score=rating["base_score"],
+        out_of_position=rating["out_of_position"],
+        wins=result["wins"],
+        losses=result["losses"],
+        seed=result["seed"],
+        outcome=result["outcome"],
+        lineup=player_ids,
+        run_token=token
+    )
+
+    try:
+        db.session.add(draft_run)
+
+        # Make the new run visible to achievement queries.
+        db.session.flush()
+
+        unlocked = unlock_draft_achievements(
+            current_user.id,
+            draft_run
+        )
+
+        db.session.commit()
+
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({
+            "error": "This draft was already submitted. Please refresh your draft history."
+        }), 409
+
+    except Exception:
+        db.session.rollback()
+        app.logger.exception("Failed to save draft")
+        return jsonify({
+            "error": "Could not save the simulation."
+        }), 500
+
+    return jsonify({
+        "saved": True,
+        "already_saved": False,
+        "run_id": draft_run.id,
+        "result": result,
+        "new_achievements": unlocked
+    })
+
+# =====================================================
+# CURRENT USER'S DRAFT STATISTICS
+# =====================================================
+
+@app.route("/api/draft/my-stats", methods=["GET"])
+@login_required
+def my_draft_stats():
+
+    user_id = current_user.id
+
+    drafts = DraftRun.query.filter_by(
+        user_id=user_id
+    )
+
+    total_drafts = drafts.count()
+
+    best_score = db.session.query(
+        func.max(DraftRun.team_score)
+    ).filter(
+        DraftRun.user_id == user_id
+    ).scalar()
+
+    average_score = db.session.query(
+        func.avg(DraftRun.team_score)
+    ).filter(
+        DraftRun.user_id == user_id
+    ).scalar()
+
+    championships = drafts.filter_by(
+        outcome="EUROLEAGUE CHAMPIONS"
+    ).count()
+
+    playoff_outcomes = [
+        "PLAYOFF ELIMINATION",
+        "FINAL FOUR",
+        "EUROLEAGUE FINALIST",
+        "EUROLEAGUE CHAMPIONS"
+    ]
+
+    final_four_outcomes = [
+        "FINAL FOUR",
+        "EUROLEAGUE FINALIST",
+        "EUROLEAGUE CHAMPIONS"
+    ]
+
+    playoffs = drafts.filter(
+        DraftRun.outcome.in_(playoff_outcomes)
+    ).count()
+
+    final_fours = drafts.filter(
+        DraftRun.outcome.in_(final_four_outcomes)
+    ).count()
+
+    best_draft = drafts.order_by(
+        DraftRun.team_score.desc()
+    ).first()
+
+    achievements = UserAchievement.query.filter_by(
+        user_id=user_id
+    ).all()
+
+    equipped = UserTitle.query.filter_by(
+        user_id=user_id
+    ).first()
+
+    return jsonify({
+        "total_drafts": total_drafts,
+        "best_score": round(best_score or 0, 1),
+        "average_score": round(average_score or 0, 1),
+        "championships": championships,
+        "playoff_appearances": playoffs,
+        "final_four_appearances": final_fours,
+
+        "best_draft": {
+            "score": best_draft.team_score,
+            "lineup": best_draft.lineup,
+            "club_id": best_draft.club_id,
+            "outcome": best_draft.outcome
+        } if best_draft else None,
+
+        "achievements": [
+            {
+                "key": a.achievement_key,
+                "name": DRAFT_ACHIEVEMENTS.get(
+                    a.achievement_key, {}
+                ).get("name", a.achievement_key)
+            }
+            for a in achievements
+        ],
+
+        "equipped_title": (
+            equipped.title_key if equipped else None
+        )
+    })
+
+
+# ---------------------------------------
+# PROFILE: FAVORITE TEAM
+# ---------------------------------------
+
+@app.route("/api/profile/favorite-team", methods=["GET", "POST"])
+@login_required
+def profile_favorite_team():
+    if request.method == "GET":
+        teams = Team.query.order_by(Team.name).all()
+
+        return jsonify({
+            "favorite_team_id": current_user.favorite_team_id,
+            "teams": [
+                {
+                    "id": team.id,
+                    "name": team.name,
+                    "image_url": team.image_url
+                }
+                for team in teams
+            ]
+        })
+
+    data = request.get_json(silent=True) or {}
+    team_id = data.get("team_id")
+
+    # Allow users to clear their favorite team.
+    if team_id is None:
+        current_user.favorite_team_id = None
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "favorite_team_id": None
+        })
+
+    try:
+        team_id = int(team_id)
+    except (TypeError, ValueError):
+        return jsonify({"error": "Invalid team ID."}), 400
+
+    team = db.session.get(Team, team_id)
+
+    if team is None:
+        return jsonify({"error": "Team not found."}), 404
+
+    current_user.favorite_team_id = team.id
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "favorite_team_id": team.id,
+        "team_name": team.name,
+        "image_url": team.image_url
+    })
+
+
+# ---------------------------------------
+# PROFILE: EQUIPPABLE TITLES
+# ---------------------------------------
+
+# Each title is unlocked by its corresponding achievement.
+# These keys match the Draft achievements we created.
+PROFILE_TITLES = {
+    "first_draft": "Rookie GM",
+    "first_playoffs": "Playoff Contender",
+    "first_final_four": "Final Four Challenger",
+    "first_championship": "EuroLeague Champion",
+    "five_championships": "Dynasty Builder",
+    "elite_draft": "Elite Architect",
+    "perfect_positions": "Master Tactician",
+    "draft_veteran": "Draft Veteran"
+}
+
+
+@app.route("/api/profile/titles", methods=["GET"])
+@login_required
+def profile_titles():
+    achievements = UserAchievement.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+    unlocked_keys = {
+        achievement.achievement_key
+        for achievement in achievements
+    }
+
+    equipped = UserTitle.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    equipped_key = equipped.title_key if equipped else None
+
+    return jsonify({
+        "equipped_title": equipped_key,
+        "titles": [
+            {
+                "key": key,
+                "name": name,
+                "unlocked": key in unlocked_keys,
+                "equipped": key == equipped_key
+            }
+            for key, name in PROFILE_TITLES.items()
+        ]
+    })
+
+
+@app.route("/api/profile/titles/equip", methods=["POST"])
+@login_required
+def equip_profile_title():
+    data = request.get_json(silent=True) or {}
+    title_key = data.get("title_key")
+
+    # None means unequip the current title.
+    if title_key is not None:
+        if not isinstance(title_key, str):
+            return jsonify({"error": "Invalid title."}), 400
+
+        if title_key not in PROFILE_TITLES:
+            return jsonify({"error": "Unknown title."}), 400
+
+        achievement = UserAchievement.query.filter_by(
+            user_id=current_user.id,
+            achievement_key=title_key
+        ).first()
+
+        if achievement is None:
+            return jsonify({
+                "error": "You haven't unlocked this title yet."
+            }), 403
+
+    equipped = UserTitle.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    if equipped is None and title_key is not None:
+        equipped = UserTitle(
+            user_id=current_user.id,
+            title_key=title_key
+        )
+        db.session.add(equipped)
+
+    elif equipped is not None:
+        if title_key is None:
+            db.session.delete(equipped)
+        else:
+            equipped.title_key = title_key
+
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "equipped_title": title_key,
+        "title_name": (
+            PROFILE_TITLES[title_key]
+            if title_key is not None
+            else None
+        )
+    })
 
 
 
