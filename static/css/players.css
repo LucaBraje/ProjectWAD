@@ -1,88 +1,175 @@
+/* PLAYER DIRECTORY — consistent with Draft EuroLeague homepage */
+.players-page {
+    --orange: #fa5500;
+    --orange-light: #ff893e;
+    --background: #080809;
+    --surface: #151517;
+    --surface-raised: #1d1d20;
+    --border: #303034;
+    --muted: #aaa6a3;
+    background: var(--background);
+    color: #f7f5f2;
+    font-family: Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+}
+.players-page .page-container { max-width: 1200px; margin: 0 auto; padding-top: 20px; padding-bottom: 90px; }
+.directory-heading { margin-bottom: 36px; }
+.directory-eyebrow, .modal-eyebrow { color: var(--orange-light); font-size: 11px; font-weight: 800; letter-spacing: 2.5px; }
+.directory-eyebrow { display: flex; align-items: center; gap: 12px; }
+.directory-line { width: 27px; height: 2px; background: var(--orange); }
+.directory-heading h1 { margin: 18px 0 13px; font-size: clamp(40px, 6vw, 74px); font-weight: 900; letter-spacing: -3px; line-height: 1; }
+.directory-heading h1 span { color: var(--orange); }
+.directory-heading p { max-width: 650px; color: var(--muted); font-size: 16px; line-height: 1.7; margin: 0; }
+.directory-filters { padding: 25px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+.directory-filters .form-label { margin-bottom: 9px; font-size: 11px; font-weight: 800; letter-spacing: 1.4px; color: #bcb6b2; }
+.directory-filters .form-control, .directory-filters .form-select { min-height: 47px; border: 1px solid #3b3839; border-radius: 6px; background-color: #0e0e10; color: #f6f4f2; padding: 11px 13px; font-size: 14px; }
+.directory-filters .form-control::placeholder { color: #858084; }
+.directory-filters .form-select { color-scheme: dark; }
+.directory-filters .form-control:focus, .directory-filters .form-select:focus { background-color: #101012; color: #fff; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(250,85,0,.14); }
+.directory-results { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin: 28px 0 12px; }
+#resultCount { color: #ded8d4; font-size: 14px; font-weight: 700; }
+.results-hint { color: #928b88; font-size: 10px; font-weight: 800; letter-spacing: 1.3px; }
+.results-hint span { color: var(--orange-light); }
+.player-table-container { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+#playerTable { --bs-table-bg: transparent; --bs-table-color: #eeeae7; --bs-table-border-color: #2d2b2e; color: #eeeae7; min-width: 600px; }
+#playerTable thead { background: #211c1b; }
+#playerTable thead th { background: #211c1b; color: var(--orange-light); border-bottom: 1px solid #45352d; padding: 18px 23px; font-size: 11px; font-weight: 900; letter-spacing: 1.8px; }
+#playerTable tbody td { background: transparent; color: #e9e6e4; padding: 17px 23px; border-bottom: 1px solid #2b292b; font-size: 14px; vertical-align: middle; }
+#playerTable tbody tr { cursor: pointer; transition: background-color .18s ease; }
+#playerTable tbody tr:hover { background: #252022; }
+#playerTable tbody tr:hover td { background: transparent; }
+#playerTable tbody tr:last-child td { border-bottom: none; }
+#playerTable tbody td:first-child { font-weight: 700; color: #fff; }
+.team-cell { display: flex; align-items: center; gap: 12px; }
+.team-logo { width: 34px; height: 34px; object-fit: contain; flex-shrink: 0; }
+.ovr-badge { display: inline-block; min-width: 47px; padding: 9px 11px; border-radius: 5px; background: var(--orange); color: #0b0908; font-size: 15px; font-weight: 900; text-align: center; }
+.loading-message { padding: 35px !important; text-align: center; color: #b5aead !important; font-weight: 400 !important; }
+/* Bootstrap player modal */
+#playerModal .modal-content { background: #131315; color: #f5f2ef; border: 1px solid #413333; border-radius: 12px; overflow: hidden; }
+#playerModal .modal-header { background: #1b1718; border-bottom: 1px solid #342a2b; padding: 23px 28px; }
+#playerModal .modal-title { margin-top: 8px; font-size: 23px; font-weight: 900; letter-spacing: -.5px; }
+#playerModal .modal-body { padding: 28px; }
+.player-profile-header { display: flex; align-items: center; gap: 22px; padding-bottom: 27px; margin-bottom: 27px; border-bottom: 1px solid #353034; }
+.profile-photo-wrap { flex-shrink: 0; }
+.player-picture { width: 115px; height: 125px; object-fit: contain; border-radius: 8px; background: #252326; color: #aaa; text-align: center; font-size: 12px; }
+[hidden] { display: none !important; }
+.player-profile-identity { flex: 1; min-width: 0; }
+.player-profile-identity h3 { font-size: clamp(20px, 3vw, 30px); font-weight: 900; line-height: 1.1; margin-bottom: 12px; }
+.profile-team { display: flex; align-items: center; gap: 10px; margin-bottom: 13px; color: #c3bdb9; font-size: 14px; }
+.profile-team .team-logo { width: 28px; height: 28px; }
+.position-badge { display: inline-block; padding: 5px 10px; background: #39302d; border: 1px solid #62402e; border-radius: 4px; color: #ffad78; font-size: 11px; font-weight: 800; }
+.profile-rating { flex-shrink: 0; text-align: center; }
+.profile-rating > span { display: block; color: #aaa19e; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 7px; }
+.player-ovr-large { display: block; color: var(--orange); font-size: 52px; line-height: 1; font-weight: 900; }
+.stat-section-title { margin: 0 0 15px; font-size: 12px; font-weight: 900; letter-spacing: 1.5px; color: #f5eee9; }
+.stat-card { height: 100%; padding: 17px 18px; background: #202023; border: 1px solid #323034; border-radius: 8px; }
+.stat-label { color: #a7a09e; font-size: 11px; font-weight: 800; letter-spacing: 1px; }
+.stat-value { margin-top: 6px; color: #fff; font-size: 27px; font-weight: 900; }
+.profile-nationality { margin-top: 25px; padding-top: 18px; border-top: 1px solid #343034; color: #9d9694; font-size: 11px; font-weight: 800; letter-spacing: 1px; }
+#modalNationality {
+     color: #e9e4e1; 
+     font-size: 13px; 
+     font-weight: 600; letter-spacing: normal; }
+#modalNationality img { vertical-align: middle; }
+@media (max-width: 767px) {
+    .players-page .page-container { padding-top: 42px; padding-bottom: 60px; }
+    .directory-heading h1 { letter-spacing: -2px; }
+    .directory-filters { padding: 18px; }
+    .results-hint { display: none; }
+    #playerModal .modal-header, #playerModal .modal-body { padding: 20px; }
+    .player-profile-header { gap: 13px; flex-wrap: wrap; }
+    .player-picture { width: 86px; height: 98px; }
+    .profile-rating { margin-left: auto; }
+    .player-ovr-large { font-size: 40px; }
+}
+@media (prefers-reduced-motion: reduce) { #playerTable tbody tr { transition: none; } }
 
-        body {
-            background: #f4f5f7;
-            color: #20242b;
-        }
+/* =====================================
+   PLAYER DIRECTORY PHOTO BANNER
+===================================== */
 
-        .page-container {
-            max-width: 1200px;
-            margin: 40px auto;
-        }
+.players-hero {
+    position: relative;
+    min-height: 450px;
+    display: flex;
+    align-items: center;
+    padding: 10px 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border-radius: 20px;
 
-        .player-table-container {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
-        }
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(5, 5, 6, 0.96) 0%,
+            rgba(5, 5, 6, 0.82) 40%,
+            rgba(5, 5, 6, 0.25) 100%
+        ),
+        url("../images/players_bannerss.jpg");
 
-        #playerTable tbody tr {
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-
-        #playerTable tbody tr:hover {
-            background: #eef3ff;
-        }
-
-        .team-logo {
-            width: 34px;
-            height: 34px;
-            object-fit: contain;
-        }
-
-        .team-cell {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .ovr-badge {
-            display: inline-block;
-            min-width: 42px;
-            padding: 6px 8px;
-            border-radius: 7px;
-            background: #20242b;
-            color: white;
-            font-weight: 700;
-            text-align: center;
-        }
-
-        .player-picture {
-            width: 110px;
-            height: 110px;
-            object-fit: contain;
-            border-radius: 12px;
-            background: #f1f2f4;
-        }
-        [hidden] {
-    display: none !important;
+    background-size: cover;
+    background-position: center;
+    background-color: #111114;
 }
 
-        .player-ovr-large {
-            font-size: 2rem;
-            font-weight: 800;
-        }
+.players-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.40),
+        transparent 65%
+    );
+    pointer-events: none;
+}
 
-        .stat-card {
-            background: #f4f5f7;
-            border-radius: 10px;
-            padding: 14px;
-            height: 100%;
-        }
+.players-hero .directory-hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 650px;
+}
 
-        .stat-label {
-            color: #6c757d;
-            font-size: 0.85rem;
-        }
+.players-hero .directory-eyebrow {
+    color: #ff893e;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 3px;
+}
 
-        .stat-value {
-            font-size: 1.3rem;
-            font-weight: 700;
-        }
+.players-hero h1 {
+    margin: 18px 0;
+    font-size: clamp(38px, 5vw, 68px);
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1.05;
+    color: #fff;
+}
 
-        .loading-message {
-            padding: 30px;
-            text-align: center;
-            color: #6c757d;
-        }
+.players-hero h1 span {
+    color: #fa5500;
+}
+
+.players-hero p {
+    max-width: 480px;
+    margin: 0;
+    color: #d0cbca;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+@media (max-width: 767px) {
+    .players-hero {
+        min-height: 260px;
+        padding: 35px 25px;
+        background-position: 65% center;
+    }
+
+    .players-hero h1 {
+        font-size: 38px;
+    }
+
+    .players-hero p {
+        font-size: 14px;
+    }
+}

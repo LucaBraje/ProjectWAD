@@ -1,79 +1,107 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EuroLeague Teams | Draft EuroLeague</title>
 
-    <title>Teams | Draft EuroLeague</title>
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/navbar.css') }}">
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/teams.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teams.css') }}">
 </head>
-
-<body>
+<body class="teams-page">
     {% include 'navbar.html' %}
 
-    <main class="container py-5">
-        <h1 class="fw-bold mb-2">EuroLeague Teams</h1>
+    <main class="container teams-container">
+        <header class="teams-heading">
+            
 
-        <p class="text-secondary mb-4">
-            Select a team to explore its roster and statistics.
+<!-- TEAMS DIRECTORY BANNER -->
+<section class="directory-hero teams-hero">
+    <div class="directory-hero-content">
+        <span class="directory-eyebrow">
+            DRAFT EUROLEAGUE / CLUBS
+        </span>
+
+        <h1>
+            EUROLEAGUE <span>TEAMS.</span>
+        </h1>
+
+        <p>
+            Discover Europe's elite basketball clubs.
+            Explore their histories, rosters and rivalries.
         </p>
+    </div>
+</section>
 
-        <div class="row g-4">
-            {% for team in teams %}
-            <div class="col-6 col-md-4 col-lg-3">
-                <a
-                    href="{{ url_for('team_profile', team_id=team.id) }}"
-                    class="team-card"
-                >
-{% if team.image_url %}
-<img
-    src="{{ url_for('static', filename=team.image_url) }}"
-    alt="{{ team.name }} logo"
-    class="team-logo"
->
-{% endif %}
-
-<h3 class="team-name">{{ team.name }}</h3>
-<p class="team-country">{{ team.country }}</p>
-
-{% set country_codes = {
-    'Turkey': 'tr',
-    'Spain': 'es',
-    'Greece': 'gr',
-    'Italy': 'it',
-    'France': 'fr',
-    'Germany': 'de',
-    'Serbia': 'rs',
-    'Lithuania': 'lt',
-    'Israel': 'il',
-    'Monaco': 'mc',
-    'United Arab Emirates': 'ae'
-} %}
-
-{% set country_code = country_codes.get(team.country) %}
-
-{% if country_code %}
-<img
-    src="https://flagcdn.com/w40/{{ country_code }}.png"
-    alt="{{ team.country }} flag"
-    class="team-flag"
->
-{% endif %}
-                </a>
+            <div class="teams-heading-meta">
+                <span class="teams-count">{{ teams|length }} CLUBS</span>
+                <span class="teams-heading-rule"></span>
+                <span class="teams-heading-note">SELECT A CLUB TO EXPLORE</span>
             </div>
-            {% endfor %}
-        </div>
+        </header>
+
+        {% set country_codes = {
+            'Turkiye': 'tr',
+            'Türkiye': 'tr',
+            'Turkey': 'tr',
+            'Spain': 'es',
+            'Greece': 'gr',
+            'Italy': 'it',
+            'France': 'fr',
+            'Germany': 'de',
+            'Serbia': 'rs',
+            'Lithuania': 'lt',
+            'Israel': 'il',
+            'Monaco': 'mc',
+            'United Arab Emirates': 'ae'
+        } %}
+
+        <section class="teams-grid-section" aria-label="EuroLeague clubs">
+            <div class="row g-3 g-lg-4">
+                {% for team in teams %}
+                {% set country_code = country_codes.get(team.country) %}
+                <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                    <a href="{{ url_for('team_profile', team_id=team.id) }}" class="team-card">
+                        <div class="team-card-top">
+                            
+                        </div>
+
+                        <div class="team-logo-wrap">
+                            {% if team.image_url %}
+                            <img src="{{ url_for('static', filename=team.image_url) }}"
+                                 alt="{{ team.name }} logo" class="team-logo" loading="lazy">
+                            {% else %}
+                            <span class="team-logo-fallback" aria-hidden="true">EL</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="team-card-bottom">
+                            <h2 class="team-name">{{ team.name }}</h2>
+                            <div class="team-location">
+                                {% if country_code %}
+                                <img src="https://flagcdn.com/w40/{{ country_code }}.png"
+                                     alt="{{ team.country }} flag" class="team-flag" loading="lazy">
+                                {% endif %}
+                                <span class="team-country">{{ team.country }}</span>
+                            </div>
+                            <span class="team-card-action">VIEW CLUB <span aria-hidden="true">↗</span></span>
+                        </div>
+                    </a>
+                </div>
+                {% else %}
+                <div class="col-12"><p class="teams-empty">No clubs are available yet.</p></div>
+                {% endfor %}
+            </div>
+        </section>
     </main>
+
+    <footer class="teams-footer">
+        <div class="container teams-footer-inner">
+            <span>THE HOME OF EUROLEAGUE FANTASY</span>
+            <span class="teams-footer-rule"></span>
+            <span>DRAFT EUROLEAGUE / 2026</span>
+        </div>
+    </footer>
 </body>
 </html>
