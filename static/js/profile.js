@@ -193,41 +193,7 @@ function showStats(data) {
         status.hidden = true;
     }
 
-    // Display the user's best draft
-    const best = data.best_draft;
-    const bestBox = byId('best-draft');
-
-    if (best && typeof best === 'object') {
-        bestBox.replaceChildren();
-
-        const heading = document.createElement('h3');
-        heading.textContent = '🏆 Your best draft';
-
-        const description = document.createElement('p');
-
-        const details = [];
-
-        if (best.team_score != null) {
-            details.push(`Score: ${formatted(best.team_score)}`);
-        }
-
-        if (best.outcome) {
-            details.push(best.outcome);
-        }
-
-        if (best.wins != null && best.losses != null) {
-            details.push(`Record: ${best.wins}-${best.losses}`);
-        }
-
-        description.textContent =
-            details.join(' · ') ||
-            'Your highest-rated completed draft';
-
-        bestBox.append(heading, description);
-        bestBox.hidden = false;
-    } else {
-        bestBox.hidden = true;
-    }
+    
 }
 
 

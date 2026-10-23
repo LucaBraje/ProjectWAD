@@ -3823,3 +3823,7 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+/* Hide the final outcome banner until the simulation is complete */
+.season-final-result[hidden] {
+    display: none !important;
+}

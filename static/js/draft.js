@@ -2441,45 +2441,36 @@ async function showSimulationResult(result) {
     );
     
     // Select the final report banner based on the outcome.
+   
+    // Select the final report banner based on the outcome.
+  
+    // Select the correct image for the final season result.
     const outcomeText = String(result.outcome || '')
-        .toLowerCase();
+        .trim()
+        .toUpperCase();
 
-    let outcomeClass = 'outcome-missed';
 
-    if (
-        outcomeText.includes('champion') ||
-        outcomeText.includes('winner')
-    ) {
-        outcomeClass = 'outcome-champion';
+const outcomeImages = {
+    'OUT OF PLAYOFFS': 'outcome-missed',
+    'PLAY-IN ELIMINATION': 'outcome-playin',
+    'PLAYOFF ELIMINATION': 'outcome-quarterfinal',
+    'FINAL FOUR': 'outcome-finalfour',
+    'EUROLEAGUE FINALIST': 'outcome-runnerup',
+    'RUNNER-UP': 'outcome-runnerup',
+    'EUROLEAGUE CHAMPIONS': 'outcome-champion',
+    'CHAMPION': 'outcome-champion'
+};
 
-    } else if (
-        outcomeText.includes('runner') ||
-        outcomeText.includes('final loss') ||
-        outcomeText.includes('lost final')
-    ) {
-        outcomeClass = 'outcome-runnerup';
 
-    } else if (
-        outcomeText.includes('final four') ||
-        outcomeText.includes('semifinal') ||
-        outcomeText.includes('semi-final')
-    ) {
-        outcomeClass = 'outcome-finalfour';
+    const outcomeClass = outcomeImages[outcomeText] || 'outcome-missed';
 
-    } else if (
-        outcomeText.includes('quarter') ||
-        outcomeText.includes('playoff')
-    ) {
-        outcomeClass = 'outcome-quarterfinal';
-
-    } else if (
-        outcomeText.includes('play-in') ||
-        outcomeText.includes('play in')
-    ) {
-        outcomeClass = 'outcome-playin';
-    }
+    console.log('SEASON RESULT:', result.outcome);
+    console.log('SELECTED IMAGE CLASS:', outcomeClass);
 
     finalResult.classList.add(outcomeClass);
+    finalResult.hidden = true;
+
+
 
     // No MATCHDAY RESULTS panel.
     // No standings panel in the main column.
@@ -2891,12 +2882,7 @@ async function showSimulationResult(result) {
             }
 
             // Scroll to bracket at the beginning.
-            if (i === 0) {
-                liveBracket.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'nearest'
-                });
-            }
+
 
             await seasonSleep(animation.speed * 0.3);
         }
@@ -2937,6 +2923,8 @@ async function showSimulationResult(result) {
 
     liveBracketHeading.textContent =
         '🏆 EUROLEAGUE SEASON COMPLETE';
+    // Reveal the final report only after the entire season and playoffs finish.
+finalResult.hidden = false;
 
     /* =================================================
        FINAL SEASON REPORT
@@ -2965,7 +2953,7 @@ async function showSimulationResult(result) {
         node(
             'p',
             'simulation-seed',
-            `Regular season: #${result.seed} of ${result.totalTeams}`
+            `Seed: #${result.seed}/${result.totalTeams}`
         ),
         node(
             'h3',

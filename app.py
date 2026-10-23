@@ -520,7 +520,8 @@ def admin_add_player():
                 raise ValueError("Picture URL must be 200 characters or fewer.")
 
             # VALIDATE RATINGS
-            if not all(math.isfinite(value) and 0 <= value <= 100 for value in stats):
+# VALIDATE RATINGS
+            if not all(0 <= value <= 100 for value in (rating, offense, defense)):
                 raise ValueError("Ratings must be between 0 and 100.")
 
             # VALIDATE STATISTICS
