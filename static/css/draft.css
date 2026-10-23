@@ -663,3 +663,3163 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
         animation: none;
     }
 }
+
+/* =====================================================
+   EUROLEAGUE ANIMATED SEASON SIMULATOR
+   ===================================================== */
+
+.simulation-result {
+    margin-top: 35px;
+    padding: 30px;
+    background: linear-gradient(145deg, #1b1b22, #0e0e13);
+    border: 1px solid #41414a;
+    border-radius: 18px;
+    text-align: left;
+}
+
+.season-section-heading {
+    font-size: clamp(22px, 3vw, 30px);
+    font-weight: 950;
+    color: #fff;
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+}
+
+.season-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.season-control-btn,
+.season-speed-select {
+    padding: 11px 16px;
+    background: #292931;
+    border: 1px solid #4c4c56;
+    border-radius: 9px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.season-control-btn:hover,
+.season-speed-select:hover {
+    border-color: #fa5500;
+}
+
+.season-control-btn:last-child {
+    background: #fa5500;
+    border-color: #fa5500;
+}
+
+.season-round-label {
+    color: #ff9a5e;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.season-progress {
+    width: 100%;
+    height: 8px;
+    background: #34343d;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 25px;
+}
+
+.season-progress-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #fa5500, #ffb36a);
+    transition: width 0.2s ease;
+}
+
+/* MAIN SCOREBOARD */
+
+.season-scoreboard {
+    padding: 26px;
+    margin-bottom: 25px;
+    background: linear-gradient(145deg, #24242c, #141419);
+    border: 1px solid #494953;
+    border-radius: 16px;
+    animation: seasonReveal 0.2s ease;
+}
+
+.season-win {
+    border-color: #328d60;
+}
+
+.season-loss {
+    border-color: #9c414a;
+}
+
+.season-scoreboard-label {
+    color: #ff9a5e;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-align: center;
+    margin-bottom: 22px;
+}
+
+.season-win .season-scoreboard-label {
+    color: #5de3a0;
+}
+
+.season-loss .season-scoreboard-label {
+    color: #ff7d86;
+}
+
+.season-scoreboard-teams {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.season-score-side {
+    text-align: center;
+    min-width: 0;
+}
+
+.season-score-user {
+    background: rgba(250, 85, 0, 0.08);
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.season-score-name {
+    font-size: clamp(12px, 1.5vw, 17px);
+    font-weight: 800;
+    min-height: 45px;
+    overflow-wrap: anywhere;
+}
+
+.season-score-number {
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 950;
+    line-height: 1.2;
+    color: #fff;
+}
+
+.season-score-user .season-score-number {
+    color: #ff8b47;
+}
+
+.season-score-footer {
+    text-align: center;
+    color: #9d9da8;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-top: 20px;
+}
+
+/* RESULTS AND STANDINGS */
+
+.season-main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.season-panel {
+    background: #15151b;
+    border: 1px solid #35353e;
+    border-radius: 13px;
+    padding: 16px;
+    min-width: 0;
+}
+
+.season-panel-title {
+    font-size: 14px;
+    font-weight: 900;
+    color: #ff873e;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+
+.season-match-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    padding: 10px 5px;
+    border-bottom: 1px solid #303039;
+    font-size: 11px;
+}
+
+.season-match-row:last-child {
+    border-bottom: 0;
+}
+
+.season-match-club {
+    overflow-wrap: anywhere;
+}
+
+.season-match-club:nth-child(3) {
+    text-align: right;
+}
+
+.season-match-score {
+    white-space: nowrap;
+    font-size: 13px;
+    color: #fff;
+}
+
+.season-highlight {
+    background: rgba(250, 85, 0, 0.13);
+    border-radius: 6px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.season-ot {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #ffb36a;
+    font-weight: 900;
+}
+
+.season-standings-scroll {
+    overflow-x: auto;
+}
+
+.season-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+}
+
+.season-table th {
+    color: #9999a5;
+    font-size: 10px;
+    padding: 10px 7px;
+    border-bottom: 1px solid #41414a;
+    text-align: left;
+}
+
+.season-table td {
+    padding: 10px 7px;
+    border-bottom: 1px solid #292931;
+}
+
+.season-table td:first-child {
+    font-weight: 900;
+    color: #aaa;
+}
+
+.season-table td:nth-child(n+3) {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.season-table th:nth-child(n+3) {
+    text-align: center;
+}
+
+.season-table .season-my-team {
+    background: rgba(250, 85, 0, 0.18);
+    color: #ffae77;
+    font-weight: 900;
+}
+
+.season-direct td:first-child {
+    border-left: 3px solid #40cf79;
+}
+
+.season-playin td:first-child {
+    border-left: 3px solid #ffae45;
+}
+
+/* POSTSEASON */
+
+.season-postseason {
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 1px solid #41414a;
+}
+
+.season-phase-heading {
+    font-size: 17px;
+    font-weight: 900;
+    color: #ffae45;
+    margin: 25px 0 15px;
+}
+
+.season-knockout-game,
+.season-series-card {
+    padding: 16px;
+    background: #1d1d25;
+    border: 1px solid #3c3c47;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.season-knockout-game {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.season-knockout-stage {
+    color: #ff9a5e;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.season-knockout-game strong {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.season-series-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.season-series-heading {
+    color: #fff;
+    font-size: 15px;
+}
+
+.season-series-winner {
+    color: #5de3a0;
+    font-weight: 900;
+    font-size: 11px;
+}
+
+.season-series-game {
+    color: #bcbcc5;
+    font-size: 12px;
+    padding: 6px 0;
+    border-top: 1px solid #33333d;
+}
+
+.season-no-postseason {
+    color: #a5a5b0;
+    font-size: 14px;
+}
+
+.season-final-result {
+    margin-top: 30px;
+    padding: 28px;
+    text-align: center;
+    background: linear-gradient(145deg, #312017, #19171a);
+    border: 1px solid #8d4b25;
+    border-radius: 14px;
+}
+
+.season-final-result .simulation-record {
+    margin: 12px 0;
+}
+
+@keyframes seasonReveal {
+    from {
+        opacity: 0.6;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 1100px) {
+    .season-main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .simulation-result {
+        padding: 16px;
+    }
+
+    .season-scoreboard {
+        padding: 15px;
+    }
+
+    .season-scoreboard-teams {
+        gap: 8px;
+    }
+
+    .season-controls {
+        flex-direction: column;
+    }
+
+    .season-control-btn,
+    .season-speed-select {
+        width: 100%;
+    }
+
+    .season-panel {
+        padding: 10px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .season-scoreboard {
+        animation: none;
+    }
+
+    .season-progress-fill {
+        transition: none;
+    }
+}
+
+/* =====================================================
+   TEAM LOGOS
+   ===================================================== */
+
+.sim-team-logo {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sim-team-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.sim-team-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+}
+
+.sim-team-name {
+    overflow-wrap: anywhere;
+    line-height: 1.3;
+}
+
+.season-score-side > .sim-team-logo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 12px;
+}
+
+.season-match-row > .sim-team-label:last-of-type {
+    justify-content: flex-end;
+}
+
+.season-club-cell .sim-team-logo {
+    width: 25px;
+    height: 25px;
+    min-width: 25px;
+}
+
+/* =====================================================
+   PLAYOFF BRACKET
+   ===================================================== */
+
+.season-bracket-eyebrow {
+    color: #ff9a5e;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.playoff-bracket {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 18px;
+    align-items: stretch;
+    margin-top: 25px;
+}
+
+.bracket-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
+.bracket-column-title {
+    font-size: 12px;
+    font-weight: 900;
+    color: #ff9a5e;
+    letter-spacing: 1.5px;
+    text-align: center;
+    padding: 12px;
+    border-bottom: 2px solid #fa5500;
+}
+
+.bracket-series {
+    background: #16161c;
+    border-radius: 12px;
+}
+
+.bracket-match {
+    padding: 12px;
+    background: linear-gradient(145deg, #272731, #17171d);
+    border: 1px solid #454550;
+    border-radius: 12px;
+    transition: border-color .2s, transform .2s;
+}
+
+.bracket-match:hover {
+    border-color: #fa5500;
+    transform: translateY(-2px);
+}
+
+.bracket-match-label {
+    font-size: 10px;
+    font-weight: 900;
+    color: #a9a9b5;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+.bracket-team {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 5px;
+    opacity: .65;
+}
+
+.bracket-team + .bracket-team {
+    border-top: 1px solid #393943;
+}
+
+.bracket-team-winner {
+    opacity: 1;
+    color: #fff;
+    background: rgba(250, 85, 0, .09);
+    border-radius: 6px;
+}
+
+.bracket-team-winner .sim-team-name {
+    font-weight: 900;
+}
+
+.bracket-team-score {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 950;
+    min-width: 20px;
+    text-align: right;
+}
+
+.bracket-team-winner .bracket-team-score {
+    color: #ff9a5e;
+}
+
+.bracket-game-details {
+    margin: 8px 0 0;
+    padding: 10px;
+    background: #1a1a21;
+    border: 1px solid #34343e;
+    border-radius: 8px;
+}
+
+.bracket-game-details summary {
+    color: #ff9a5e;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.bracket-game-result {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 0;
+    border-bottom: 1px solid #35353e;
+    font-size: 11px;
+}
+
+.bracket-game-result .sim-team-logo {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+}
+
+.bracket-game-result:last-child {
+    border-bottom: 0;
+}
+
+.bracket-game-result .sim-team-label {
+    flex: 1;
+    min-width: 0;
+}
+
+.bracket-game-result .sim-team-label:last-child {
+    justify-content: flex-end;
+}
+
+.bracket-game-result strong {
+    white-space: nowrap;
+}
+
+.bracket-trophy {
+    font-size: 60px;
+    text-align: center;
+    margin: 20px 0;
+    filter: drop-shadow(0 0 18px rgba(255, 185, 65, .45));
+}
+
+.bracket-champion {
+    margin-top: 16px;
+    padding: 18px;
+    background: linear-gradient(135deg, #493018, #221a16);
+    border: 1px solid #d8a447;
+    border-radius: 12px;
+    color: #ffd47d;
+    font-weight: 950;
+    text-align: center;
+    font-size: 14px;
+}
+
+.bracket-playin-section {
+    margin-bottom: 35px;
+}
+
+.bracket-playin-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+/* RESPONSIVE BRACKET */
+
+@media (max-width: 1100px) {
+    .playoff-bracket {
+        grid-template-columns: 1fr;
+    }
+
+    .bracket-column {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .bracket-column-title {
+        grid-column: 1 / -1;
+    }
+
+    .bracket-playin-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .bracket-column {
+        grid-template-columns: 1fr;
+    }
+
+    .bracket-team .sim-team-logo {
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+    }
+
+    .bracket-team-score {
+        font-size: 17px;
+    }
+
+    .season-score-side > .sim-team-logo {
+        width: 55px;
+        height: 55px;
+    }
+}
+
+/* ===== EUROLEAGUE PLAYOFF BRACKET ===== */
+
+.pb-bracket {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+    padding: 24px;
+    background: #101016;
+    border: 1px solid #34343f;
+    border-radius: 16px;
+    overflow-x: auto;
+}
+
+.pb-round {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.pb-heading {
+    color: #ff9b59;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-align: center;
+    margin: 0 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f56a20;
+}
+
+.pb-round-games {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 22px;
+}
+
+.pb-match {
+    background: #22222d;
+    border: 1px solid #454552;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.2);
+}
+
+.pb-match-label {
+    color: #aaaaba;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.pb-team {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 5px;
+    opacity: .65;
+}
+
+.pb-team + .pb-team {
+    border-top: 1px solid #3b3b47;
+}
+
+.pb-team.pb-winner {
+    opacity: 1;
+    background: rgba(255, 119, 36, .12);
+    border-radius: 6px;
+}
+
+.pb-winner .sim-team-name {
+    color: #fff;
+    font-weight: 900;
+}
+
+.pb-score {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 900;
+    flex-shrink: 0;
+}
+
+.pb-winner .pb-score {
+    color: #ff9b59;
+}
+
+.pb-team .sim-team-label {
+    min-width: 0;
+    font-size: 12px;
+}
+
+.pb-team .sim-team-logo {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+}
+
+.pb-series {
+    min-width: 0;
+}
+
+.pb-details {
+    margin-top: 6px;
+    padding: 9px;
+    background: #191921;
+    border-radius: 8px;
+}
+
+.pb-details summary {
+    cursor: pointer;
+    color: #ff9b59;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.pb-detail-game {
+    font-size: 11px;
+    color: #ddd;
+    padding: 8px 0;
+    border-bottom: 1px solid #383844;
+}
+
+.pb-trophy {
+    text-align: center;
+    font-size: 58px;
+    margin-bottom: 15px;
+}
+
+.pb-champion {
+    background: #342816;
+    border: 1px solid #d8a344;
+    color: #ffd47d;
+    border-radius: 10px;
+    text-align: center;
+    padding: 16px;
+    font-weight: 900;
+    margin-top: 14px;
+}
+
+.pb-playin {
+    margin: 20px 0 35px;
+}
+
+.pb-playin-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+/* Mobile: stack the rounds vertically */
+@media (max-width: 800px) {
+    .pb-bracket {
+        grid-template-columns: 1fr;
+        padding: 14px;
+    }
+
+    .pb-playin-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pb-round-games {
+        gap: 12px;
+    }
+}
+
+
+/* ===== SMOOTH POSTSEASON REVEAL ===== */
+
+.pb-animation-status {
+    text-align: center;
+    color: #ff9b59;
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    margin: 30px 0 16px;
+}
+
+.pb-animation-content {
+    opacity: 1;
+}
+
+/* Only newly displayed results fade in */
+.pb-new-result {
+    animation: pbFadeIn 0.45s ease-out both;
+}
+
+@keyframes pbFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* No blur, sliding, scaling, or pulsing */
+.pb-animation-content.pb-reveal,
+.pb-animation-content .pb-match,
+.pb-champion {
+    animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pb-new-result {
+        animation: none;
+    }
+}
+
+/* ===== COMPLETED DRAFT TEAM PREVIEW ===== */
+
+.draft-final-club {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-bottom: 26px;
+}
+
+.draft-final-club-logo {
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.draft-final-club .draft-final-heading {
+    margin: 0;
+}
+
+/* Player cards */
+.draft-final-player {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+
+.draft-final-player-photo {
+    width: 76px;
+    height: 86px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 10px;
+    background: rgba(255,255,255,.06);
+}
+
+.draft-final-player-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+}
+
+.draft-final-player-photo span {
+    font-size: 30px;
+    opacity: .5;
+}
+
+.draft-final-player-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.draft-final-player-info strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 6px;
+}
+
+.draft-final-player-info small {
+    display: block;
+    line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+    .draft-final-club {
+        gap: 12px;
+    }
+
+    .draft-final-club-logo {
+        width: 54px;
+        height: 54px;
+    }
+
+    .draft-final-player {
+        gap: 10px;
+    }
+
+    .draft-final-player-photo {
+        width: 56px;
+        height: 68px;
+    }
+
+    .draft-final-player-info strong {
+        font-size: 14px;
+    }
+}
+
+/* FULL-WIDTH DRAFT COMPLETION PREVIEW */
+
+body.draft-full-preview .roster-panel {
+    display: none !important;
+}
+
+body.draft-full-preview .draft-layout {
+    grid-template-columns: minmax(0, 1fr) !important;
+}
+
+body.draft-full-preview .draft-main,
+body.draft-full-preview #finishStage {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+}
+
+/* SIMULATION MODE */
+
+/* Hide the big lineup preview once simulation begins */
+body.draft-simulation-active .draft-final-club,
+body.draft-simulation-active .draft-final-lineup,
+body.draft-simulation-active .draft-stats-heading,
+body.draft-simulation-active .draft-stats-grid {
+    display: none !important;
+}
+
+/* Remove empty spacing left by the preview */
+body.draft-simulation-active .summary {
+    gap: 0;
+}
+
+/* Keep the normal two-column layout */
+body.draft-simulation-active .draft-layout {
+    grid-template-columns: minmax(0, 1fr) 320px;
+}
+
+@media (max-width: 1050px) {
+    body.draft-simulation-active .draft-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+.legend-setting[hidden] {
+    display: none !important;
+}
+
+
+/* ==========================================================
+   DRAFT EUROLEAGUE — HOMEPAGE VISUAL IDENTITY
+   CSS-ONLY REDESIGN
+   Paste at the END of static/css/draft.css
+   ========================================================== */
+
+:root {
+    --orange: #fa5500;
+    --orange-light: #ff893e;
+    --bg: #080809;
+    --panel: #141416;
+    --muted: #aaa6a3;
+    --draft-border: #30292a;
+    --draft-text: #f7f5f2;
+}
+
+body {
+    background: #080809;
+    color: var(--draft-text);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* PAGE AND HEADER */
+
+.draft-shell {
+    max-width: 1420px;
+    padding: 55px 24px 100px;
+}
+
+.draft-heading {
+    position: relative;
+    padding: 24px 0 34px;
+    border-bottom: 1px solid #30292a;
+}
+
+.draft-heading h1 {
+    font-size: clamp(48px, 6vw, 88px);
+    line-height: .96;
+    letter-spacing: -3.5px;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin: 18px 0;
+}
+
+.draft-heading h1 span {
+    color: #fa5500;
+    text-shadow: 0 10px 45px rgba(250,85,0,.17);
+}
+
+.draft-heading p,
+.stage-panel p {
+    color: #aaa6a3;
+    line-height: 1.7;
+}
+
+.eyebrow,
+.round-label {
+    color: #ff893e;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 3px;
+}
+
+.round-meter {
+    height: 4px;
+    background: #292326;
+    border-radius: 0;
+}
+
+.round-meter > div {
+    background: linear-gradient(90deg,#fa5500,#ff893e);
+}
+
+/* MAIN LAYOUT */
+
+.draft-layout {
+    gap: 24px;
+    margin-top: 30px;
+}
+
+.stage-panel,
+.roster-panel {
+    background: #141416;
+    border: 1px solid #30292a;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: none;
+}
+
+.stage-panel h2,
+.roster-panel h2 {
+    color: #f7f5f2;
+    font-size: clamp(22px,2.6vw,32px);
+    font-weight: 900;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+}
+
+.stage-count {
+    color: #ff893e;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+/* BUTTONS — MATCH HOMEPAGE */
+
+.primary-btn,
+.secondary-btn,
+.simulate-season-btn,
+.season-control-btn,
+.season-speed-select {
+    border-radius: 5px;
+    font-family: inherit;
+    font-weight: 900;
+    letter-spacing: .6px;
+    transition: background .2s, border-color .2s,
+                transform .2s, box-shadow .2s;
+}
+
+.primary-btn,
+.simulate-season-btn {
+    background: linear-gradient(135deg,#ff8c43,#fa5500);
+    border: 1px solid #fa5500;
+    color: #080809;
+    box-shadow: 0 8px 30px rgba(250,85,0,.15);
+}
+
+.primary-btn:hover:not(:disabled),
+.simulate-season-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg,#ffa062,#ff6515);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(250,85,0,.28);
+}
+
+.secondary-btn {
+    background: rgba(10,10,10,.5);
+    border: 1px solid #68615d;
+    color: #fff;
+}
+
+.secondary-btn:hover {
+    border-color: #fa5500;
+    background: rgba(250,85,0,.1);
+}
+
+/* CLUB SELECTION */
+
+.club-reveal {
+    background:
+        radial-gradient(circle at 50% 35%,
+            rgba(250,85,0,.13),transparent 60%),
+        #0b0b0d;
+    border: 1px solid #30292a;
+    border-radius: 8px;
+    padding: 48px 20px;
+}
+
+.club-image {
+    width: 175px;
+    height: 175px;
+    filter: drop-shadow(0 12px 30px rgba(0,0,0,.5));
+}
+
+.club-reveal h3 {
+    font-size: clamp(24px,3vw,38px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+}
+
+/* PLAYER SELECTION */
+
+.player-grid {
+    gap: 13px;
+}
+
+.player-card {
+    border-radius: 7px;
+    padding: 12px;
+    transition: transform .2s, border-color .2s,
+                box-shadow .2s;
+}
+
+.player-card:hover,
+.player-card:focus-visible {
+    transform: translateY(-5px);
+}
+
+.player-photo {
+    border-radius: 4px;
+}
+
+.player-card .rating {
+    font-size: 30px;
+    letter-spacing: -1px;
+}
+
+.player-card .name {
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.player-card .meta {
+    color: #aaa6a3;
+}
+
+.player-card .rarity-label {
+    font-size: 9px;
+    letter-spacing: 1.8px;
+}
+
+/* POSITION SELECTION */
+
+.chosen-player {
+    color: #ff893e;
+    font-weight: 900;
+}
+
+.position-options button {
+    background: #0d0d0f;
+    border: 1px solid #393033;
+    border-radius: 5px;
+    color: #f7f5f2;
+    transition: .2s;
+}
+
+.position-options button:not(:disabled):hover {
+    background: #24150f;
+    border-color: #fa5500;
+    color: #ff893e;
+}
+
+/* STARTING FIVE SIDEBAR */
+
+.roster-panel {
+    background: #101012;
+}
+
+.roster-club {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #30292a;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+.roster-panel h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.roster-slots {
+    gap: 8px;
+}
+
+.roster-slot {
+    background: #161416;
+    border-radius: 5px;
+    padding: 12px;
+}
+
+.roster-pos {
+    color: #ff893e;
+    font-weight: 900;
+}
+
+.roster-name {
+    color: #fff;
+}
+
+.roster-muted {
+    color: #a39b99;
+}
+
+.roster-footnote {
+    border-color: #30292a;
+}
+
+/* PLAYER DETAILS DIALOG */
+
+.player-dialog {
+    background: #141416;
+    border-radius: 9px;
+}
+
+.player-dialog::backdrop {
+    background: rgba(0,0,0,.88);
+    backdrop-filter: blur(5px);
+}
+
+.detail-stats > div {
+    background: #0d0d0f;
+    border: 1px solid #30292a;
+    border-radius: 5px;
+}
+
+/* COMPLETED TEAM PREVIEW */
+
+.draft-final-heading {
+    font-size: clamp(34px,4vw,54px);
+    font-weight: 900;
+    color: #fa5500;
+    letter-spacing: -2px;
+}
+
+.draft-final-lineup {
+    gap: 8px;
+}
+
+.draft-final-player {
+    background: #141416;
+    border-radius: 6px;
+    padding: 16px 20px;
+}
+
+.draft-final-position {
+    background: #fa5500;
+    color: #080809;
+    border-radius: 4px;
+}
+
+.draft-final-player-info strong {
+    font-weight: 900;
+}
+
+.draft-stats-heading {
+    letter-spacing: -1px;
+}
+
+.draft-stat-card {
+    background: #111113;
+    border: 1px solid #30292a;
+    border-radius: 6px;
+    box-shadow: none;
+}
+
+.draft-stat-card:hover {
+    border-color: #fa5500;
+}
+
+.draft-stat-value {
+    color: #ff893e;
+}
+
+.draft-rating-category,
+.draft-rating-calculation {
+    background: #111113;
+    border-color: #30292a;
+    border-radius: 6px;
+}
+
+.draft-rating-total {
+    background: linear-gradient(135deg,#a93600,#fa5500);
+    border-radius: 7px;
+}
+
+/* SIMULATION MAIN PANEL */
+
+.simulation-result {
+    background: #0c0c0e;
+    border: 1px solid #30292a;
+    border-radius: 7px;
+    padding: 26px;
+    box-shadow: none;
+}
+
+.season-section-heading {
+    color: #fff;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+}
+
+.season-round-label {
+    color: #ff893e;
+    letter-spacing: 2px;
+}
+
+.season-progress {
+    height: 4px;
+    background: #292326;
+    border-radius: 0;
+}
+
+.season-progress-fill {
+    background: linear-gradient(90deg,#fa5500,#ff893e);
+}
+
+.season-control-btn,
+.season-speed-select {
+    background: #171719;
+    border-color: #393033;
+    color: #fff;
+}
+
+.season-control-btn:last-child {
+    background: #fa5500;
+    border-color: #fa5500;
+    color: #080809;
+}
+
+/* GAME SCOREBOARD */
+
+.season-scoreboard {
+    background:
+        radial-gradient(ellipse at 50% 0%,
+            rgba(250,85,0,.08),transparent 75%),
+        #141416;
+    border: 1px solid #393033;
+    border-radius: 7px;
+    padding: 30px 22px;
+    box-shadow: none;
+}
+
+.season-scoreboard-label {
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.season-score-user {
+    background: rgba(250,85,0,.065);
+    border: 1px solid rgba(250,85,0,.17);
+    border-radius: 5px;
+}
+
+.season-score-name {
+    color: #e7dfd9;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.season-score-number {
+    color: #f7f5f2;
+    font-weight: 900;
+    letter-spacing: -3px;
+}
+
+.season-score-user .season-score-number {
+    color: #ff893e;
+}
+
+.season-score-footer {
+    color: #a39b99;
+}
+
+/* LIVE STANDINGS IN THE SIDEBAR */
+
+.season-sidebar-standings {
+    background: transparent;
+    border: 0;
+    border-top: 1px solid #30292a;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.season-panel-title {
+    color: #ff893e;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+}
+
+.season-table {
+    color: #e7dfd9;
+    font-size: 10px;
+}
+
+.season-table th {
+    color: #aaa6a3;
+    border-color: #30292a;
+}
+
+.season-table td {
+    border-color: #252123;
+}
+
+.season-table tbody tr:hover {
+    background: rgba(255,255,255,.035);
+}
+
+.season-table .season-my-team {
+    background: rgba(250,85,0,.13);
+    color: #ff893e;
+}
+
+/* PLAYOFF BRACKET — CURRENT JS CLASSES */
+
+.season-postseason {
+    border-top: 1px solid #30292a;
+}
+
+.pb-bracket {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 14px;
+    margin-top: 22px;
+    align-items: start;
+}
+
+.pb-round {
+    min-width: 0;
+}
+
+.pb-heading {
+    color: #ff893e;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 18px 0;
+}
+
+.pb-round-games,
+.pb-playin-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.pb-playin-grid {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+}
+
+.pb-match {
+    background: #141416;
+    border: 1px solid #30292a;
+    border-radius: 6px;
+    padding: 13px;
+    min-width: 0;
+}
+
+.pb-match-label {
+    color: #ff893e;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+.pb-team {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    color: #a39b99;
+    min-width: 0;
+}
+
+.pb-team + .pb-team {
+    border-top: 1px solid #30292a;
+}
+
+.pb-team .sim-team-label {
+    min-width: 0;
+    font-size: 11px;
+}
+
+.pb-team .sim-team-logo {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+}
+
+.pb-winner {
+    color: #fff;
+    font-weight: 900;
+}
+
+.pb-winner .pb-score {
+    color: #ff893e;
+}
+
+.pb-score {
+    flex-shrink: 0;
+}
+
+.pb-details {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #30292a;
+}
+
+.pb-details summary {
+    color: #ff893e;
+    font-size: 10px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.pb-detail-game {
+    color: #aaa6a3;
+    font-size: 11px;
+    padding: 7px 0;
+}
+
+.pb-trophy {
+    font-size: 48px;
+    text-align: center;
+    margin: 12px 0;
+}
+
+.pb-champion {
+    background: rgba(250,85,0,.09);
+    border: 1px solid rgba(250,85,0,.35);
+    border-radius: 5px;
+    color: #ff893e;
+    font-weight: 900;
+    text-align: center;
+    padding: 15px;
+    margin-top: 12px;
+}
+
+/* FINAL RESULT */
+
+.season-final-result {
+    background:
+        linear-gradient(135deg,
+            rgba(250,85,0,.12),transparent 70%),
+        #141416;
+    border: 1px solid #493026;
+    border-radius: 7px;
+}
+
+.simulation-outcome {
+    color: #ff893e;
+    font-weight: 900;
+    letter-spacing: -1px;
+}
+
+.simulation-record {
+    font-weight: 900;
+    letter-spacing: -3px;
+}
+
+.simulation-details {
+    color: #c9c5c3;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1050px) {
+    .pb-bracket {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .draft-shell {
+        padding: 30px 14px 65px;
+    }
+
+    .draft-heading h1 {
+        letter-spacing: -2px;
+    }
+
+    .stage-panel,
+    .roster-panel {
+        padding: 18px;
+    }
+
+    .simulation-result {
+        padding: 15px;
+    }
+
+    .pb-playin-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .season-scoreboard {
+        padding: 18px 10px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .player-card,
+    .primary-btn,
+    .secondary-btn,
+    .simulate-season-btn {
+        transition: none;
+    }
+}
+
+/* ==========================================================
+   DRAFT EUROLEAGUE — TEXTURE SYSTEM
+   Inspired by the shared navbar design
+   CSS ONLY — NO JS OR HTML CHANGES
+   ========================================================== */
+
+/* 1. MAIN DRAFT PANELS */
+
+.stage-panel,
+.roster-panel {
+    background:
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 9px,
+            rgba(255,255,255,0.018) 10px,
+            transparent 11px
+        ),
+        radial-gradient(
+            ellipse at 100% 0%,
+            rgba(250,85,0,0.075),
+            transparent 58%
+        ),
+        linear-gradient(
+            135deg,
+            #171518 0%,
+            #101012 100%
+        );
+
+    border: 1px solid #393033;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.035),
+        0 12px 35px rgba(0,0,0,0.16);
+}
+
+/* 2. PLAYER CARDS — RARITY-AWARE TEXTURE */
+
+.player-card,
+.legend-card {
+    background:
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 7px,
+            rgba(255,255,255,0.035) 8px,
+            transparent 9px
+        ),
+        radial-gradient(
+            ellipse at 50% 0%,
+            color-mix(
+                in srgb,
+                var(--rarity, #fa5500) 24%,
+                transparent
+            ),
+            transparent 75%
+        ),
+        linear-gradient(
+            155deg,
+            var(--rarity-bg, #211b1a),
+            #101012 85%
+        );
+
+    border-color: var(--rarity, #393033);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.075),
+        0 5px 18px rgba(0,0,0,0.22);
+
+    overflow: hidden;
+}
+
+.player-card:hover,
+.player-card:focus-visible,
+.legend-card:hover {
+    background:
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 7px,
+            rgba(255,255,255,0.055) 8px,
+            transparent 9px
+        ),
+        radial-gradient(
+            ellipse at 50% 0%,
+            color-mix(
+                in srgb,
+                var(--rarity, #fa5500) 34%,
+                transparent
+            ),
+            transparent 78%
+        ),
+        linear-gradient(
+            155deg,
+            var(--rarity-bg, #211b1a),
+            #101012 85%
+        );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.1),
+        0 10px 28px rgba(0,0,0,0.3),
+        0 0 18px color-mix(
+            in srgb,
+            var(--rarity, #fa5500) 22%,
+            transparent
+        );
+}
+
+/* Higher specificity to override existing rarity backgrounds */
+
+.player-card[class*="rarity-"],
+.legend-card[class*="rarity-"] {
+    background:
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 7px,
+            rgba(255,255,255,0.035) 8px,
+            transparent 9px
+        ),
+        radial-gradient(
+            ellipse at 50% 0%,
+            color-mix(
+                in srgb,
+                var(--rarity) 24%,
+                transparent
+            ),
+            transparent 75%
+        ),
+        linear-gradient(
+            155deg,
+            var(--rarity-bg),
+            #101012 85%
+        );
+}
+
+.player-card[class*="rarity-"]:hover,
+.player-card[class*="rarity-"]:focus-visible,
+.legend-card[class*="rarity-"]:hover {
+    background:
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 7px,
+            rgba(255,255,255,0.055) 8px,
+            transparent 9px
+        ),
+        radial-gradient(
+            ellipse at 50% 0%,
+            color-mix(
+                in srgb,
+                var(--rarity) 34%,
+                transparent
+            ),
+            transparent 78%
+        ),
+        linear-gradient(
+            155deg,
+            var(--rarity-bg),
+            #101012 85%
+        );
+}
+
+/* 3. PLAYER PORTRAIT AREA */
+
+.player-card .player-photo,
+.legend-card .player-photo {
+    background:
+        repeating-linear-gradient(
+            145deg,
+            transparent 0px,
+            transparent 12px,
+            rgba(255,255,255,0.025) 13px,
+            transparent 14px
+        ),
+        radial-gradient(
+            ellipse at 50% 75%,
+            color-mix(
+                in srgb,
+                var(--rarity, #fa5500) 28%,
+                transparent
+            ),
+            #111114 78%
+        );
+
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* 4. CLUB REVEAL BOX */
+
+.club-reveal {
+    background:
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 11px,
+            rgba(255,255,255,0.025) 12px,
+            transparent 13px
+        ),
+        radial-gradient(
+            circle at 50% 40%,
+            rgba(250,85,0,0.18),
+            transparent 58%
+        ),
+        linear-gradient(
+            140deg,
+            #191316,
+            #09090b
+        );
+
+    border-color: #443028;
+}
+
+/* 5. STARTING FIVE SLOTS */
+
+.roster-slot[class*="rarity-"] {
+    background:
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 9px,
+            rgba(255,255,255,0.02) 10px,
+            transparent 11px
+        ),
+        linear-gradient(
+            90deg,
+            var(--rarity-bg),
+            #111113 80%
+        );
+}
+
+/* 6. COMPLETED TEAM LINEUP */
+
+.draft-final-player[class*="rarity-"] {
+    background:
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 9px,
+            rgba(255,255,255,0.025) 10px,
+            transparent 11px
+        ),
+        linear-gradient(
+            90deg,
+            var(--rarity-bg),
+            #111113 80%
+        );
+}
+
+/* 7. TEAM STATISTIC CARDS */
+
+.draft-stat-card,
+.draft-rating-category {
+    background:
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 10px,
+            rgba(255,255,255,0.018) 11px,
+            transparent 12px
+        ),
+        linear-gradient(
+            145deg,
+            #1c1819,
+            #101012
+        );
+
+    border-color: #393033;
+}
+
+/* 8. MAIN SIMULATION BOX */
+
+.simulation-result {
+    background:
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 11px,
+            rgba(255,255,255,0.012) 12px,
+            transparent 13px
+        ),
+        linear-gradient(
+            145deg,
+            #171316,
+            #0b0b0d 75%
+        );
+
+    border-color: #393033;
+}
+
+/* 9. GAME SCOREBOARD */
+
+.season-scoreboard {
+    background:
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 10px,
+            rgba(255,255,255,0.025) 11px,
+            transparent 12px
+        ),
+        radial-gradient(
+            ellipse at 50% 0%,
+            rgba(250,85,0,0.12),
+            transparent 70%
+        ),
+        linear-gradient(
+            145deg,
+            #20191a,
+            #101012
+        );
+
+    border-color: #49332b;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.05),
+        0 12px 30px rgba(0,0,0,0.2);
+}
+
+/* 10. PLAYOFF MATCHUP CARDS */
+
+.pb-match {
+    background:
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 9px,
+            rgba(255,255,255,0.02) 10px,
+            transparent 11px
+        ),
+        linear-gradient(
+            135deg,
+            #20191a,
+            #111113
+        );
+
+    border-color: #393033;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.035),
+        0 5px 16px rgba(0,0,0,0.12);
+}
+
+/* 11. FINAL SEASON REPORT */
+
+.season-final-result {
+    background:
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 9px,
+            rgba(255,255,255,0.025) 10px,
+            transparent 11px
+        ),
+        radial-gradient(
+            ellipse at 50% 0%,
+            rgba(250,85,0,0.16),
+            transparent 70%
+        ),
+        linear-gradient(
+            135deg,
+            #251815,
+            #111113
+        );
+
+    border-color: #75402a;
+}
+
+/* 12. LEGEND CARDS RETAIN THEIR GOLD ACCENTS */
+
+.legend-card {
+    box-shadow:
+        inset 0 1px 0 rgba(255,215,130,0.1),
+        0 5px 18px rgba(0,0,0,0.25);
+}
+
+/* ==========================================================
+   END TEXTURE SYSTEM
+   ========================================================== */
+
+/* =====================================================
+   PLAYOFF BRACKET — BALANCED ALIGNMENT
+   ===================================================== */
+
+.pb-bracket {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    align-items: stretch;
+    margin-top: 26px;
+
+    background:
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 12px,
+            rgba(255,255,255,.012) 13px,
+            transparent 14px
+        ),
+        #101012;
+
+    border: 1px solid #30292a;
+    border-radius: 8px;
+    padding: 22px 18px;
+}
+
+.pb-round {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.pb-heading {
+    min-height: 42px;
+    margin: 0 0 18px;
+    padding: 10px 4px 13px;
+    text-align: center;
+    border-bottom: 2px solid #fa5500;
+    color: #ff893e;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+}
+
+/* Equal-height columns, vertically balanced games */
+
+.pb-round-games {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 16px;
+    min-height: 0;
+}
+
+.pb-series {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.pb-match {
+    width: 100%;
+    min-width: 0;
+    border-radius: 5px;
+    padding: 14px;
+}
+
+/* Semi-final cards are centered against quarterfinals */
+
+.pb-semis .pb-round-games {
+    justify-content: space-evenly;
+}
+
+/* Championship is centered against semifinals */
+
+.pb-finals .pb-round-games {
+    justify-content: center;
+    gap: 18px;
+}
+
+.pb-finals .pb-match {
+    border-color: rgba(250,85,0,.45);
+}
+
+.pb-trophy {
+    font-size: 54px;
+    text-align: center;
+    margin: 0;
+}
+
+.pb-champion {
+    margin-top: 0;
+}
+
+/* Keep the play-in matches neatly aligned */
+
+.pb-playin-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    align-items: stretch;
+}
+
+/* Responsive bracket */
+
+@media (max-width: 900px) {
+    .pb-bracket {
+        grid-template-columns: 1fr;
+        padding: 16px;
+        gap: 28px;
+    }
+
+    .pb-round-games,
+    .pb-semis .pb-round-games,
+    .pb-finals .pb-round-games {
+        justify-content: flex-start;
+        gap: 12px;
+    }
+
+    .pb-playin-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =====================================================
+   CLUB REVEAL — FIX LOGO AND NAME OVERLAP
+   ===================================================== */
+
+.club-reveal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    min-height: 360px;
+    padding: 38px 24px;
+    overflow: hidden;
+}
+
+.club-reveal .club-image {
+    position: relative;
+    width: clamp(130px, 18vw, 185px);
+    height: clamp(130px, 18vw, 185px);
+    flex-shrink: 0;
+    margin: 0 auto;
+    display: grid;
+    place-items: center;
+    z-index: 1;
+}
+
+.club-reveal .club-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.club-reveal h3 {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+    font-size: clamp(22px, 3vw, 38px);
+    line-height: 1.15;
+    letter-spacing: -1px;
+    overflow-wrap: break-word;
+}
+
+@media (max-width: 600px) {
+    .club-reveal {
+        min-height: 300px;
+        gap: 18px;
+        padding: 28px 16px;
+    }
+}
+
+/* =====================================================
+   CLUB REVEAL — LOGO ABOVE, NAME BELOW
+   ===================================================== */
+
+.club-reveal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0;
+    padding: 40px 24px 45px;
+    min-height: 440px;
+    overflow: hidden;
+}
+
+.club-reveal .club-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    max-width: 220px;
+    height: 230px;
+    min-height: 230px;
+
+    margin: 0 auto 42px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.club-reveal .club-image img {
+    display: block;
+    position: static;
+    width: 100%;
+    height: 100%;
+    max-width: 210px;
+    max-height: 220px;
+    object-fit: contain;
+}
+
+.club-reveal h3 {
+    display: block;
+    position: relative;
+    width: 100%;
+    margin: 0;
+    padding: 0 8px;
+
+    font-size: clamp(22px, 3vw, 38px);
+    line-height: 1.2;
+    font-weight: 900;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+    .club-reveal {
+        min-height: 380px;
+        padding: 30px 16px;
+    }
+
+    .club-reveal .club-image {
+        height: 190px;
+        min-height: 190px;
+        margin-bottom: 35px;
+    }
+
+    .club-reveal .club-image img {
+        max-height: 185px;
+    }
+}
+
+/* =====================================================
+   FINAL SEASON REPORT — OUTCOME BANNERS
+   ===================================================== */
+
+.season-final-result {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    min-height: 330px;
+    padding: 65px 30px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    border: 1px solid rgba(250,85,0,.35);
+    border-radius: 8px;
+
+    background-color: #101012;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.season-final-result::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(5,5,6,.94) 0%,
+            rgba(5,5,6,.76) 50%,
+            rgba(5,5,6,.84) 100%
+        ),
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 9px,
+            rgba(255,255,255,.035) 10px,
+            transparent 11px
+        );
+}
+
+.season-final-result > * {
+    position: relative;
+    z-index: 1;
+}
+
+.season-final-result .simulation-eyebrow {
+    color: #ff893e;
+    letter-spacing: 3px;
+    font-size: 11px;
+}
+
+.season-final-result .simulation-record {
+    font-size: clamp(55px,8vw,95px);
+    font-weight: 900;
+    letter-spacing: -4px;
+    line-height: 1;
+    text-shadow: 0 5px 20px rgba(0,0,0,.65);
+}
+
+.season-final-result .simulation-outcome {
+    color: #ff893e;
+    font-size: clamp(23px,4vw,42px);
+    font-weight: 900;
+    text-transform: uppercase;
+    text-shadow: 0 4px 18px rgba(0,0,0,.8);
+}
+
+.season-final-result .simulation-details {
+    color: #e0d9d5;
+    text-shadow: 0 2px 8px #000;
+}
+
+
+/* =====================================================
+   FINAL SEASON REPORT — OUTCOME BANNERS
+   ===================================================== */
+
+/* 1. Missed playoffs */
+.season-final-result.outcome-missed {
+    background-image: url("../images/season_missed.jpg");
+}
+
+/* 2. Eliminated in play-in */
+.season-final-result.outcome-playin {
+    background-image: url("../images/season_playin.webp");
+}
+
+/* 3. Eliminated in quarterfinals */
+.season-final-result.outcome-quarterfinal {
+    background-image: url("../images/season_quaterfinals.jpg");
+}
+
+/* 4. Eliminated in Final Four */
+.season-final-result.outcome-finalfour {
+    background-image: url("../images/season_finalfour.jpg");
+}
+
+/* 5. Lost the EuroLeague final */
+.season-final-result.outcome-runnerup {
+    background-image: url("../images/season_finalist.jpg");
+}
+
+/* 6. Won the EuroLeague */
+.season-final-result.outcome-champion {
+    background-image: url("../images/season_winner.jpg");
+    border-color: #ffae45;
+}
+
+
+.season-final-result.outcome-champion::before {
+    background:
+        linear-gradient(
+            90deg,
+            rgba(5,5,6,.87),
+            rgba(35,19,6,.56),
+            rgba(5,5,6,.84)
+        ),
+        repeating-linear-gradient(
+            125deg,
+            transparent 0px,
+            transparent 9px,
+            rgba(255,215,130,.045) 10px,
+            transparent 11px
+        );
+}
+
+@media (max-width: 600px) {
+    .season-final-result {
+        min-height: 270px;
+        padding: 42px 18px;
+    }
+}
+
+/* ==========================================
+   DRAFT MODE — ARENA HERO & LEGENDS TOGGLE
+========================================== */
+
+/* FULL-WIDTH ARENA BANNER */
+
+.draft-heading {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    min-height: 360px;
+    padding: 65px 55px 45px;
+
+    display: flex;
+    align-items: center;
+
+    border: 1px solid #30292a;
+    border-bottom: 3px solid #fa5500;
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(5, 5, 6, 0.98) 0%,
+            rgba(5, 5, 6, 0.92) 35%,
+            rgba(5, 5, 6, 0.68) 65%,
+            rgba(5, 5, 6, 0.35) 100%
+        ),
+        url("../images/draft_top.jpg");
+
+    background-size: cover;
+    background-position: center;
+    background-color: #151013;
+}
+
+.draft-heading::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            ellipse at 85% 50%,
+            rgba(250, 85, 0, 0.23),
+            transparent 55%
+        ),
+        linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.65),
+            transparent 55%
+        );
+}
+
+.draft-hero-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+}
+
+.draft-heading .eyebrow {
+    color: #ff893e;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 3px;
+}
+
+.draft-heading .heading-line {
+    align-items: center;
+    gap: 30px;
+}
+
+.draft-heading h1 {
+    max-width: 950px;
+    margin: 25px 0 18px;
+
+    font-size: clamp(48px, 6vw, 86px);
+    font-weight: 900;
+    line-height: 0.98;
+    letter-spacing: -4px;
+    text-transform: uppercase;
+
+    color: #fff;
+    text-shadow: 0 5px 25px rgba(0, 0, 0, 0.6);
+}
+
+.draft-heading h1 span {
+    color: #fa5500;
+}
+
+.draft-heading p {
+    margin: 0;
+    color: #d4ceca;
+    font-size: 16px;
+}
+
+.draft-heading #restartBtn {
+    flex-shrink: 0;
+    background: rgba(10, 10, 12, 0.7);
+    border: 1px solid #777071;
+    backdrop-filter: blur(8px);
+}
+
+.draft-heading #restartBtn:hover {
+    border-color: #fa5500;
+    background: rgba(250, 85, 0, 0.15);
+}
+
+/* PROGRESS BAR INSIDE BANNER */
+
+.draft-hero-progress {
+    margin-top: 48px;
+}
+
+.draft-hero-progress .round-meter {
+    height: 4px;
+    margin-top: 0;
+    background: rgba(255, 255, 255, 0.17);
+}
+
+.draft-hero-progress .round-meter > div {
+    background: linear-gradient(90deg, #fa5500, #ff9b58);
+}
+
+.draft-hero-progress .round-label {
+    margin-top: 13px;
+    color: #ff893e;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 2.5px;
+}
+
+/* LEGENDS TOGGLE — INSIDE CLUB PANEL */
+
+.legend-setting {
+    margin: 24px 0 26px;
+    padding: 18px 0;
+
+    background: transparent;
+    border: 0;
+    border-top: 1px solid #393136;
+    border-bottom: 1px solid #393136;
+    border-radius: 0;
+}
+
+.legend-setting .legend-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    width: 100%;
+    margin: 0;
+    cursor: pointer;
+}
+
+.legend-setting .legend-toggle-text {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+}
+
+.legend-setting .legend-toggle-text strong {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.7px;
+}
+
+.legend-setting .legend-toggle-text small {
+    color: #aaa6a3;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Keep real checkbox accessible, but visually hidden */
+
+.legend-setting .legend-toggle-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    margin: 0;
+}
+
+/* Switch track */
+
+.legend-setting .legend-toggle-track {
+    position: relative;
+    display: block;
+    flex-shrink: 0;
+
+    width: 54px;
+    height: 29px;
+
+    border: 1px solid #625c62;
+    border-radius: 30px;
+    background: #39363c;
+
+    transition: background .2s ease, border-color .2s ease;
+}
+
+/* Switch circle */
+
+.legend-setting .legend-toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+
+    width: 21px;
+    height: 21px;
+
+    border-radius: 50%;
+    background: #fff;
+
+    transition: transform .2s ease;
+}
+
+/* Enabled state */
+
+.legend-toggle-input:checked + .legend-toggle-track {
+    background: #fa5500;
+    border-color: #fa5500;
+}
+
+.legend-toggle-input:checked
++ .legend-toggle-track
+.legend-toggle-thumb {
+    transform: translateX(25px);
+}
+
+/* Keyboard accessibility */
+
+.legend-toggle-input:focus-visible + .legend-toggle-track {
+    outline: 3px solid rgba(250, 85, 0, 0.45);
+    outline-offset: 3px;
+}
+
+/* Keep the existing JS hidden behavior */
+
+.legend-setting[hidden] {
+    display: none !important;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 767px) {
+    .draft-heading {
+        min-height: 320px;
+        padding: 45px 25px 30px;
+        background-position: 65% center;
+    }
+
+    .draft-heading h1 {
+        font-size: clamp(42px, 10vw, 65px);
+        letter-spacing: -2.5px;
+    }
+
+    .draft-heading .heading-line {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .draft-heading #restartBtn {
+        align-self: flex-start;
+    }
+
+    .draft-hero-progress {
+        margin-top: 35px;
+    }
+}
+
+@media (max-width: 480px) {
+    .draft-heading {
+        padding: 35px 18px 25px;
+    }
+
+    .legend-setting .legend-toggle-row {
+        gap: 14px;
+    }
+
+    .legend-setting .legend-toggle-text strong {
+        font-size: 11px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .legend-setting .legend-toggle-track,
+    .legend-setting .legend-toggle-thumb {
+        transition: none;
+    }
+}
+/* MOVE ARENA IMAGE DOWNWARD */
+.draft-heading {
+    background-position: center 1%;
+}
+
+/* RESTART BUTTON — BOTTOM LEFT OF BANNER */
+
+.draft-heading {
+    padding-bottom: 115px;
+}
+
+.draft-heading #restartBtn {
+    position: absolute;
+    bottom: 24px;
+    left: 0;
+    z-index: 2;
+    margin: 0;
+}
+
+.draft-heading .draft-hero-progress {
+    margin-top: 35px;
+}
+
+
+/* ==========================================
+   DRAFT EUROLEAGUE — UNIFIED BUTTON DESIGN
+========================================== */
+
+/* SHARED BUTTON STYLE */
+
+.primary-btn,
+.secondary-btn,
+.simulate-season-btn,
+.season-control-btn,
+.season-speed-select,
+.position-options button {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+    border-radius: 5px;
+    padding: 13px 22px;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+/* PRIMARY ACTIONS */
+
+.primary-btn,
+.simulate-season-btn {
+    background: linear-gradient(135deg, #ff893e, #fa5500);
+    border: 1px solid #fa5500;
+    color: #080809;
+    box-shadow: 0 6px 24px rgba(250, 85, 0, 0.18);
+    cursor: pointer;
+}
+
+.primary-btn:hover:not(:disabled),
+.simulate-season-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #ffa263, #ff671b);
+    border-color: #ff893e;
+    color: #080809;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(250, 85, 0, 0.3);
+}
+
+/* SECONDARY ACTIONS */
+
+.secondary-btn,
+.season-control-btn,
+.season-speed-select {
+    background: rgba(16, 15, 17, 0.85);
+    border: 1px solid #5d5354;
+    color: #f7f5f2;
+    cursor: pointer;
+}
+
+.secondary-btn:hover:not(:disabled),
+.season-control-btn:hover:not(:disabled),
+.season-speed-select:hover:not(:disabled) {
+    background: rgba(250, 85, 0, 0.12);
+    border-color: #fa5500;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* POSITION SELECTION BUTTONS */
+
+.position-options button {
+    background: #201c1e;
+    border: 1px solid #484044;
+    color: #fff;
+    font-size: 17px;
+    padding: 18px 10px;
+}
+
+.position-options button:not(:disabled):hover {
+    background: #38241c;
+    border-color: #fa5500;
+    color: #ff893e;
+    transform: translateY(-2px);
+}
+
+/* DISABLED BUTTONS */
+
+.primary-btn:disabled,
+.secondary-btn:disabled,
+.season-control-btn:disabled,
+.position-options button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* KEYBOARD ACCESSIBILITY */
+
+.primary-btn:focus-visible,
+.secondary-btn:focus-visible,
+.simulate-season-btn:focus-visible,
+.season-control-btn:focus-visible,
+.position-options button:focus-visible {
+    outline: 2px solid #ff893e;
+    outline-offset: 3px;
+}
+
+/* RESTART BUTTON */
+
+.draft-heading #restartBtn {
+    background: rgba(8, 8, 9, 0.75);
+    border: 1px solid #777071;
+    color: #fff;
+    backdrop-filter: blur(8px);
+}
+
+.draft-heading #restartBtn:hover {
+    border-color: #fa5500;
+    background: rgba(250, 85, 0, 0.15);
+}
+
+/* SMALL SCREENS */
+
+@media (max-width: 767px) {
+    .draft-heading {
+        padding-bottom: 105px;
+    }
+
+    .draft-heading #restartBtn {
+        bottom: 20px;
+        left: 0;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .simulate-season-btn {
+        font-size: 11px;
+        padding: 12px 17px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .primary-btn,
+    .secondary-btn,
+    .simulate-season-btn,
+    .season-control-btn,
+    .position-options button {
+        transition: none;
+    }
+}
+/* RESTART BUTTON BELOW ROUND PROGRESS */
+
+.draft-heading {
+    padding-bottom: 45px;
+}
+
+.draft-restart-row {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 24px;
+}
+
+.draft-heading #restartBtn {
+    position: static;
+    margin: 0;
+    background: rgba(8, 8, 9, 0.75);
+    border: 1px solid #777071;
+    color: #fff;
+}
+
+.draft-heading #restartBtn:hover {
+    border-color: #fa5500;
+    background: rgba(250, 85, 0, 0.15);
+}
+
+/* ==========================================
+   DRAFT BUTTONS — CLEAN UNIFIED DESIGN
+   Match the Restart Draft button
+========================================== */
+
+/* Main Draft action buttons */
+.draft-shell .primary-btn,
+.draft-shell .secondary-btn,
+.player-dialog .primary-btn,
+.draft-shell .position-options button {
+    background: rgba(8, 8, 9, 0.85);
+    background-image: none;
+    border: 1px solid #777071;
+    border-radius: 6px;
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    padding: 13px 22px;
+
+    box-shadow: none;
+    text-shadow: none;
+    filter: none;
+
+    transform: none;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+/* Hover — subtle orange accent, no glow */
+.draft-shell .primary-btn:hover:not(:disabled),
+.draft-shell .secondary-btn:hover:not(:disabled),
+.player-dialog .primary-btn:hover:not(:disabled),
+.draft-shell .position-options button:hover:not(:disabled) {
+    background: rgba(250, 85, 0, 0.12);
+    background-image: none;
+    border-color: #fa5500;
+    color: #ffffff;
+
+    box-shadow: none;
+    text-shadow: none;
+    filter: none;
+    transform: none;
+}
+
+/* Remove glow when clicking */
+.draft-shell .primary-btn:active,
+.draft-shell .secondary-btn:active,
+.player-dialog .primary-btn:active,
+.draft-shell .position-options button:active {
+    box-shadow: none;
+    transform: none;
+}
+
+/* Disabled buttons */
+.draft-shell .primary-btn:disabled,
+.draft-shell .secondary-btn:disabled,
+.draft-shell .position-options button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Keep a visible outline for keyboard users */
+.draft-shell .primary-btn:focus-visible,
+.draft-shell .secondary-btn:focus-visible,
+.player-dialog .primary-btn:focus-visible,
+.draft-shell .position-options button:focus-visible {
+    outline: 2px solid #fa5500;
+    outline-offset: 3px;
+    box-shadow: none;
+}
+
+/* ==========================================
+   DRAFT PLAYER FLAGS AND POSITIONS
+========================================== */
+
+/* Overall and position on the same line */
+.player-card .draft-rating-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+/* Preserve existing rarity-based rating styling */
+.player-card .draft-rating-row .rating {
+    margin: 0;
+}
+
+/* Natural position next to overall */
+.player-card .draft-player-position {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+}
+
+/* Flag and team */
+.player-card .draft-team-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+/* Tiny flag */
+.draft-country-flag {
+    width: 23px;
+    height: 16px;
+    object-fit: cover;
+    border-radius: 2px;
+    flex-shrink: 0;
+    vertical-align: middle;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.15);
+}
+
+/* Prevent long club names from overflowing */
+.player-card .draft-team-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Nationality inside player popup */
+.player-dialog .draft-detail-nationality {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 10px 0 22px;
+    color: #f1eeee;
+    font-size: 16px;
+}
+
+.player-dialog .draft-detail-nationality .draft-country-flag {
+    width: 28px;
+    height: 19px;
+}
+
+/* ==========================================
+   DRAFT CARDS — FLAGS AND TEAM LOGOS
+========================================== */
+
+/* Player name and nationality flag */
+.player-card .draft-name-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    margin-bottom: 5px;
+}
+
+.player-card .draft-name-row .name {
+    min-width: 0;
+    margin: 0;
+}
+
+/* Nationality flag beside name */
+.player-card .draft-name-row .draft-country-flag {
+    width: 23px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* Team logo and club name */
+.player-card .draft-team-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+/* Small team logo */
+.player-card .draft-team-logo {
+    width: 23px;
+    height: 23px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* Keep long club names inside the card */
+.player-card .draft-team-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

@@ -1,4 +1,4 @@
-const cletountryCodeByName = new Map();
+const countryCodeByName  = new Map();
 
 function normalizeCountryName(name) {
     return name
@@ -286,6 +286,11 @@ function getFlagUrl(countryName) {
     "vanuatu": "vu"
         };
     const code = aliases[name] || countryCodeByName.get(name);
+
+if (!code) {
+    console.warn(`Unknown country: ${countryName}`);
+    return null;
+}
 
     console.log("FLAG DEBUG:", countryName, "=>", code);
 

@@ -1098,7 +1098,10 @@ def draft_pool():
 # =====================================================
 
 DRAFT_POSITIONS = ("PG", "SG", "SF", "PF", "C")
-
+POSITION_VALUES = {
+    position: index
+    for index, position in enumerate(DRAFT_POSITIONS, start=1)
+}
 
 def draft_player_positions(player):
     return {
@@ -1140,14 +1143,29 @@ def calculate_draft_rating(lineup):
         + all_around * 0.15
     )
 
-    # Match the current JavaScript rule: exact position only.
-    out_of_position = sum(
-        1
-        for pos, player in lineup.items()
-        if (player.position or "").strip().upper() != pos
-    )
+        # Calculate how far each player is from their natural position.
+    position_difference = 0
+    out_of_position = 0
 
-    multiplier = 2.0 - out_of_position * 0.3
+    for assigned_position, player in lineup.items():
+        natural_positions = draft_player_positions(player)
+
+        distance = min(
+            abs(
+                POSITION_VALUES[natural] -
+                POSITION_VALUES[assigned_position]
+            )
+            for natural in natural_positions
+            if natural in POSITION_VALUES
+        ) if any(p in POSITION_VALUES for p in natural_positions) else 4
+
+        position_difference += distance
+
+        if distance > 0:
+            out_of_position += 1
+
+    # Each position of distance reduces the multiplier by 0.1.
+    multiplier = 2.0 - position_difference * 0.1
 
     return {
         "base_score": base_score,
@@ -1202,74 +1220,258 @@ def opponent_strength(team, players):
     return max(60, min(190, strength))
 
 
+
 def draft_game(a, b, home_advantage=0):
-    difference = (
-        a["strength"] - b["strength"] + home_advantage
+    """
+    Simulate one basketball game.
+
+    Returns a dictionary containing:
+    - winner
+    - loser
+    - home score
+    - away score
+    - overtime information
+
+    home_advantage is kept for compatibility with
+    the existing simulation code.
+    """
+
+    strength_a = float(a["strength"])
+    strength_b = float(b["strength"])
+
+    # Team strength affects expected scoring.
+    # Strength is approximately 60-200 in our system.
+    expected_a = (
+        81
+        + (strength_a - 130) * 0.11
+        - (strength_b - 130) * 0.045
+        + home_advantage * 0.35
     )
 
-    probability = 1 / (1 + math.exp(-difference / 22))
+    expected_b = (
+        81
+        + (strength_b - 130) * 0.11
+        - (strength_a - 130) * 0.045
+        - home_advantage * 0.15
+    )
 
-    return a if random.random() < probability else b
+    # Random variation creates close games and upsets.
+    score_a = max(45, round(random.gauss(expected_a, 8)))
+    score_b = max(45, round(random.gauss(expected_b, 8)))
+
+    overtime = 0
+
+    # Resolve tied games through overtime.
+    while score_a == score_b:
+        overtime += 1
+
+        score_a += max(1, round(random.gauss(9, 3)))
+        score_b += max(1, round(random.gauss(9, 3)))
+
+    winner = a if score_a > score_b else b
+    loser = b if winner is a else a
+
+    return {
+        "winner": winner,
+        "loser": loser,
+        "home_score": score_a,
+        "away_score": score_b,
+        "overtime": overtime
+    }
 
 
 def draft_series(a, b):
+    """
+    Best-of-five playoff series.
+
+    The first team has home-court advantage
+    in games 1, 2 and 5.
+    """
+
     wins_a = 0
     wins_b = 0
+    games = []
 
-    for home in (4, 4, -4, -4, 4):
-        winner = draft_game(a, b, home)
+    home_pattern = [True, True, False, False, True]
 
-        if winner is a:
+    for game_number, a_is_home in enumerate(home_pattern, 1):
+
+        home = a if a_is_home else b
+        away = b if a_is_home else a
+
+        game = draft_game(home, away, home_advantage=4)
+
+        if game["winner"] is a:
             wins_a += 1
         else:
             wins_b += 1
 
+        games.append({
+            "game": game_number,
+            "home": home["name"],
+            "away": away["name"],
+            "home_score": game["home_score"],
+            "away_score": game["away_score"],
+            "overtime": game["overtime"]
+        })
+
         if wins_a == 3 or wins_b == 3:
             break
 
-    return a if wins_a == 3 else b
+    winner = a if wins_a == 3 else b
+
+    return {
+        "winner": winner,
+        "team_a": a["name"],
+        "team_b": b["name"],
+        "wins_a": wins_a,
+        "wins_b": wins_b,
+        "games": games
+    }
+
+
 
 
 def run_draft_season(club, rating, teams, players):
+    """
+    Simulate a 20-team EuroLeague season:
+    - 38 regular-season games per team
+    - 38 matchdays
+    - Play-in tournament
+    - Best-of-five quarterfinals
+    - Final Four
+
+    The user's drafted team replaces their selected club.
+    """
+
     user_team = {
         "id": "drafted-team",
         "name": club.name,
         "strength": rating["total_points"],
         "wins": 0,
-        "losses": 0
+        "losses": 0,
+        "points_for": 0,
+        "points_against": 0
     }
 
     competitors = [user_team]
 
+    # The drafted team replaces the selected club.
     for team in teams:
+        if team.id == club.id:
+            continue
+
         competitors.append({
             "id": team.id,
             "name": team.name,
             "strength": opponent_strength(team, players),
             "wins": 0,
-            "losses": 0
+            "losses": 0,
+            "points_for": 0,
+            "points_against": 0
         })
 
-    # Double round-robin regular season.
-    for i in range(len(competitors)):
-        for j in range(i + 1, len(competitors)):
-            a = competitors[i]
-            b = competitors[j]
+    # Build the double round-robin schedule.
+    # Circle method: 19 opponents, home and away.
+    rotation = competitors[:]
+    first_half = []
 
-            for home in (4, -4):
-                winner = draft_game(a, b, home)
-                loser = b if winner is a else a
+    for round_index in range(19):
+        fixtures = []
 
-                winner["wins"] += 1
-                loser["losses"] += 1
+        for i in range(10):
+            a = rotation[i]
+            b = rotation[19 - i]
+
+            # Alternate home assignments.
+            if (round_index + i) % 2 == 0:
+                home, away = a, b
+            else:
+                home, away = b, a
+
+            fixtures.append((home, away))
+
+        first_half.append(fixtures)
+
+        # Keep the first team fixed.
+        rotation = (
+            [rotation[0]]
+            + [rotation[-1]]
+            + rotation[1:-1]
+        )
+
+    schedule = first_half + [
+        [(away, home) for home, away in fixtures]
+        for fixtures in first_half
+    ]
+
+    matchdays = []
+
+    # REGULAR SEASON
+    for matchday_number, fixtures in enumerate(schedule, 1):
+        matches = []
+
+        for home, away in fixtures:
+            game = draft_game(home, away, home_advantage=4)
+
+            home["points_for"] += game["home_score"]
+            home["points_against"] += game["away_score"]
+
+            away["points_for"] += game["away_score"]
+            away["points_against"] += game["home_score"]
+
+            game["winner"]["wins"] += 1
+            game["loser"]["losses"] += 1
+
+            matches.append({
+                "home_id": home["id"],
+                "away_id": away["id"],
+                "home": home["name"],
+                "away": away["name"],
+                "home_score": game["home_score"],
+                "away_score": game["away_score"],
+                "overtime": game["overtime"],
+                "is_user_game": (
+                    home is user_team or away is user_team
+                )
+            })
+
+        matchdays.append({
+            "matchday": matchday_number,
+            "matches": matches
+        })
+
+    def rank_key(team):
+        return (
+            team["wins"],
+            team["points_for"] - team["points_against"],
+            team["strength"]
+        )
 
     standings = sorted(
         competitors,
-        key=lambda t: (t["wins"], t["strength"]),
+        key=rank_key,
         reverse=True
     )
 
     seed = standings.index(user_team) + 1
+
+    standings_data = []
+
+    for position, team in enumerate(standings, 1):
+        standings_data.append({
+            "position": position,
+            "id": team["id"],
+            "name": team["name"],
+            "wins": team["wins"],
+            "losses": team["losses"],
+            "points_for": team["points_for"],
+            "points_against": team["points_against"],
+            "point_difference": (
+                team["points_for"] - team["points_against"]
+            ),
+            "is_user_team": team is user_team
+        })
 
     result = {
         "wins": user_team["wins"],
@@ -1278,7 +1480,12 @@ def run_draft_season(club, rating, teams, players):
         "totalTeams": len(competitors),
         "teamStrength": rating["total_points"],
         "outcome": "",
-        "details": ""
+        "details": "",
+        "matchdays": matchdays,
+        "standings": standings_data,
+        "play_in": [],
+        "playoffs": [],
+        "final_four": []
     }
 
     def finish(outcome, details):
@@ -1286,34 +1493,65 @@ def run_draft_season(club, rating, teams, players):
         result["details"] = details
         return result
 
-    if seed > 10:
-        return finish(
-            "OUT OF PLAYOFFS",
-            "Your team failed to qualify for the postseason."
-        )
+    def knockout_game(home, away, stage):
+        game = draft_game(home, away, home_advantage=4)
 
-    # Play-in: 7 vs 8 and 9 vs 10.
+        return {
+            "stage": stage,
+            "home": home["name"],
+            "away": away["name"],
+            "home_score": game["home_score"],
+            "away_score": game["away_score"],
+            "overtime": game["overtime"],
+            "winner": game["winner"]["name"]
+        }, game["winner"]
+
+   
+    # =====================================================
+    # COMPLETE EUROLEAGUE POSTSEASON
+    # Always simulate the entire tournament.
+    # =====================================================
+
+    user_outcome = None
+    user_details = None
+
+    if seed > 10:
+        user_outcome = "OUT OF PLAYOFFS"
+        user_details = "Your team finished outside the top ten."
+
+    # PLAY-IN TOURNAMENT
     seventh = standings[6]
     eighth = standings[7]
     ninth = standings[8]
     tenth = standings[9]
 
-    seventh_seed = draft_game(seventh, eighth, 4)
-    loser_78 = (
+    game78, seventh_seed = knockout_game(
+        seventh, eighth, "7 vs 8"
+    )
+
+    loser78 = (
         eighth if seventh_seed is seventh else seventh
     )
 
-    winner_910 = draft_game(ninth, tenth, 4)
-    eighth_seed = draft_game(loser_78, winner_910, 4)
+    game910, winner910 = knockout_game(
+        ninth, tenth, "9 vs 10"
+    )
 
-    if seed >= 7 and user_team not in (
+    game8, eighth_seed = knockout_game(
+        loser78, winner910, "Final play-in"
+    )
+
+    result["play_in"] = [game78, game910, game8]
+
+    if 7 <= seed <= 10 and user_team not in (
         seventh_seed, eighth_seed
     ):
-        return finish(
-            "PLAY-IN ELIMINATION",
-            "Your team reached the play-in but did not qualify for the playoffs."
+        user_outcome = "PLAY-IN ELIMINATION"
+        user_details = (
+            "Your team was eliminated in the play-in tournament."
         )
 
+    # PLAYOFF QUARTERFINALS
     playoff_teams = (
         standings[:6] + [seventh_seed, eighth_seed]
     )
@@ -1325,40 +1563,89 @@ def run_draft_season(club, rating, teams, players):
         (playoff_teams[3], playoff_teams[4])
     ]
 
-    final_four = [
-        draft_series(a, b)
-        for a, b in matchups
-    ]
+    final_four_teams = []
 
-    if user_team not in final_four:
-        return finish(
-            "PLAYOFF ELIMINATION",
+    for a, b in matchups:
+        series = draft_series(a, b)
+
+        final_four_teams.append(series["winner"])
+
+        result["playoffs"].append({
+            "team_a": series["team_a"],
+            "team_b": series["team_b"],
+            "wins_a": series["wins_a"],
+            "wins_b": series["wins_b"],
+            "winner": series["winner"]["name"],
+            "games": series["games"]
+        })
+
+    if (
+        user_outcome is None
+        and user_team not in final_four_teams
+    ):
+        user_outcome = "PLAYOFF ELIMINATION"
+        user_details = (
             "Your team lost its best-of-five quarterfinal series."
         )
 
-    final_four.sort(key=lambda t: standings.index(t))
-
-    finalist_a = draft_game(final_four[0], final_four[3])
-    finalist_b = draft_game(final_four[1], final_four[2])
-
-    if user_team not in (finalist_a, finalist_b):
-        return finish(
-            "FINAL FOUR",
-            "Your team reached the Final Four but lost in the semifinals."
-        )
-
-    champion = draft_game(finalist_a, finalist_b)
-
-    if champion is not user_team:
-        return finish(
-            "EUROLEAGUE FINALIST",
-            "Your team reached the final but finished as runner-up."
-        )
-
-    return finish(
-        "EUROLEAGUE CHAMPIONS",
-        "Congratulations! Your team won the EuroLeague!"
+    # FINAL FOUR
+    final_four_teams.sort(
+        key=lambda team: standings.index(team)
     )
+
+    semifinal1, finalist_a = knockout_game(
+        final_four_teams[0],
+        final_four_teams[3],
+        "Semifinal 1"
+    )
+
+    semifinal2, finalist_b = knockout_game(
+        final_four_teams[1],
+        final_four_teams[2],
+        "Semifinal 2"
+    )
+
+    result["final_four"].extend([
+        semifinal1,
+        semifinal2
+    ])
+
+    if (
+        user_outcome is None
+        and user_team not in (finalist_a, finalist_b)
+    ):
+        user_outcome = "FINAL FOUR"
+        user_details = (
+            "Your team reached the Final Four "
+            "but lost in the semifinals."
+        )
+
+    # CHAMPIONSHIP GAME
+    championship, champion = knockout_game(
+        finalist_a,
+        finalist_b,
+        "EuroLeague Final"
+    )
+
+    result["final_four"].append(championship)
+
+    if user_outcome is None:
+        if champion is user_team:
+            user_outcome = "EUROLEAGUE CHAMPIONS"
+            user_details = (
+                "Congratulations! Your team won the EuroLeague!"
+            )
+        else:
+            user_outcome = "EUROLEAGUE FINALIST"
+            user_details = (
+                "Your team reached the championship game "
+                "but finished runner-up."
+            )
+
+    result["champion"] = champion["name"]
+
+    return finish(user_outcome, user_details)
+
 
 
 
@@ -1444,7 +1731,7 @@ def simulate_draft_api():
                     "wins": existing.wins,
                     "losses": existing.losses,
                     "seed": existing.seed,
-                    "totalTeams": Team.query.count() + 1,
+                    "totalTeams": Team.query.count(),
                     "teamStrength": existing.team_score,
                     "outcome": existing.outcome,
                     "details": "This simulation was already saved."
@@ -1757,6 +2044,277 @@ def get_legends():
         for legend in legends
     ])
 
+
+# =====================================================
+# ADMIN - LEGEND MANAGEMENT
+# =====================================================
+
+@app.route("/admin/legends")
+@admin_required
+def admin_legends():
+    legends = Legend.query.order_by(Legend.name).all()
+    return render_template("admin_legends.html", legends=legends)
+
+
+def save_legend_from_form(legend):
+    """Validate form data and update a Legend object."""
+
+    name = request.form.get("name", "").strip()
+    nationality = request.form.get("nationality", "").strip()
+    position = request.form.get("position", "").strip().upper()
+    picture_url = request.form.get("picture_url", "").strip()
+    peak_season = request.form.get("peak_season", "").strip()
+    legendary_team = request.form.get("legendary_team", "").strip()
+
+    if not name:
+        raise ValueError("Legend name is required.")
+
+    if position not in ("PG", "SG", "SF", "PF", "C"):
+        raise ValueError("Please select a valid position.")
+
+    if (len(name) > 100 or len(nationality) > 50
+            or len(picture_url) > 500 or len(peak_season) > 20
+            or len(legendary_team) > 100):
+        raise ValueError("One or more text fields are too long.")
+
+    existing = Legend.query.filter(
+        Legend.name == name,
+        Legend.id != legend.id
+    ).first()
+
+    if existing:
+        raise ValueError("A legend with this name already exists.")
+
+    ratings = {}
+    for field in ("rating", "offense", "defense"):
+        value = int(request.form.get(field, "90"))
+        if not 0 <= value <= 100:
+            raise ValueError(f"{field} must be between 0 and 100.")
+        ratings[field] = value
+
+    statistics = {}
+    for field in (
+        "points_per_game", "assists_per_game",
+        "rebounds_per_game", "blocks_per_game",
+        "steals_per_game", "fg_percentage"
+    ):
+        value = float(request.form.get(field, "0"))
+        if not math.isfinite(value) or not 0 <= value <= 100:
+            raise ValueError(f"{field} must be between 0 and 100.")
+        statistics[field] = value
+
+    legend.name = name
+    legend.nationality = nationality
+    legend.position = position
+    legend.picture_url = picture_url
+    legend.peak_season = peak_season
+    legend.legendary_team = legendary_team
+
+    for field, value in {**ratings, **statistics}.items():
+        setattr(legend, field, value)
+
+
+@app.route("/admin/legends/add", methods=["GET", "POST"])
+@admin_required
+def admin_add_legend():
+    if request.method == "POST":
+        legend = Legend()
+
+        try:
+            save_legend_from_form(legend)
+            db.session.add(legend)
+            db.session.commit()
+        except (ValueError, TypeError, IntegrityError) as error:
+            db.session.rollback()
+            flash(f"Could not add legend: {error}", "danger")
+            return redirect(url_for("admin_add_legend"))
+
+        flash("Legend added successfully!", "success")
+        return redirect(url_for("admin_legends"))
+
+    return render_template("admin_legend_form.html", legend=None)
+
+
+@app.route("/admin/legends/<int:legend_id>/edit",
+           methods=["GET", "POST"])
+@admin_required
+def admin_edit_legend(legend_id):
+    legend = db.get_or_404(Legend, legend_id)
+
+    if request.method == "POST":
+        try:
+            save_legend_from_form(legend)
+            db.session.commit()
+        except (ValueError, TypeError, IntegrityError) as error:
+            db.session.rollback()
+            flash(f"Could not update legend: {error}", "danger")
+            return redirect(
+                url_for("admin_edit_legend", legend_id=legend_id)
+            )
+
+        flash("Legend updated successfully!", "success")
+        return redirect(url_for("admin_legends"))
+
+    return render_template("admin_legend_form.html", legend=legend)
+
+
+@app.route("/admin/legends/<int:legend_id>/delete",
+           methods=["POST"])
+@admin_required
+def admin_delete_legend(legend_id):
+    legend = db.get_or_404(Legend, legend_id)
+    name = legend.name
+
+    db.session.delete(legend)
+    db.session.commit()
+
+    flash(f"{name} was deleted.", "success")
+    return redirect(url_for("admin_legends"))
+
+
+# =====================================================
+# ADMIN - USER MANAGEMENT
+# =====================================================
+
+from flask import session
+import secrets
+
+
+def admin_user_csrf_token():
+    if "admin_user_csrf" not in session:
+        session["admin_user_csrf"] = secrets.token_urlsafe(32)
+    return session["admin_user_csrf"]
+
+
+def verify_admin_user_csrf():
+    supplied = request.form.get("csrf_token", "")
+    expected = session.get("admin_user_csrf", "")
+
+    if not expected or not secrets.compare_digest(supplied, expected):
+        abort(400, description="Invalid form security token.")
+
+
+@app.route("/admin/users")
+@admin_required
+def admin_users():
+    users = User.query.order_by(User.username).all()
+
+    return render_template(
+        "admin_users.html",
+        users=users,
+        csrf_token=admin_user_csrf_token()
+    )
+
+
+@app.route("/admin/users/<int:user_id>/edit",
+           methods=["GET", "POST"])
+@admin_required
+def admin_edit_user(user_id):
+    user = db.get_or_404(User, user_id)
+
+    if request.method == "POST":
+        verify_admin_user_csrf()
+
+        username = request.form.get("username", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        role = request.form.get("role", "").strip()
+
+        if not username or not email:
+            flash("Username and email are required.", "danger")
+            return redirect(url_for("admin_edit_user", user_id=user.id))
+
+        if len(username) > 50 or len(email) > 120:
+            flash("Username or email is too long.", "danger")
+            return redirect(url_for("admin_edit_user", user_id=user.id))
+
+        if "@" not in email or email.startswith("@") or email.endswith("@"):
+            flash("Please enter a valid email address.", "danger")
+            return redirect(url_for("admin_edit_user", user_id=user.id))
+
+        if role not in ("user", "admin"):
+            flash("Invalid account role.", "danger")
+            return redirect(url_for("admin_edit_user", user_id=user.id))
+
+        if user.id == current_user.id and role != "admin":
+            flash("You cannot remove your own admin access.", "danger")
+            return redirect(url_for("admin_edit_user", user_id=user.id))
+
+        existing_username = User.query.filter(
+            User.username == username,
+            User.id != user.id
+        ).first()
+
+        if existing_username:
+            flash("This username is already taken.", "danger")
+            return redirect(url_for("admin_edit_user", user_id=user.id))
+
+        existing_email = User.query.filter(
+            User.email == email,
+            User.id != user.id
+        ).first()
+
+        if existing_email:
+            flash("This email is already registered.", "danger")
+            return redirect(url_for("admin_edit_user", user_id=user.id))
+
+        user.username = username
+        user.email = email
+        user.role = role
+
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            flash("Username or email already exists.", "danger")
+            return redirect(url_for("admin_edit_user", user_id=user.id))
+
+        flash("User updated successfully!", "success")
+        return redirect(url_for("admin_users"))
+
+    return render_template(
+        "admin_user_form.html",
+        user=user,
+        csrf_token=admin_user_csrf_token()
+    )
+
+
+@app.route("/admin/users/<int:user_id>/delete",
+           methods=["POST"])
+@admin_required
+def admin_delete_user(user_id):
+    verify_admin_user_csrf()
+
+    user = db.get_or_404(User, user_id)
+
+    if user.id == current_user.id:
+        flash("You cannot delete your own account.", "danger")
+        return redirect(url_for("admin_users"))
+
+    if user.role == "admin" and User.query.filter_by(role="admin").count() <= 1:
+        flash("You cannot delete the last administrator.", "danger")
+        return redirect(url_for("admin_users"))
+
+    username = user.username
+
+    try:
+        # Delete dependent records before deleting the account.
+        DraftRun.query.filter_by(user_id=user.id).delete()
+        UserAchievement.query.filter_by(user_id=user.id).delete()
+        UserTitle.query.filter_by(user_id=user.id).delete()
+
+        db.session.delete(user)
+        db.session.commit()
+
+    except IntegrityError:
+        db.session.rollback()
+        flash(
+            "This account has other related records and could not be deleted.",
+            "danger"
+        )
+        return redirect(url_for("admin_users"))
+
+    flash(f"User {username} was deleted.", "success")
+    return redirect(url_for("admin_users"))
 
 
 

@@ -7,41 +7,96 @@
 
     <title>Admin Dashboard | Draft EuroLeague</title>
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/navbar.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
 
-<body>
+<body class="admin-page">
 
     {% include 'navbar.html' %}
 
-    <main class="container py-5">
+    <main class="container admin-main">
 
-        <h1>Admin Dashboard</h1>
+        <div class="admin-heading">
+            <div class="admin-eyebrow">
+                <span class="admin-eyebrow-line"></span>
+                DRAFT EUROLEAGUE / ADMINISTRATION
+            </div>
 
-        <p>Welcome, {{ current_user.username }}!</p>
+            <h1>ADMIN <span>CONTROL CENTER.</span></h1>
 
-        <p>From here, you'll eventually be able to manage:</p>
+            <p>
+                Welcome back, <strong>{{ current_user.username }}</strong>.
+                Manage the league database, historic players and registered accounts
+                from one place.
+            </p>
+        </div>
 
-        <ul>
-            <li>EuroLeague teams</li>
-            <li>Players and their ratings</li>
-            <li>Player statistics</li>
-            <li>Team biographies</li>
-        </ul>
-        <a href="{{ url_for('admin_players') }}"
-   class="btn btn-primary mt-3">
-    Manage Players
-</a>
-<a href="{{ url_for('admin_teams') }}"
-   class="btn btn-primary mt-3 ms-2">
-    Manage Teams
-</a>
+        <section class="admin-panel">
+
+            <div class="admin-panel-header">
+                <div>
+                    <span class="admin-panel-label">MANAGEMENT SYSTEM</span>
+                    <h2>LEAGUE OPERATIONS</h2>
+                </div>
+                <span class="admin-panel-status">
+                    ADMIN ACCESS
+                </span>
+            </div>
+
+            <div class="admin-menu">
+
+                <a href="{{ url_for('admin_players') }}" class="admin-menu-item">
+                    <div class="admin-menu-number">01</div>
+                    <div class="admin-menu-content">
+                        <h3>MANAGE PLAYERS</h3>
+                        <p>Update player profiles, ratings, statistics and team assignments.</p>
+                    </div>
+                    <span class="admin-menu-arrow">&rarr;</span>
+                </a>
+
+                <a href="{{ url_for('admin_teams') }}" class="admin-menu-item">
+                    <div class="admin-menu-number">02</div>
+                    <div class="admin-menu-content">
+                        <h3>MANAGE TEAMS</h3>
+                        <p>Edit EuroLeague clubs, team details and images.</p>
+                    </div>
+                    <span class="admin-menu-arrow">&rarr;</span>
+                </a>
+
+                <a href="{{ url_for('admin_legends') }}" class="admin-menu-item">
+                    <div class="admin-menu-number">03</div>
+                    <div class="admin-menu-content">
+                        <h3>MANAGE LEGENDS</h3>
+                        <p>Maintain the all-time legends available in Draft mode.</p>
+                    </div>
+                    <span class="admin-menu-arrow">&rarr;</span>
+                </a>
+
+                <a href="{{ url_for('admin_users') }}" class="admin-menu-item">
+                    <div class="admin-menu-number">04</div>
+                    <div class="admin-menu-content">
+                        <h3>MANAGE USERS</h3>
+                        <p>Review registered accounts, permissions and user information.</p>
+                    </div>
+                    <span class="admin-menu-arrow">&rarr;</span>
+                </a>
+
+            </div>
+
+            <div class="admin-panel-footer">
+                <span>DRAFT EUROLEAGUE</span>
+                <span>ADMINISTRATIVE CONTROL PANEL</span>
+            </div>
+
+        </section>
+
     </main>
 
 </body>

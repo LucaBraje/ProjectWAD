@@ -11,10 +11,12 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
 
-<body>
-    {% include 'navbar.html' %}
+<body class="admin-page">
+        {% include 'navbar.html' %}
 
     <main class="container py-5">
 
