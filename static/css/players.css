@@ -173,3 +173,292 @@
         font-size: 14px;
     }
 }
+
+/* ==========================================
+   PLAYER DIRECTORY — FULL ROSTER TABLE
+   Matches Team Profile roster design
+========================================== */
+
+.players-page .page-container {
+    max-width: 1280px;
+}
+
+/* Table outer frame */
+.players-page .player-table-container {
+    background: #141416;
+    border: 1px solid #343033;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.players-page .player-table-container .table-responsive {
+    overflow-x: auto;
+}
+
+/* Table layout */
+.players-page #playerTable {
+    margin: 0;
+    min-width: 1060px;
+    white-space: nowrap;
+
+    --bs-table-bg: #141416;
+    --bs-table-color: #e9e5e2;
+    --bs-table-border-color: #302b2c;
+    --bs-table-hover-bg: #242022;
+    --bs-table-hover-color: #fff;
+}
+
+/* All cells */
+.players-page #playerTable th,
+.players-page #playerTable td {
+    padding: 14px 13px;
+    vertical-align: middle;
+    border-bottom: 1px solid #302b2c;
+}
+
+/* Header */
+.players-page #playerTable thead th {
+    background: #211c1d;
+    color: #ff893e;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #302b2c;
+}
+
+/* Body */
+.players-page #playerTable tbody td {
+    background: transparent;
+    color: #e6e1de;
+    font-size: 13px;
+    font-weight: 400;
+}
+
+/* Player column */
+.players-page #playerTable th:first-child,
+.players-page #playerTable td:first-child {
+    min-width: 250px;
+    padding-left: 20px;
+}
+
+.players-page .roster-player {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.players-page .roster-player-name {
+    font-weight: 800;
+    color: #fff;
+}
+
+/* Player pictures */
+.players-page .roster-player-picture,
+.players-page .roster-picture-placeholder {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    border-radius: 7px;
+    background: #2a2728;
+}
+
+.players-page .roster-player-picture {
+    object-fit: cover;
+    object-position: center top;
+}
+
+.players-page .roster-picture-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #a49b96;
+    font-weight: 900;
+}
+
+/* Nationality flags */
+.players-page .player-country-flag {
+    width: 26px;
+    height: 18px;
+    object-fit: cover;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+/* Position tag */
+.players-page .position-tag {
+    display: inline-block;
+    padding: 5px 9px;
+    background: #302a2b;
+    color: #ddd5d0;
+    border-radius: 4px;
+    font-weight: 800;
+}
+
+/* Overall rating */
+.players-page .rating-badge {
+    display: inline-block;
+    min-width: 43px;
+    padding: 8px 9px;
+    background: #fa5500;
+    color: #101010;
+    border-radius: 5px;
+    font-weight: 900;
+    text-align: center;
+}
+
+/* Clickable rows */
+.players-page #playerTable tbody tr {
+    cursor: pointer;
+    transition: background-color .18s ease;
+}
+
+.players-page #playerTable tbody tr:hover {
+    background: #242022;
+}
+
+.players-page #playerTable tbody tr:hover td {
+    background: transparent;
+}
+
+.players-page #playerTable tbody tr:focus-visible {
+    outline: 2px solid #fa5500;
+    outline-offset: -2px;
+}
+
+/* Empty and loading messages */
+.players-page #playerTable .loading-message {
+    padding: 35px !important;
+    text-align: center;
+    color: #aaa09a !important;
+    font-weight: 400 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .players-page #playerTable tbody tr {
+        transition: none;
+    }
+}
+
+/* ==========================================
+   PLAYER DIRECTORY — CLUBS AND FLAGS
+========================================== */
+
+/* Give the expanded roster enough space */
+.players-page #playerTable {
+    min-width: 1320px;
+}
+
+/* Player name and nationality flag */
+.players-page .roster-player {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.players-page .roster-player-name {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.players-page .player-country-flag {
+    width: 26px;
+    height: 18px;
+    min-width: 26px;
+    object-fit: cover;
+    border-radius: 3px;
+}
+
+/* Team name and logo */
+.players-page .directory-team-cell {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.players-page .directory-team-logo {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    object-fit: contain;
+}
+
+.players-page .directory-team-name {
+    color: #e6e1de;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.players-page .directory-team-fallback {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #302a2b;
+    color: #ff893e;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+/* Wider first two columns */
+.players-page #playerTable th:first-child,
+.players-page #playerTable td:first-child {
+    min-width: 275px;
+}
+
+.players-page #playerTable th:nth-child(2),
+.players-page #playerTable td:nth-child(2) {
+    min-width: 225px;
+}
+
+/* ==========================================
+   CLICKABLE PLAYER TABLE HEADERS
+========================================== */
+
+.players-page #playerTable thead th[data-sort] {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+/* Hover effect */
+.players-page #playerTable thead th[data-sort]:hover {
+    background: #453027;
+    color: #fff;
+}
+
+/* Active sorting column */
+.players-page #playerTable thead th.sort-asc,
+.players-page #playerTable thead th.sort-desc {
+    background: #38271f;
+    color: #ff893e;
+}
+
+/* Ascending indicator */
+.players-page #playerTable thead th.sort-asc::after {
+    content: " ▲";
+    color: #fff;
+    font-size: 10px;
+}
+
+/* Descending indicator */
+.players-page #playerTable thead th.sort-desc::after {
+    content: " ▼";
+    color: #fff;
+    font-size: 10px;
+}
+
+/* Keyboard accessibility */
+.players-page #playerTable thead th[data-sort]:focus-visible {
+    outline: 2px solid #fa5500;
+    outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .players-page #playerTable thead th[data-sort] {
+        transition: none;
+    }
+}

@@ -52,12 +52,57 @@
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <label for="sortFilter" class="form-label">SORT PLAYERS</label>
-                    <select id="sortFilter" class="form-select">
-                        <option value="rating-desc">Highest OVR first</option>
-                        <option value="rating-asc">Lowest OVR first</option>
-                        <option value="name-asc">Name: A–Z</option>
-                        <option value="name-desc">Name: Z–A</option>
-                    </select>
+                   
+<select id="sortFilter" class="form-select">
+
+    <!-- OVERALL RATING -->
+    <option value="rating-desc">Overall Rating: Highest First</option>
+    <option value="rating-asc">Overall Rating: Lowest First</option>
+
+    <!-- PLAYER NAME -->
+    <option value="name-asc">Player Name: A–Z</option>
+    <option value="name-desc">Player Name: Z–A</option>
+
+    <!-- OFFENSIVE AND DEFENSIVE ATTRIBUTES -->
+    <option value="offense-desc">Offense: Highest First</option>
+    <option value="offense-asc">Offense: Lowest First</option>
+
+    <option value="defense-desc">Defense: Highest First</option>
+    <option value="defense-asc">Defense: Lowest First</option>
+
+    <!-- POINTS PER GAME -->
+    <option value="points_per_game-desc">PPG: Highest First</option>
+    <option value="points_per_game-asc">PPG: Lowest First</option>
+
+    <!-- ASSISTS PER GAME -->
+    <option value="assists_per_game-desc">APG: Highest First</option>
+    <option value="assists_per_game-asc">APG: Lowest First</option>
+
+    <!-- REBOUNDS PER GAME -->
+    <option value="rebounds_per_game-desc">RPG: Highest First</option>
+    <option value="rebounds_per_game-asc">RPG: Lowest First</option>
+
+    <!-- BLOCKS PER GAME -->
+    <option value="blocks_per_game-desc">BPG: Highest First</option>
+    <option value="blocks_per_game-asc">BPG: Lowest First</option>
+
+    <!-- STEALS PER GAME -->
+    <option value="steals_per_game-desc">SPG: Highest First</option>
+    <option value="steals_per_game-asc">SPG: Lowest First</option>
+
+    <!-- FIELD GOAL PERCENTAGE -->
+    <option value="fg_percentage-desc">FG%: Highest First</option>
+    <option value="fg_percentage-asc">FG%: Lowest First</option>
+
+    <!-- TEAM AND POSITION -->
+    <option value="team-asc">Team: A–Z</option>
+    <option value="team-desc">Team: Z–A</option>
+
+    <option value="position-asc">Position: A–Z</option>
+    <option value="position-desc">Position: Z–A</option>
+
+</select>
+
                 </div>
             </div>
         </section>
@@ -67,16 +112,39 @@
             <span class="results-hint">SELECT A PLAYER TO VIEW STATS <span aria-hidden="true">↗</span></span>
         </div>
 
-        <div class="player-table-container">
-            <div class="table-responsive">
-                <table class="table align-middle mb-0" id="playerTable">
-                    <thead><tr><th scope="col">PLAYER</th><th scope="col">TEAM</th><th scope="col">POSITION</th><th scope="col">OVR</th></tr></thead>
-                    <tbody id="playerTableBody">
-                        <tr><td colspan="4" class="loading-message">Loading players...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+       
+<div class="player-table-container">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="playerTable">
+           
+<thead>
+    <tr>
+        <th scope="col" data-sort="name" tabindex="0">PLAYER</th>
+        <th scope="col" data-sort="team" tabindex="0">TEAM</th>
+        <th scope="col" data-sort="position" tabindex="0">POS</th>
+        <th scope="col" data-sort="rating" tabindex="0">OVR</th>
+        <th scope="col" data-sort="offense" tabindex="0">OFF</th>
+        <th scope="col" data-sort="defense" tabindex="0">DEF</th>
+        <th scope="col" data-sort="points_per_game" tabindex="0">PPG</th>
+        <th scope="col" data-sort="assists_per_game" tabindex="0">APG</th>
+        <th scope="col" data-sort="rebounds_per_game" tabindex="0">RPG</th>
+        <th scope="col" data-sort="blocks_per_game" tabindex="0">BPG</th>
+        <th scope="col" data-sort="steals_per_game" tabindex="0">SPG</th>
+        <th scope="col" data-sort="fg_percentage" tabindex="0">FG%</th>
+    </tr>
+</thead>
+
+            <tbody id="playerTableBody">
+                <tr>
+                    <td colspan="12" class="loading-message">
+                        Loading players...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
     </main>
 
     <div class="modal fade" id="playerModal" tabindex="-1" aria-labelledby="playerModalTitle" aria-hidden="true">
