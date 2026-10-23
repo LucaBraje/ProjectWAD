@@ -1,77 +1,454 @@
+/* ============================================================================
+   DRAFT EUROLEAGUE — DRAFT PAGE
+   Cleaned and formatted from the original stylesheet (23 October 2026).
 
-:root{--orange:#fa5500;--bg:#0a0a0d;--panel:#17171c;--muted:#a2a2aa}
-*{box-sizing:border-box}
-body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
-.draft-shell{max-width:1420px;margin:auto;padding:48px 24px 90px}
-.eyebrow{color:#ff873e;letter-spacing:2px;font-size:12px;font-weight:800}
-.draft-heading h1{font-weight:950;font-size:clamp(38px,5vw,72px);letter-spacing:-2px;margin:8px 0}
-.draft-heading h1 span{color:var(--orange)}
-.draft-heading p,.stage-panel p{color:var(--muted)}
-.heading-line{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
-.round-meter{background:#2b2b32;border-radius:50px;height:7px;margin-top:26px;overflow:hidden}
-.round-meter>div{background:var(--orange);height:100%;width:0;transition:width .3s}
-.round-label{font-weight:800;font-size:12px;letter-spacing:1.5px;color:#b4b4bc;margin-top:12px}
-.draft-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;margin-top:30px}
-.stage-panel,.roster-panel{background:linear-gradient(145deg,#1c1c22,#121216);border:1px solid #34343c;border-radius:18px;padding:28px}
-.stage-panel h2,.roster-panel h2{font-weight:900;letter-spacing:-.5px;margin:8px 0 14px}
-.stage-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.stage-count{color:var(--orange);font-size:12px;font-weight:900}
-.primary-btn,.secondary-btn{border-radius:9px;padding:12px 20px;font-weight:900;letter-spacing:.5px;cursor:pointer}
-.primary-btn{background:var(--orange);border:1px solid var(--orange);color:white}
-.primary-btn:hover{background:#ff7831}
-.secondary-btn{background:transparent;border:1px solid #5a5a63;color:white}
-.secondary-btn:hover{border-color:var(--orange)}
-.primary-btn:disabled{opacity:.55;cursor:wait}
-.club-reveal{text-align:center;background:#101014;border:1px solid #303038;border-radius:16px;padding:36px 12px;margin:25px 0}
-.club-image{width:155px;height:155px;margin:auto;display:grid;place-items:center;font-size:90px;color:#4c4c54}
-.club-image img{width:100%;height:100%;object-fit:contain}
-.club-reveal h3{font-weight:900;margin-top:20px}
-.player-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:25px}
-.player-card{background:#101014;color:#fff;border:1px solid #35353c;border-radius:12px;padding:12px;text-align:left;cursor:pointer;min-width:0;transition:transform .15s,border-color .15s}
-.player-card:hover,.player-card:focus-visible{border-color:var(--orange);transform:translateY(-3px)}
-.player-photo{height:128px;background:radial-gradient(circle at 50% 70%,#39333a,#1a1a20);border-radius:8px;display:grid;place-items:center;overflow:hidden}
-.player-photo img{width:100%;height:100%;object-fit:contain}
-.player-photo .placeholder{font-size:50px;color:#62626a}
-.player-card .rating{color:var(--orange);font-size:25px;font-weight:950}
-.player-card .name{font-size:14px;font-weight:800;margin:5px 0;overflow-wrap:anywhere}
-.player-card .meta{font-size:11px;color:#aaa}
-.chosen-player{margin:22px 0;font-size:22px;font-weight:800;color:#ff873e}
-.position-options{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:20px 0}
-.position-options button{padding:20px 8px;border-radius:9px;background:#24242b;border:1px solid #484851;color:white;font-size:20px;font-weight:900}
-.position-options button:not(:disabled):hover{border-color:var(--orange);background:#39261d}
-.position-options button:disabled{opacity:.25;cursor:not-allowed}
-.roster-club{margin:15px 0 28px;display:flex;align-items:center;gap:12px;font-weight:800}
-.roster-club img{width:44px;height:44px;object-fit:contain}
-.roster-panel h2{font-size:20px}
-.roster-slots{display:grid;gap:9px}
-.roster-slot{display:flex;align-items:center;gap:12px;border:1px solid #36363e;background:#111116;padding:13px;border-radius:9px;min-height:65px}
-.roster-pos{color:var(--orange);font-size:18px;font-weight:950;min-width:32px}
-.roster-name{font-size:13px;font-weight:800}
-.roster-muted{color:#777781;font-size:12px}
-.roster-footnote{display:flex;justify-content:space-between;border-top:1px solid #34343c;margin-top:24px;padding-top:20px;font-size:12px;font-weight:900}
-.roster-footnote span{color:#898992}
-.player-dialog{max-width:500px;width:calc(100% - 30px);border:1px solid #55545d;border-radius:16px;background:#1a1a20;color:#fff;padding:30px}
-.player-dialog::backdrop{background:rgba(0,0,0,.83)}
-.dialog-close{float:right;border:0;background:none;color:#fff;font-size:32px;cursor:pointer}
-.detail-photo{width:150px;height:160px;object-fit:contain}
-.detail-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
-.detail-stats div{padding:12px;background:#101014;border-radius:8px}
-.detail-stats strong{display:block;color:var(--orange);font-size:20px}
-.detail-stats small{color:#aaa}
-.error-box{border:1px solid #ff5555;color:#ffdada;padding:16px;border-radius:9px;margin:20px 0}
-.summary{display:grid;gap:10px;margin:24px 0}
-.summary-item{padding:14px;background:#101014;border-radius:8px}
-.summary-item b{color:var(--orange);margin-right:12px}
+   Preserves original selector order, media queries, feature states and animations.
+   Repeated design generations are intentionally retained where removing them
+   could change CSS cascade behavior without checking draft.html / draft.js.
 
-@media(max-width:1050px){
-    .draft-layout{grid-template-columns:1fr}
-    .player-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+   Features: draft stages, player cards, rarity, legends, roster, final lineup,
+   season simulator, standings, playoffs, flags and responsive layout.
+   ============================================================================ */
+
+:root {
+    --orange: #fa5500;
+    --bg: #080809;
+    --panel: #141416;
+    --muted: #aaa6a3;
+    --orange-light: #ff893e;
+    --draft-border: #30292a;
+    --draft-text: #f7f5f2;
 }
-@media(max-width:600px){
-    .draft-shell{padding:30px 14px}
-    .stage-panel,.roster-panel{padding:18px}
-    .player-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .position-options{grid-template-columns:repeat(3,1fr)}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg);
+    color: #f7f7f8;
+    font-family: Inter,Arial,sans-serif;
+}
+
+.draft-shell {
+    max-width: 1420px;
+    margin: auto;
+    padding: 48px 24px 90px;
+}
+
+.eyebrow {
+    color: #ff873e;
+    letter-spacing: 2px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.draft-heading h1 {
+    font-weight: 950;
+    font-size: clamp(38px,5vw,72px);
+    letter-spacing: -2px;
+    margin: 8px 0;
+}
+
+.draft-heading h1 span {
+    color: var(--orange);
+}
+
+.draft-heading p,.stage-panel p {
+    color: var(--muted);
+}
+
+.heading-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.round-meter {
+    background: #2b2b32;
+    border-radius: 50px;
+    height: 7px;
+    margin-top: 26px;
+    overflow: hidden;
+}
+
+.round-meter>div {
+    background: var(--orange);
+    height: 100%;
+    width: 0;
+    transition: width .3s;
+}
+
+.round-label {
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    color: #b4b4bc;
+    margin-top: 12px;
+}
+
+.draft-layout {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 320px;
+    gap: 22px;
+    margin-top: 30px;
+}
+
+.stage-panel,.roster-panel {
+    background: linear-gradient(145deg,#1c1c22,#121216);
+    border: 1px solid #34343c;
+    border-radius: 18px;
+    padding: 28px;
+}
+
+.stage-panel h2,.roster-panel h2 {
+    font-weight: 900;
+    letter-spacing: -.5px;
+    margin: 8px 0 14px;
+}
+
+.stage-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.stage-count {
+    color: var(--orange);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.primary-btn,.secondary-btn {
+    border-radius: 9px;
+    padding: 12px 20px;
+    font-weight: 900;
+    letter-spacing: .5px;
+    cursor: pointer;
+}
+
+.primary-btn {
+    background: var(--orange);
+    border: 1px solid var(--orange);
+    color: white;
+}
+
+.primary-btn:hover {
+    background: #ff7831;
+}
+
+.secondary-btn {
+    background: transparent;
+    border: 1px solid #5a5a63;
+    color: white;
+}
+
+.secondary-btn:hover {
+    border-color: var(--orange);
+}
+
+.primary-btn:disabled {
+    opacity: .55;
+    cursor: wait;
+}
+
+.club-reveal {
+    text-align: center;
+    background: #101014;
+    border: 1px solid #303038;
+    border-radius: 16px;
+    padding: 36px 12px;
+    margin: 25px 0;
+}
+
+.club-image {
+    width: 155px;
+    height: 155px;
+    margin: auto;
+    display: grid;
+    place-items: center;
+    font-size: 90px;
+    color: #4c4c54;
+}
+
+.club-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.club-reveal h3 {
+    font-weight: 900;
+    margin-top: 20px;
+}
+
+.player-grid {
+    display: grid;
+    grid-template-columns: repeat(5,minmax(0,1fr));
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.player-card {
+    background: #101014;
+    color: #fff;
+    border: 1px solid #35353c;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: left;
+    cursor: pointer;
+    min-width: 0;
+    transition: transform .15s,border-color .15s;
+}
+
+.player-card:hover,.player-card:focus-visible {
+    border-color: var(--orange);
+    transform: translateY(-3px);
+}
+
+.player-photo {
+    height: 128px;
+    background: radial-gradient(circle at 50% 70%,#39333a,#1a1a20);
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
+.player-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.player-photo .placeholder {
+    font-size: 50px;
+    color: #62626a;
+}
+
+.player-card .rating {
+    color: var(--orange);
+    font-size: 25px;
+    font-weight: 950;
+}
+
+.player-card .name {
+    font-size: 14px;
+    font-weight: 800;
+    margin: 5px 0;
+    overflow-wrap: anywhere;
+}
+
+.player-card .meta {
+    font-size: 11px;
+    color: #aaa;
+}
+
+.chosen-player {
+    margin: 22px 0;
+    font-size: 22px;
+    font-weight: 800;
+    color: #ff873e;
+}
+
+.position-options {
+    display: grid;
+    grid-template-columns: repeat(5,minmax(0,1fr));
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.position-options button {
+    padding: 20px 8px;
+    border-radius: 9px;
+    background: #24242b;
+    border: 1px solid #484851;
+    color: white;
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.position-options button:not(:disabled):hover {
+    border-color: var(--orange);
+    background: #39261d;
+}
+
+.position-options button:disabled {
+    opacity: .25;
+    cursor: not-allowed;
+}
+
+.roster-club {
+    margin: 15px 0 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 800;
+}
+
+.roster-club img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+}
+
+.roster-panel h2 {
+    font-size: 20px;
+}
+
+.roster-slots {
+    display: grid;
+    gap: 9px;
+}
+
+.roster-slot {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid #36363e;
+    background: #111116;
+    padding: 13px;
+    border-radius: 9px;
+    min-height: 65px;
+}
+
+.roster-pos {
+    color: var(--orange);
+    font-size: 18px;
+    font-weight: 950;
+    min-width: 32px;
+}
+
+.roster-name {
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.roster-muted {
+    color: #777781;
+    font-size: 12px;
+}
+
+.roster-footnote {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #34343c;
+    margin-top: 24px;
+    padding-top: 20px;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.roster-footnote span {
+    color: #898992;
+}
+
+.player-dialog {
+    max-width: 500px;
+    width: calc(100% - 30px);
+    border: 1px solid #55545d;
+    border-radius: 16px;
+    background: #1a1a20;
+    color: #fff;
+    padding: 30px;
+}
+
+.player-dialog::backdrop {
+    background: rgba(0,0,0,.83);
+}
+
+.dialog-close {
+    float: right;
+    border: 0;
+    background: none;
+    color: #fff;
+    font-size: 32px;
+    cursor: pointer;
+}
+
+.detail-photo {
+    width: 150px;
+    height: 160px;
+    object-fit: contain;
+}
+
+.detail-stats {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.detail-stats div {
+    padding: 12px;
+    background: #101014;
+    border-radius: 8px;
+}
+
+.detail-stats strong {
+    display: block;
+    color: var(--orange);
+    font-size: 20px;
+}
+
+.detail-stats small {
+    color: #aaa;
+}
+
+.error-box {
+    border: 1px solid #ff5555;
+    color: #ffdada;
+    padding: 16px;
+    border-radius: 9px;
+    margin: 20px 0;
+}
+
+.summary {
+    display: grid;
+    gap: 10px;
+    margin: 24px 0;
+}
+
+.summary-item {
+    padding: 14px;
+    background: #101014;
+    border-radius: 8px;
+}
+
+.summary-item b {
+    color: var(--orange);
+    margin-right: 12px;
+}
+
+@media (max-width:1050px) {
+    .draft-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .player-grid {
+        grid-template-columns: repeat(3,minmax(0,1fr));
+    }
+}
+
+@media (max-width:600px) {
+    .draft-shell {
+        padding: 30px 14px;
+    }
+
+    .stage-panel,.roster-panel {
+        padding: 18px;
+    }
+
+    .player-grid {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+    }
+
+    .position-options {
+        grid-template-columns: repeat(3,1fr);
+    }
 }
 
 /* FINAL DRAFT RESULTS */
@@ -188,6 +565,7 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
         padding: 14px;
         gap: 12px;
     }
+
     .draft-stat-card {
         padding: 18px 8px;
     }
@@ -468,10 +846,21 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
     box-shadow: 0 0 16px #d6a44816;
 }
 
-.legend-card:nth-child(2){animation-delay:.09s}
-.legend-card:nth-child(3){animation-delay:.18s}
-.legend-card:nth-child(4){animation-delay:.27s}
-.legend-card:nth-child(5){animation-delay:.36s}
+.legend-card:nth-child(2) {
+    animation-delay: .09s;
+}
+
+.legend-card:nth-child(3) {
+    animation-delay: .18s;
+}
+
+.legend-card:nth-child(4) {
+    animation-delay: .27s;
+}
+
+.legend-card:nth-child(5) {
+    animation-delay: .36s;
+}
 
 .legend-card:hover {
     border-color: #ffdb80;
@@ -503,6 +892,7 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
         transform: translateY(22px) scale(.94);
         filter: brightness(1.9);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -527,42 +917,49 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
 }
 
 /* BELOW 70 - BASIC */
+
 .rarity-basic {
     --rarity: #62636b;
     --rarity-bg: #17181c;
 }
 
 /* 70-74 - COMMON */
+
 .rarity-common {
     --rarity: #b9c0c9;
     --rarity-bg: #292d34;
 }
 
 /* 75-79 - UNCOMMON */
+
 .rarity-uncommon {
     --rarity: #40cf79;
     --rarity-bg: #123125;
 }
 
 /* 80-84 - RARE */
+
 .rarity-rare {
     --rarity: #49a7ff;
     --rarity-bg: #152c45;
 }
 
 /* 85-89 - EPIC */
+
 .rarity-epic {
     --rarity: #bc78ff;
     --rarity-bg: #322044;
 }
 
 /* 90-94 - LEGENDARY */
+
 .rarity-legendary {
     --rarity: #ffae45;
     --rarity-bg: #44301c;
 }
 
 /* 95+ - MYTHIC */
+
 .rarity-mythic {
     --rarity: #ff4b62;
     --rarity-bg: #4c202a;
@@ -578,8 +975,7 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
         var(--rarity-bg),
         #111116 78%
     );
-    box-shadow:
-        inset 0 1px 0 #ffffff14,
+    box-shadow: inset 0 1px 0 #ffffff14,
         0 0 12px color-mix(in srgb,var(--rarity),transparent 84%);
 }
 
@@ -664,9 +1060,7 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
     }
 }
 
-/* =====================================================
-   EUROLEAGUE ANIMATED SEASON SIMULATOR
-   ===================================================== */
+/* EUROLEAGUE ANIMATED SEASON SIMULATOR */
 
 .simulation-result {
     margin-top: 35px;
@@ -913,12 +1307,12 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
     color: #aaa;
 }
 
-.season-table td:nth-child(n+3) {
+.season-table td:nth-child(n/**/+3) {
     text-align: center;
     white-space: nowrap;
 }
 
-.season-table th:nth-child(n+3) {
+.season-table th:nth-child(n/**/+3) {
     text-align: center;
 }
 
@@ -1025,6 +1419,7 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
         opacity: 0.6;
         transform: translateY(8px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -1074,9 +1469,7 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
     }
 }
 
-/* =====================================================
-   TEAM LOGOS
-   ===================================================== */
+/* TEAM LOGOS */
 
 .sim-team-logo {
     width: 30px;
@@ -1121,9 +1514,7 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
     min-width: 25px;
 }
 
-/* =====================================================
-   PLAYOFF BRACKET
-   ===================================================== */
+/* PLAYOFF BRACKET */
 
 .season-bracket-eyebrow {
     color: #ff9a5e;
@@ -1340,7 +1731,7 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
     }
 }
 
-/* ===== EUROLEAGUE PLAYOFF BRACKET ===== */
+/* EUROLEAGUE PLAYOFF BRACKET */
 
 .pb-bracket {
     display: grid;
@@ -1493,6 +1884,7 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
 }
 
 /* Mobile: stack the rounds vertically */
+
 @media (max-width: 800px) {
     .pb-bracket {
         grid-template-columns: 1fr;
@@ -1508,8 +1900,7 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
     }
 }
 
-
-/* ===== SMOOTH POSTSEASON REVEAL ===== */
+/* SMOOTH POSTSEASON REVEAL */
 
 .pb-animation-status {
     text-align: center;
@@ -1525,16 +1916,23 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
 }
 
 /* Only newly displayed results fade in */
+
 .pb-new-result {
     animation: pbFadeIn 0.45s ease-out both;
 }
 
 @keyframes pbFadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* No blur, sliding, scaling, or pulsing */
+
 .pb-animation-content.pb-reveal,
 .pb-animation-content .pb-match,
 .pb-champion {
@@ -1547,7 +1945,7 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
     }
 }
 
-/* ===== COMPLETED DRAFT TEAM PREVIEW ===== */
+/* COMPLETED DRAFT TEAM PREVIEW */
 
 .draft-final-club {
     display: flex;
@@ -1569,6 +1967,7 @@ body{background:var(--bg);color:#f7f7f8;font-family:Inter,Arial,sans-serif}
 }
 
 /* Player cards */
+
 .draft-final-player {
     display: flex;
     align-items: center;
@@ -1660,6 +2059,7 @@ body.draft-full-preview #finishStage {
 /* SIMULATION MODE */
 
 /* Hide the big lineup preview once simulation begins */
+
 body.draft-simulation-active .draft-final-club,
 body.draft-simulation-active .draft-final-lineup,
 body.draft-simulation-active .draft-stats-heading,
@@ -1668,11 +2068,13 @@ body.draft-simulation-active .draft-stats-grid {
 }
 
 /* Remove empty spacing left by the preview */
+
 body.draft-simulation-active .summary {
     gap: 0;
 }
 
 /* Keep the normal two-column layout */
+
 body.draft-simulation-active .draft-layout {
     grid-template-columns: minmax(0, 1fr) 320px;
 }
@@ -1682,25 +2084,9 @@ body.draft-simulation-active .draft-layout {
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
 .legend-setting[hidden] {
     display: none !important;
-}
-
-
-/* ==========================================================
-   DRAFT EUROLEAGUE — HOMEPAGE VISUAL IDENTITY
-   CSS-ONLY REDESIGN
-   Paste at the END of static/css/draft.css
-   ========================================================== */
-
-:root {
-    --orange: #fa5500;
-    --orange-light: #ff893e;
-    --bg: #080809;
-    --panel: #141416;
-    --muted: #aaa6a3;
-    --draft-border: #30292a;
-    --draft-text: #f7f5f2;
 }
 
 body {
@@ -1835,8 +2221,7 @@ body {
 /* CLUB SELECTION */
 
 .club-reveal {
-    background:
-        radial-gradient(circle at 50% 35%,
+    background: radial-gradient(circle at 50% 35%,
             rgba(250,85,0,.13),transparent 60%),
         #0b0b0d;
     border: 1px solid #30292a;
@@ -2090,8 +2475,7 @@ body {
 /* GAME SCOREBOARD */
 
 .season-scoreboard {
-    background:
-        radial-gradient(ellipse at 50% 0%,
+    background: radial-gradient(ellipse at 50% 0%,
             rgba(250,85,0,.08),transparent 75%),
         #141416;
     border: 1px solid #393033;
@@ -2301,8 +2685,7 @@ body {
 /* FINAL RESULT */
 
 .season-final-result {
-    background:
-        linear-gradient(135deg,
+    background: linear-gradient(135deg,
             rgba(250,85,0,.12),transparent 70%),
         #141416;
     border: 1px solid #493026;
@@ -2368,18 +2751,13 @@ body {
     }
 }
 
-/* ==========================================================
-   DRAFT EUROLEAGUE — TEXTURE SYSTEM
-   Inspired by the shared navbar design
-   CSS ONLY — NO JS OR HTML CHANGES
-   ========================================================== */
+/* DRAFT EUROLEAGUE — TEXTURE SYSTEM Inspired by the shared navbar design CSS ONLY — NO JS OR HTML CHANGES */
 
 /* 1. MAIN DRAFT PANELS */
 
 .stage-panel,
 .roster-panel {
-    background:
-        repeating-linear-gradient(
+    background: repeating-linear-gradient(
             125deg,
             transparent 0px,
             transparent 9px,
@@ -2396,10 +2774,8 @@ body {
             #171518 0%,
             #101012 100%
         );
-
     border: 1px solid #393033;
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.035),
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.035),
         0 12px 35px rgba(0,0,0,0.16);
 }
 
@@ -2407,8 +2783,7 @@ body {
 
 .player-card,
 .legend-card {
-    background:
-        repeating-linear-gradient(
+    background: repeating-linear-gradient(
             125deg,
             transparent 0px,
             transparent 7px,
@@ -2429,20 +2804,16 @@ body {
             var(--rarity-bg, #211b1a),
             #101012 85%
         );
-
     border-color: var(--rarity, #393033);
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.075),
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.075),
         0 5px 18px rgba(0,0,0,0.22);
-
     overflow: hidden;
 }
 
 .player-card:hover,
 .player-card:focus-visible,
 .legend-card:hover {
-    background:
-        repeating-linear-gradient(
+    background: repeating-linear-gradient(
             125deg,
             transparent 0px,
             transparent 7px,
@@ -2463,9 +2834,7 @@ body {
             var(--rarity-bg, #211b1a),
             #101012 85%
         );
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.1),
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1),
         0 10px 28px rgba(0,0,0,0.3),
         0 0 18px color-mix(
             in srgb,
@@ -2478,8 +2847,7 @@ body {
 
 .player-card[class*="rarity-"],
 .legend-card[class*="rarity-"] {
-    background:
-        repeating-linear-gradient(
+    background: repeating-linear-gradient(
             125deg,
             transparent 0px,
             transparent 7px,
@@ -2505,8 +2873,7 @@ body {
 .player-card[class*="rarity-"]:hover,
 .player-card[class*="rarity-"]:focus-visible,
 .legend-card[class*="rarity-"]:hover {
-    background:
-        repeating-linear-gradient(
+    background: repeating-linear-gradient(
             125deg,
             transparent 0px,
             transparent 7px,
@@ -2533,8 +2900,7 @@ body {
 
 .player-card .player-photo,
 .legend-card .player-photo {
-    background:
-        repeating-linear-gradient(
+    background: repeating-linear-gradient(
             145deg,
             transparent 0px,
             transparent 12px,
@@ -2550,15 +2916,13 @@ body {
             ),
             #111114 78%
         );
-
     border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 /* 4. CLUB REVEAL BOX */
 
 .club-reveal {
-    background:
-        repeating-linear-gradient(
+    background: repeating-linear-gradient(
             125deg,
             transparent 0px,
             transparent 11px,
@@ -2575,15 +2939,13 @@ body {
             #191316,
             #09090b
         );
-
     border-color: #443028;
 }
 
 /* 5. STARTING FIVE SLOTS */
 
 .roster-slot[class*="rarity-"] {
-    background:
-        repeating-linear-gradient(
+    background: repeating-linear-gradient(
             125deg,
             transparent 0px,
             transparent 9px,
@@ -2600,8 +2962,7 @@ body {
 /* 6. COMPLETED TEAM LINEUP */
 
 .draft-final-player[class*="rarity-"] {
-    background:
-        repeating-linear-gradient(
+    background: repeating-linear-gradient(
             125deg,
             transparent 0px,
             transparent 9px,
@@ -2619,8 +2980,7 @@ body {
 
 .draft-stat-card,
 .draft-rating-category {
-    background:
-        repeating-linear-gradient(
+    background: repeating-linear-gradient(
             125deg,
             transparent 0px,
             transparent 10px,
@@ -2632,15 +2992,13 @@ body {
             #1c1819,
             #101012
         );
-
     border-color: #393033;
 }
 
 /* 8. MAIN SIMULATION BOX */
 
 .simulation-result {
-    background:
-        repeating-linear-gradient(
+    background: repeating-linear-gradient(
             125deg,
             transparent 0px,
             transparent 11px,
@@ -2652,15 +3010,13 @@ body {
             #171316,
             #0b0b0d 75%
         );
-
     border-color: #393033;
 }
 
 /* 9. GAME SCOREBOARD */
 
 .season-scoreboard {
-    background:
-        repeating-linear-gradient(
+    background: repeating-linear-gradient(
             125deg,
             transparent 0px,
             transparent 10px,
@@ -2677,18 +3033,15 @@ body {
             #20191a,
             #101012
         );
-
     border-color: #49332b;
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.05),
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05),
         0 12px 30px rgba(0,0,0,0.2);
 }
 
 /* 10. PLAYOFF MATCHUP CARDS */
 
 .pb-match {
-    background:
-        repeating-linear-gradient(
+    background: repeating-linear-gradient(
             125deg,
             transparent 0px,
             transparent 9px,
@@ -2700,18 +3053,15 @@ body {
             #20191a,
             #111113
         );
-
     border-color: #393033;
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.035),
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.035),
         0 5px 16px rgba(0,0,0,0.12);
 }
 
 /* 11. FINAL SEASON REPORT */
 
 .season-final-result {
-    background:
-        repeating-linear-gradient(
+    background: repeating-linear-gradient(
             125deg,
             transparent 0px,
             transparent 9px,
@@ -2728,25 +3078,19 @@ body {
             #251815,
             #111113
         );
-
     border-color: #75402a;
 }
 
 /* 12. LEGEND CARDS RETAIN THEIR GOLD ACCENTS */
 
 .legend-card {
-    box-shadow:
-        inset 0 1px 0 rgba(255,215,130,0.1),
+    box-shadow: inset 0 1px 0 rgba(255,215,130,0.1),
         0 5px 18px rgba(0,0,0,0.25);
 }
 
-/* ==========================================================
-   END TEXTURE SYSTEM
-   ========================================================== */
+/* END TEXTURE SYSTEM */
 
-/* =====================================================
-   PLAYOFF BRACKET — BALANCED ALIGNMENT
-   ===================================================== */
+/* PLAYOFF BRACKET — BALANCED ALIGNMENT */
 
 .pb-bracket {
     display: grid;
@@ -2754,9 +3098,7 @@ body {
     gap: 18px;
     align-items: stretch;
     margin-top: 26px;
-
-    background:
-        repeating-linear-gradient(
+    background: repeating-linear-gradient(
             125deg,
             transparent 0px,
             transparent 12px,
@@ -2764,7 +3106,6 @@ body {
             transparent 14px
         ),
         #101012;
-
     border: 1px solid #30292a;
     border-radius: 8px;
     padding: 22px 18px;
@@ -2870,9 +3211,7 @@ body {
     }
 }
 
-/* =====================================================
-   CLUB REVEAL — FIX LOGO AND NAME OVERLAP
-   ===================================================== */
+/* CLUB REVEAL — FIX LOGO AND NAME OVERLAP */
 
 .club-reveal {
     display: flex;
@@ -2924,9 +3263,7 @@ body {
     }
 }
 
-/* =====================================================
-   CLUB REVEAL — LOGO ABOVE, NAME BELOW
-   ===================================================== */
+/* CLUB REVEAL — LOGO ABOVE, NAME BELOW */
 
 .club-reveal {
     display: flex;
@@ -2943,12 +3280,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-
     width: 100%;
     max-width: 220px;
     height: 230px;
     min-height: 230px;
-
     margin: 0 auto 42px;
     flex-shrink: 0;
     position: relative;
@@ -2970,7 +3305,6 @@ body {
     width: 100%;
     margin: 0;
     padding: 0 8px;
-
     font-size: clamp(22px, 3vw, 38px);
     line-height: 1.2;
     font-weight: 900;
@@ -2997,27 +3331,21 @@ body {
     }
 }
 
-/* =====================================================
-   FINAL SEASON REPORT — OUTCOME BANNERS
-   ===================================================== */
+/* FINAL SEASON REPORT — OUTCOME BANNERS */
 
 .season-final-result {
     position: relative;
     isolation: isolate;
     overflow: hidden;
-
     min-height: 330px;
     padding: 65px 30px;
-
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 8px;
-
     border: 1px solid rgba(250,85,0,.35);
     border-radius: 8px;
-
     background-color: #101012;
     background-position: center;
     background-size: cover;
@@ -3030,9 +3358,7 @@ body {
     inset: 0;
     z-index: -1;
     pointer-events: none;
-
-    background:
-        linear-gradient(
+    background: linear-gradient(
             90deg,
             rgba(5,5,6,.94) 0%,
             rgba(5,5,6,.76) 50%,
@@ -3079,46 +3405,47 @@ body {
     text-shadow: 0 2px 8px #000;
 }
 
-
-/* =====================================================
-   FINAL SEASON REPORT — OUTCOME BANNERS
-   ===================================================== */
+/* FINAL SEASON REPORT — OUTCOME BANNERS */
 
 /* 1. Missed playoffs */
+
 .season-final-result.outcome-missed {
     background-image: url("../images/season_missed.jpg");
 }
 
 /* 2. Eliminated in play-in */
+
 .season-final-result.outcome-playin {
     background-image: url("../images/season_playin.webp");
 }
 
 /* 3. Eliminated in quarterfinals */
+
 .season-final-result.outcome-quarterfinal {
     background-image: url("../images/season_quaterfinals.jpg");
 }
 
 /* 4. Eliminated in Final Four */
+
 .season-final-result.outcome-finalfour {
     background-image: url("../images/season_finalfour.jpg");
 }
 
 /* 5. Lost the EuroLeague final */
+
 .season-final-result.outcome-runnerup {
     background-image: url("../images/season_finalist.jpg");
 }
 
 /* 6. Won the EuroLeague */
+
 .season-final-result.outcome-champion {
     background-image: url("../images/season_winner.jpg");
     border-color: #ffae45;
 }
 
-
 .season-final-result.outcome-champion::before {
-    background:
-        linear-gradient(
+    background: linear-gradient(
             90deg,
             rgba(5,5,6,.87),
             rgba(35,19,6,.56),
@@ -3140,9 +3467,7 @@ body {
     }
 }
 
-/* ==========================================
-   DRAFT MODE — ARENA HERO & LEGENDS TOGGLE
-========================================== */
+/* DRAFT MODE — ARENA HERO & LEGENDS TOGGLE */
 
 /* FULL-WIDTH ARENA BANNER */
 
@@ -3150,19 +3475,14 @@ body {
     position: relative;
     isolation: isolate;
     overflow: hidden;
-
     min-height: 360px;
     padding: 65px 55px 45px;
-
     display: flex;
     align-items: center;
-
     border: 1px solid #30292a;
     border-bottom: 3px solid #fa5500;
     border-radius: 10px;
-
-    background:
-        linear-gradient(
+    background: linear-gradient(
             90deg,
             rgba(5, 5, 6, 0.98) 0%,
             rgba(5, 5, 6, 0.92) 35%,
@@ -3170,7 +3490,6 @@ body {
             rgba(5, 5, 6, 0.35) 100%
         ),
         url("../images/draft_top.jpg");
-
     background-size: cover;
     background-position: center;
     background-color: #151013;
@@ -3182,9 +3501,7 @@ body {
     inset: 0;
     z-index: -1;
     pointer-events: none;
-
-    background:
-        radial-gradient(
+    background: radial-gradient(
             ellipse at 85% 50%,
             rgba(250, 85, 0, 0.23),
             transparent 55%
@@ -3217,13 +3534,11 @@ body {
 .draft-heading h1 {
     max-width: 950px;
     margin: 25px 0 18px;
-
     font-size: clamp(48px, 6vw, 86px);
     font-weight: 900;
     line-height: 0.98;
     letter-spacing: -4px;
     text-transform: uppercase;
-
     color: #fff;
     text-shadow: 0 5px 25px rgba(0, 0, 0, 0.6);
 }
@@ -3279,7 +3594,6 @@ body {
 .legend-setting {
     margin: 24px 0 26px;
     padding: 18px 0;
-
     background: transparent;
     border: 0;
     border-top: 1px solid #393136;
@@ -3333,14 +3647,11 @@ body {
     position: relative;
     display: block;
     flex-shrink: 0;
-
     width: 54px;
     height: 29px;
-
     border: 1px solid #625c62;
     border-radius: 30px;
     background: #39363c;
-
     transition: background .2s ease, border-color .2s ease;
 }
 
@@ -3350,13 +3661,10 @@ body {
     position: absolute;
     top: 3px;
     left: 3px;
-
     width: 21px;
     height: 21px;
-
     border-radius: 50%;
     background: #fff;
-
     transition: transform .2s ease;
 }
 
@@ -3434,7 +3742,9 @@ body {
         transition: none;
     }
 }
+
 /* MOVE ARENA IMAGE DOWNWARD */
+
 .draft-heading {
     background-position: center 1%;
 }
@@ -3457,10 +3767,7 @@ body {
     margin-top: 35px;
 }
 
-
-/* ==========================================
-   DRAFT EUROLEAGUE — UNIFIED BUTTON DESIGN
-========================================== */
+/* DRAFT EUROLEAGUE — UNIFIED BUTTON DESIGN */
 
 /* SHARED BUTTON STYLE */
 
@@ -3476,8 +3783,7 @@ body {
     letter-spacing: 0.8px;
     border-radius: 5px;
     padding: 13px 22px;
-    transition:
-        background 0.2s ease,
+    transition: background 0.2s ease,
         border-color 0.2s ease,
         color 0.2s ease,
         box-shadow 0.2s ease,
@@ -3607,6 +3913,7 @@ body {
         transition: none;
     }
 }
+
 /* RESTART BUTTON BELOW ROUND PROGRESS */
 
 .draft-heading {
@@ -3632,12 +3939,10 @@ body {
     background: rgba(250, 85, 0, 0.15);
 }
 
-/* ==========================================
-   DRAFT BUTTONS — CLEAN UNIFIED DESIGN
-   Match the Restart Draft button
-========================================== */
+/* DRAFT BUTTONS — CLEAN UNIFIED DESIGN Match the Restart Draft button */
 
 /* Main Draft action buttons */
+
 .draft-shell .primary-btn,
 .draft-shell .secondary-btn,
 .player-dialog .primary-btn,
@@ -3647,24 +3952,21 @@ body {
     border: 1px solid #777071;
     border-radius: 6px;
     color: #ffffff;
-
     font-size: 13px;
     font-weight: 800;
     letter-spacing: 0.3px;
     padding: 13px 22px;
-
     box-shadow: none;
     text-shadow: none;
     filter: none;
-
     transform: none;
-    transition:
-        background-color 0.2s ease,
+    transition: background-color 0.2s ease,
         border-color 0.2s ease,
         color 0.2s ease;
 }
 
 /* Hover — subtle orange accent, no glow */
+
 .draft-shell .primary-btn:hover:not(:disabled),
 .draft-shell .secondary-btn:hover:not(:disabled),
 .player-dialog .primary-btn:hover:not(:disabled),
@@ -3673,7 +3975,6 @@ body {
     background-image: none;
     border-color: #fa5500;
     color: #ffffff;
-
     box-shadow: none;
     text-shadow: none;
     filter: none;
@@ -3681,6 +3982,7 @@ body {
 }
 
 /* Remove glow when clicking */
+
 .draft-shell .primary-btn:active,
 .draft-shell .secondary-btn:active,
 .player-dialog .primary-btn:active,
@@ -3690,6 +3992,7 @@ body {
 }
 
 /* Disabled buttons */
+
 .draft-shell .primary-btn:disabled,
 .draft-shell .secondary-btn:disabled,
 .draft-shell .position-options button:disabled {
@@ -3699,6 +4002,7 @@ body {
 }
 
 /* Keep a visible outline for keyboard users */
+
 .draft-shell .primary-btn:focus-visible,
 .draft-shell .secondary-btn:focus-visible,
 .player-dialog .primary-btn:focus-visible,
@@ -3708,11 +4012,10 @@ body {
     box-shadow: none;
 }
 
-/* ==========================================
-   DRAFT PLAYER FLAGS AND POSITIONS
-========================================== */
+/* DRAFT PLAYER FLAGS AND POSITIONS */
 
 /* Overall and position on the same line */
+
 .player-card .draft-rating-row {
     display: flex;
     align-items: baseline;
@@ -3721,11 +4024,13 @@ body {
 }
 
 /* Preserve existing rarity-based rating styling */
+
 .player-card .draft-rating-row .rating {
     margin: 0;
 }
 
 /* Natural position next to overall */
+
 .player-card .draft-player-position {
     color: #ffffff;
     font-size: 15px;
@@ -3734,6 +4039,7 @@ body {
 }
 
 /* Flag and team */
+
 .player-card .draft-team-row {
     display: flex;
     align-items: center;
@@ -3742,6 +4048,7 @@ body {
 }
 
 /* Tiny flag */
+
 .draft-country-flag {
     width: 23px;
     height: 16px;
@@ -3753,6 +4060,7 @@ body {
 }
 
 /* Prevent long club names from overflowing */
+
 .player-card .draft-team-name {
     min-width: 0;
     overflow: hidden;
@@ -3761,6 +4069,7 @@ body {
 }
 
 /* Nationality inside player popup */
+
 .player-dialog .draft-detail-nationality {
     display: flex;
     align-items: center;
@@ -3775,11 +4084,10 @@ body {
     height: 19px;
 }
 
-/* ==========================================
-   DRAFT CARDS — FLAGS AND TEAM LOGOS
-========================================== */
+/* DRAFT CARDS — FLAGS AND TEAM LOGOS */
 
 /* Player name and nationality flag */
+
 .player-card .draft-name-row {
     display: flex;
     align-items: center;
@@ -3794,6 +4102,7 @@ body {
 }
 
 /* Nationality flag beside name */
+
 .player-card .draft-name-row .draft-country-flag {
     width: 23px;
     height: 16px;
@@ -3801,6 +4110,7 @@ body {
 }
 
 /* Team logo and club name */
+
 .player-card .draft-team-row {
     display: flex;
     align-items: center;
@@ -3809,6 +4119,7 @@ body {
 }
 
 /* Small team logo */
+
 .player-card .draft-team-logo {
     width: 23px;
     height: 23px;
@@ -3817,13 +4128,427 @@ body {
 }
 
 /* Keep long club names inside the card */
+
 .player-card .draft-team-name {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 /* Hide the final outcome banner until the simulation is complete */
+
 .season-final-result[hidden] {
     display: none !important;
+}
+
+
+/* ============================================================================
+   FULL-WIDTH DRAFT HERO + ORIGINAL WIDE DRAFT LAYOUT
+   Integrated replacement for the previous draft_hero_additions.css.
+   Keep this at the END of draft.css to override older design generations.
+   ============================================================================ */
+
+body.draft-page .draft-full-hero {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 540px;
+    margin: 0;
+    background-color: #140d09;
+    background-image:
+        linear-gradient(90deg, rgba(6, 6, 6, .97) 0%, rgba(6, 6, 6, .85) 34%, rgba(6, 6, 6, .43) 72%, rgba(6, 6, 6, .32) 100%),
+        linear-gradient(0deg, rgba(8, 8, 8, .85), transparent 35%),
+        url('../images/draft_top.jpg');
+    background-size: cover;
+    background-position: center 45%;
+    background-repeat: no-repeat;
+}
+
+body.draft-page .draft-full-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 78% 45%, rgba(250, 85, 0, .23), transparent 52%);
+}
+
+body.draft-page .draft-full-hero .draft-hero-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1420px;
+    padding: 65px 24px;
+    margin: 0 auto;
+}
+
+body.draft-page .draft-hero-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    color: #ff893e;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+}
+
+body.draft-page .draft-hero-line {
+    width: 27px;
+    height: 2px;
+    flex-shrink: 0;
+    background: #fa5500;
+}
+
+body.draft-page .draft-full-hero h1 {
+    margin: 0 0 18px;
+    color: #fff;
+    font-size: clamp(46px, 5.2vw, 76px);
+    font-weight: 900;
+    letter-spacing: -3px;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+body.draft-page .draft-full-hero h1 span {
+    color: #fa5500;
+}
+
+body.draft-page .draft-full-hero p {
+    max-width: 650px;
+    margin: 0;
+    color: #c7c1be;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+/* Round display stays over the arena image, not below the banner. */
+body.draft-page .draft-full-hero .draft-hero-progress {
+    width: 100%;
+    max-width: 560px;
+    margin-top: 38px;
+}
+
+body.draft-page .draft-full-hero .round-meter {
+    width: 100%;
+    height: 5px;
+    margin-top: 0;
+    overflow: hidden;
+    border-radius: 0;
+    background: rgba(255, 255, 255, .18);
+}
+
+body.draft-page .draft-full-hero .round-meter > div {
+    height: 100%;
+    background: linear-gradient(90deg, #fa5500, #ff893e);
+    transition: width .3s ease;
+}
+
+body.draft-page .draft-full-hero .round-label {
+    margin-top: 14px;
+    color: #ff893e;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+body.draft-page .draft-hero-divider {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #5e260c, #fa5500 25%, #ff893e 55%, #fa5500 80%, #5e260c);
+    box-shadow: 0 0 12px rgba(250, 85, 0, .18);
+}
+
+/* Restore the original 1420px content area and 320px team sidebar. */
+body.draft-page .draft-shell {
+    width: 100%;
+    max-width: 1420px;
+    margin: 0 auto;
+    padding: 45px 24px 100px;
+}
+
+body.draft-page .draft-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 22px;
+}
+
+body.draft-page .draft-main,
+body.draft-page .roster-panel {
+    min-width: 0;
+}
+
+body.draft-page .draft-restart-row {
+    display: flex;
+    justify-content: flex-start;
+    margin: 0 0 24px;
+    padding: 0;
+}
+
+body.draft-page .draft-restart-row #restartBtn {
+    position: static;
+    inset: auto;
+    margin: 0;
+}
+
+/* The completed team preview uses the full content width. */
+body.draft-page.draft-full-preview .draft-layout {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+@media (max-width: 1050px) {
+    body.draft-page .draft-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    body.draft-page .draft-full-hero {
+        min-height: 330px;
+        background-position: 65% center;
+    }
+
+    body.draft-page .draft-full-hero .draft-hero-content {
+        padding: 45px 20px;
+    }
+
+    body.draft-page .draft-full-hero h1 {
+        font-size: clamp(42px, 10vw, 62px);
+        letter-spacing: -2px;
+    }
+
+    body.draft-page .draft-full-hero p {
+        font-size: 14px;
+    }
+
+    body.draft-page .draft-full-hero .draft-hero-progress {
+        margin-top: 28px;
+    }
+
+    body.draft-page .draft-shell {
+        padding: 30px 15px 65px;
+    }
+}
+/* Restart button positioning inside the banner */
+.draft-full-hero .draft-restart-row {
+    position: static !important;
+    margin-top: 80px !important;
+    margin-bottom: 0;
+}
+
+.draft-full-hero #restartBtn {
+    position: static !important;
+    margin: 0 !important;
+}
+
+header.draft-full-hero,
+header.draft-heading {
+    background-position: center 1% !important;
+}
+
+/* ============================================================================
+   FLAT DARK CONTAINERS — 23 OCT 2026
+   Preserve grid dimensions, player cards, rarity, hero and interactive states.
+   Only remove heavy enclosing panel treatments and soften nested result boxes.
+   ============================================================================ */
+
+/* The two main columns keep their exact position, width and inner padding.
+   Their backgrounds now blend into the page instead of forming large cards. */
+body.draft-page .stage-panel,
+body.draft-page .roster-panel {
+    background: transparent;
+    background-image: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* A simple editorial accent on headings rather than an outer frame. */
+body.draft-page .stage-panel > .stage-top,
+body.draft-page .roster-panel > .eyebrow {
+    border-bottom: 1px solid #30292a;
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+}
+
+/* Club reveal: keep the logo placement and spacing, remove the nested box. */
+body.draft-page .club-reveal {
+    background: transparent;
+    background-image: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Legend setting is a control row, not a card. */
+body.draft-page .legend-setting {
+    background: transparent;
+    background-image: none;
+    border: 0;
+    border-top: 1px solid #30292a;
+    border-bottom: 1px solid #30292a;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Completion overview: retain inner content and all original sizing. */
+body.draft-page .draft-rating-calculation,
+body.draft-page .simulation-result,
+body.draft-page .season-panel,
+body.draft-page .pb-bracket {
+    background: transparent;
+    background-image: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Subtle section separation within the simulator. */
+body.draft-page .simulation-result {
+    border-top: 1px solid #30292a;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+body.draft-page .season-panel {
+    border-top: 1px solid #30292a;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+body.draft-page .pb-bracket {
+    border-top: 1px solid #30292a;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Standings read as a continuous table rather than a boxed widget. */
+body.draft-page .season-table {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+body.draft-page .season-table th {
+    background: transparent;
+    border-bottom: 1px solid #484044;
+}
+body.draft-page .season-table td {
+    border-bottom: 1px solid #262326;
+}
+
+/* Scoreboard keeps the score arrangement but loses its floating card frame. */
+body.draft-page .season-scoreboard {
+    background: transparent;
+    background-image: none;
+    border: 0;
+    border-top: 1px solid #30292a;
+    border-bottom: 1px solid #30292a;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Flat statistical summaries, without changing their grids. */
+body.draft-page .draft-stat-card,
+body.draft-page .draft-rating-category {
+    background: #111113;
+    background-image: none;
+    border: 0;
+    border-bottom: 1px solid #30292a;
+    border-radius: 0;
+    box-shadow: none;
+}
+body.draft-page .draft-stat-card:hover {
+    transform: none;
+    border-bottom-color: #fa5500;
+}
+
+/* Keep the player's actual cards, rarity outlines, and roster slots distinct.
+   No changes to .player-grid, .draft-layout, .player-card, or .roster-slot. */
+
+/* ==========================================
+   COMPLETED DRAFT — PLAYER STATS
+========================================== */
+
+/* Each player row */
+.draft-final-lineup .draft-final-player {
+    display: grid;
+    grid-template-columns: 68px 96px minmax(200px, 1fr) minmax(450px, 1.5fr);
+    align-items: center;
+    column-gap: 20px;
+}
+
+/* Player name and natural position */
+.draft-final-player-info {
+    min-width: 0;
+}
+
+/* Five equal-width stat columns */
+.draft-final-player-stats {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+/* Individual statistic */
+.draft-final-player-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+/* PPG / APG / RPG / BPG / SPG labels */
+.draft-final-stat-label {
+    color: #929297;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* Numerical values */
+.draft-final-stat-value {
+    color: #ffffff;
+    font-size: 19px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Tablet */
+@media (max-width: 1000px) {
+    .draft-final-lineup .draft-final-player {
+        grid-template-columns: 60px 80px minmax(150px, 1fr);
+    }
+
+    .draft-final-player-stats {
+        grid-column: 1 / -1;
+        margin-top: 12px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .draft-final-lineup .draft-final-player {
+        grid-template-columns: 50px 70px minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .draft-final-player-stats {
+        gap: 5px;
+    }
+
+    .draft-final-stat-label {
+        font-size: 9px;
+    }
+
+    .draft-final-stat-value {
+        font-size: 15px;
+    }
 }

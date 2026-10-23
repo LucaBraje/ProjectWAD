@@ -1,62 +1,792 @@
-/* DRAFT EUROLEAGUE — TEAM PROFILE */
+
+/* ==========================================
+   DRAFT EUROLEAGUE — TEAM PROFILE
+========================================== */
+
+
+/* ==========================================
+   1. PAGE
+========================================== */
+
 body.team-profile-page {
+    margin: 0;
+    min-height: 100vh;
+
     background: #080809;
     color: #f7f5f2;
+
     font-family: Arial, Helvetica, sans-serif;
 }
-.team-profile-main { max-width: 1280px; padding-top: 40px; padding-bottom: 90px; }
-.back-link { display: inline-block; margin-bottom: 25px; color: #ff893e; font-size: 12px; font-weight: 800; letter-spacing: 1.3px; text-decoration: none; }
-.back-link:hover { color: #fff; }
-.team-header { position: relative; overflow: hidden; padding: 35px 40px 42px; background: radial-gradient(ellipse at 92% 10%, rgba(250,85,0,.16), transparent 52%), linear-gradient(130deg,#1b1716,#101012 68%); border: 1px solid #342a26; border-radius: 12px; }
-.team-header::before { content: ''; position: absolute; top: 0; left: 0; width: 125px; height: 3px; background: #fa5500; }
-.team-header-topline, .team-header-eyebrow, .section-kicker { color: #ff893e; font-size: 11px; font-weight: 800; letter-spacing: 2.3px; }
-.team-header-topline { margin-bottom: 26px; }
-.team-logo-frame { width: 200px; height: 200px; max-width: 100%; margin: auto; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.25); border: 1px solid #38302d; border-radius: 12px; }
-.profile-team-logo { width: 155px; height: 155px; max-width: 90%; object-fit: contain; }
-.team-logo-fallback { font-size: 48px; font-weight: 900; color: #fa5500; }
-.team-profile-title { margin: 12px 0; font-size: clamp(34px,4.4vw,64px); font-weight: 900; line-height: 1.04; letter-spacing: -2px; text-transform: uppercase; overflow-wrap: anywhere; }
-.team-location { display: flex; align-items: center; gap: 12px; color: #c8c1bc; font-size: 16px; }
-.profile-country-flag { width: 36px; height: 24px; object-fit: cover; border-radius: 3px; flex-shrink: 0; }
-.team-stats-row { margin-top: 20px; }
-.team-stat { height: 100%; min-height: 100px; padding: 19px; display: flex; flex-direction: column; justify-content: center; gap: 9px; background: #211e1e; border: 1px solid #3b3230; border-radius: 8px; }
-.stat-label { color: #aaa09a; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; }
-.team-stat strong { color: #fff; font-size: clamp(18px,2vw,24px); font-weight: 900; }
-.team-biography { margin-top: 30px; padding: 32px 38px; background: #141416; border: 1px solid #2e2929; border-radius: 12px; }
-.team-biography h2, .roster-heading h2 { margin: 12px 0 18px; font-size: clamp(25px,3vw,37px); font-weight: 900; letter-spacing: -1px; text-transform: uppercase; }
-.team-biography h2 span, .roster-heading h2 span { color: #fa5500; }
-.team-biography p { margin: 0; color: #c3bcba; font-size: 15px; line-height: 1.85; white-space: pre-line; }
-.team-roster-section { margin-top: 55px; }
-.roster-heading { display: flex; justify-content: space-between; align-items: end; gap: 20px; }
-.roster-heading h2 { margin-bottom: 8px; }
-.roster-count { flex-shrink: 0; color: #ff893e; font-size: 12px; font-weight: 800; letter-spacing: 1px; }
-.roster-hint { margin: 0 0 20px; color: #aaa09a; font-size: 13px; }
-.roster-container { background: #141416; border: 1px solid #343033; border-radius: 12px; overflow-x: auto; }
-.roster-container table { margin: 0; min-width: 1060px; white-space: nowrap; --bs-table-bg: #141416; --bs-table-color: #e9e5e2; --bs-table-border-color: #302b2c; --bs-table-hover-bg: #242022; --bs-table-hover-color: #fff; }
-.roster-container th, .roster-container td { padding: 14px 13px; vertical-align: middle; border-bottom: 1px solid #302b2c; }
-.roster-container thead th { background: #211c1d; color: #ff893e; font-size: 11px; font-weight: 900; letter-spacing: 1px; }
-.roster-container tbody td { color: #e6e1de; font-size: 13px; }
-.roster-container th:first-child, .roster-container td:first-child { min-width: 250px; padding-left: 20px; }
-.roster-player { display: flex; align-items: center; gap: 12px; }
-.roster-player-name { font-weight: 800; color: #fff; }
-.roster-player-picture, .roster-picture-placeholder { width: 46px; height: 46px; min-width: 46px; border-radius: 7px; background: #2a2728; }
-.roster-player-picture { object-fit: cover; object-position: center top; }
-.roster-picture-placeholder { display: flex; align-items: center; justify-content: center; color: #a49b96; font-weight: 900; }
-.player-country-flag { width: 26px; height: 18px; object-fit: cover; border-radius: 3px; flex-shrink: 0; }
-.position-tag { display: inline-block; padding: 5px 9px; background: #302a2b; color: #ddd5d0; border-radius: 4px; font-weight: 800; }
-.rating-badge { display: inline-block; min-width: 43px; padding: 8px 9px; background: #fa5500; color: #101010; border-radius: 5px; font-weight: 900; text-align: center; }
-#rosterTable thead th[data-sort] { cursor: pointer; user-select: none; }
-#rosterTable thead th[data-sort]:hover { background: #453027; color: #fff; }
-#rosterTable thead th.sort-asc::after { content: ' ▲'; color: #fff; }
-#rosterTable thead th.sort-desc::after { content: ' ▼'; color: #fff; }
-.empty-roster { padding: 35px !important; text-align: center; color: #aaa09a !important; }
-@media (max-width: 767px) {
-    .team-profile-main { padding-top: 25px; }
-    .team-header { padding: 25px 20px; }
-    .team-header-topline { margin-bottom: 20px; }
-    .team-logo-frame { width: 155px; height: 155px; }
-    .profile-team-logo { width: 125px; height: 125px; }
-    .team-profile-title { letter-spacing: -1px; }
-    .team-biography { padding: 25px 20px; }
-    .roster-heading { align-items: start; flex-direction: column; gap: 5px; }
+
+
+/* ==========================================
+   2. FULL-WIDTH HERO
+========================================== */
+
+.team-profile-page .team-profile-hero {
+    position: relative;
+    isolation: isolate;
+
+    width: 100%;
+    min-height: 540px;
+
+    display: flex;
+    align-items: center;
+
+    overflow: hidden;
+
+    background-color: #140d09;
+
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(6,6,6,.97) 0%,
+            rgba(6,6,6,.86) 34%,
+            rgba(6,6,6,.52) 72%,
+            rgba(6,6,6,.40) 100%
+        ),
+        linear-gradient(
+            0deg,
+            rgba(8,8,8,.85),
+            transparent 35%
+        ),
+        url("../images/teams_prof.jpg");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
-@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+
+
+/* ORANGE ATMOSPHERIC GLOW */
+
+.team-profile-page .team-profile-hero::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+
+    background: radial-gradient(
+        ellipse at 78% 45%,
+        rgba(250,85,0,.23),
+        transparent 52%
+    );
+
+    pointer-events: none;
+}
+
+
+/* CONTENT ALIGNMENT */
+
+.team-profile-page .team-hero-content {
+    position: relative;
+    z-index: 1;
+
+    width: 100%;
+    max-width: 1200px;
+
+    padding-top: 55px;
+    padding-bottom: 65px;
+}
+
+
+/* BACK LINK */
+
+.team-profile-page .back-link {
+    display: inline-block;
+
+    margin-bottom: 48px;
+
+    color: #ff893e;
+
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+
+    text-decoration: none;
+}
+
+.team-profile-page .back-link:hover {
+    color: #fff;
+}
+
+
+/* HERO LAYOUT */
+
+.team-profile-page .team-hero-layout {
+    display: grid;
+
+    grid-template-columns: minmax(0, 1fr) 300px;
+
+    align-items: center;
+    gap: 45px;
+}
+
+
+/* EYEBROW */
+
+.team-profile-page .team-header-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    color: #ff893e;
+
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2.3px;
+}
+
+.team-profile-page .team-eyebrow-line {
+    width: 28px;
+    height: 2px;
+
+    flex-shrink: 0;
+
+    background: #fa5500;
+}
+
+
+/* TEAM NAME */
+
+.team-profile-page .team-profile-title {
+    margin: 20px 0 22px;
+
+    color: #fff;
+
+    font-size: clamp(42px, 5vw, 72px);
+    font-weight: 950;
+
+    line-height: 1.05;
+    letter-spacing: -2.5px;
+
+    text-transform: uppercase;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* COUNTRY */
+
+.team-profile-page .team-location {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    color: #d0cbca;
+
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.team-profile-page .profile-country-flag {
+    width: 36px;
+    height: 24px;
+
+    object-fit: cover;
+    border-radius: 2px;
+
+    flex-shrink: 0;
+}
+
+
+/* ==========================================
+   3. TEAM LOGO
+========================================== */
+
+.team-profile-page .team-hero-logo-area {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 280px;
+}
+
+
+/* SPOTLIGHT BEHIND LOGO */
+
+.team-profile-page .team-hero-logo-area::before {
+    content: "";
+
+    position: absolute;
+
+    width: 360px;
+    height: 320px;
+
+    max-width: 100%;
+
+    background: radial-gradient(
+        ellipse,
+        rgba(250,85,0,.18) 0%,
+        rgba(250,85,0,.06) 42%,
+        transparent 73%
+    );
+
+    pointer-events: none;
+}
+
+
+/* LARGE TEAM LOGO */
+
+.team-profile-page .profile-team-logo {
+    position: relative;
+    z-index: 1;
+
+    width: 245px;
+    height: 245px;
+
+    max-width: 100%;
+
+    object-fit: contain;
+
+    filter: drop-shadow(
+        0 18px 28px rgba(0,0,0,.5)
+    );
+}
+
+.team-profile-page .team-logo-fallback {
+    position: relative;
+    z-index: 1;
+
+    color: #fa5500;
+
+    font-size: 65px;
+    font-weight: 900;
+}
+
+
+/* ==========================================
+   4. HERO STATISTICS
+========================================== */
+
+.team-profile-page .team-hero-stats {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 0;
+
+    margin-top: 40px;
+}
+
+.team-profile-page .team-hero-stat {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    min-width: 120px;
+
+    padding: 0 28px;
+
+    border-right: 1px solid #51403a;
+}
+
+.team-profile-page .team-hero-stat:first-child {
+    padding-left: 0;
+}
+
+.team-profile-page .team-hero-stat:last-child {
+    border-right: none;
+}
+
+.team-profile-page .stat-label {
+    color: #aaa09a;
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+}
+
+.team-profile-page .team-hero-stat strong {
+    color: #fff;
+
+    font-size: 22px;
+    font-weight: 900;
+}
+
+
+/* ==========================================
+   5. ORANGE DIVIDER
+========================================== */
+
+.team-profile-page .team-hero-divider {
+    width: 100%;
+    height: 2px;
+
+    background: linear-gradient(
+        90deg,
+        #5e260c 0%,
+        #fa5500 25%,
+        #ff893e 55%,
+        #fa5500 80%,
+        #5e260c 100%
+    );
+
+    box-shadow: 0 0 12px rgba(250,85,0,.18);
+}
+
+
+/* ==========================================
+   6. MAIN CONTENT
+========================================== */
+
+.team-profile-page .team-profile-main {
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+    padding-top: 55px;
+    padding-bottom: 100px;
+}
+
+
+/* ==========================================
+   7. ABOUT SECTION
+========================================== */
+
+.team-profile-page .team-biography {
+    margin: 0;
+    padding: 0 0 55px;
+
+    background: transparent;
+
+    border: none;
+    border-bottom: 1px solid #302b2c;
+    border-radius: 0;
+}
+
+
+/* SECTION LABEL */
+
+.team-profile-page .section-kicker {
+    color: #ff893e;
+
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2.3px;
+}
+
+
+/* SECTION HEADINGS */
+
+.team-profile-page .team-biography h2,
+.team-profile-page .roster-heading h2 {
+    margin: 15px 0 22px;
+
+    color: #fff;
+
+    font-size: clamp(28px, 3vw, 38px);
+    font-weight: 900;
+
+    letter-spacing: -1px;
+    line-height: 1.1;
+
+    text-transform: uppercase;
+}
+
+.team-profile-page .team-biography h2 span,
+.team-profile-page .roster-heading h2 span {
+    color: #fa5500;
+}
+
+
+/* ABOUT TEXT */
+
+.team-profile-page .team-biography p {
+    max-width: 950px;
+
+    margin: 0;
+
+    color: #c3bcba;
+
+    font-size: 15px;
+    line-height: 1.9;
+
+    white-space: pre-line;
+}
+
+.team-profile-page .team-no-biography {
+    color: #898184 !important;
+    font-style: italic;
+}
+
+
+/* ==========================================
+   8. ROSTER SECTION
+========================================== */
+
+.team-profile-page .team-roster-section {
+    margin-top: 55px;
+}
+
+.team-profile-page .roster-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 30px;
+}
+
+.team-profile-page .roster-heading h2 {
+    margin-bottom: 0;
+}
+
+.team-profile-page .roster-count {
+    flex-shrink: 0;
+
+    color: #ff893e;
+
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.3px;
+}
+
+
+/* ROSTER INFORMATION */
+
+.team-profile-page .roster-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 16px;
+
+    color: #ded8d4;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.team-profile-page .roster-hint {
+    color: #928b88;
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.3px;
+}
+
+
+
+/* ==========================================
+   9. ROSTER TABLE — MATCH PLAYERS DIRECTORY
+========================================== */
+
+/* Outer table container */
+.team-profile-page .roster-container {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow-x: auto;
+}
+
+/* Main table */
+.team-profile-page #rosterTable {
+    margin: 0;
+    min-width: 1060px;
+    white-space: nowrap;
+
+    --bs-table-bg: #141416;
+    --bs-table-color: #e9e5e2;
+    --bs-table-border-color: #302b2c;
+    --bs-table-hover-bg: #242022;
+    --bs-table-hover-color: #fff;
+}
+
+/* All table cells */
+.team-profile-page #rosterTable th,
+.team-profile-page #rosterTable td {
+    padding: 14px 13px;
+    vertical-align: middle;
+    border-bottom: 1px solid #302b2c;
+}
+
+/* Table headings */
+.team-profile-page #rosterTable thead th {
+    background: #211c1d;
+    color: #ff893e;
+
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1px;
+
+    border-bottom: 1px solid #302b2c;
+}
+
+/* Table body */
+.team-profile-page #rosterTable tbody td {
+    background: transparent;
+    color: #e6e1de;
+
+    font-size: 13px;
+    font-weight: 400;
+}
+
+/* Player column */
+.team-profile-page #rosterTable th:first-child,
+.team-profile-page #rosterTable td:first-child {
+    min-width: 250px;
+    padding-left: 20px;
+}
+
+/* ==========================================
+   10. PLAYER IDENTITY
+========================================== */
+
+/* Player photo + name + flag */
+.team-profile-page .roster-player {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Player name */
+.team-profile-page .roster-player-name {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+/* Player photos */
+.team-profile-page .roster-player-picture,
+.team-profile-page .roster-picture-placeholder {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+
+    border-radius: 7px;
+    background: #2a2728;
+}
+
+.team-profile-page .roster-player-picture {
+    object-fit: cover;
+    object-position: center top;
+}
+
+/* Missing photo placeholder */
+.team-profile-page .roster-picture-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #a49b96;
+    font-weight: 900;
+}
+
+/* Nationality flags */
+.team-profile-page .player-country-flag {
+    width: 26px;
+    height: 18px;
+    min-width: 26px;
+
+    object-fit: cover;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+/* ==========================================
+   11. POSITIONS AND RATINGS
+========================================== */
+
+/* Position badge */
+.team-profile-page .position-tag {
+    display: inline-block;
+    padding: 5px 9px;
+
+    background: #302a2b;
+    color: #ddd5d0;
+
+    border-radius: 4px;
+    font-weight: 800;
+}
+
+/* Overall rating */
+.team-profile-page .rating-badge {
+    display: inline-block;
+    min-width: 43px;
+    padding: 8px 9px;
+
+    background: #fa5500;
+    color: #101010;
+
+    border-radius: 5px;
+    font-weight: 900;
+    text-align: center;
+}
+
+/* ==========================================
+   12. ROW INTERACTIONS AND SORTING
+========================================== */
+
+/* Table rows */
+.team-profile-page #rosterTable tbody tr {
+    transition: background-color .18s ease;
+}
+
+/* Hover */
+.team-profile-page #rosterTable tbody tr:hover {
+    background: #242022;
+}
+
+.team-profile-page #rosterTable tbody tr:hover td {
+    background: transparent;
+}
+
+/* Remove final border */
+.team-profile-page #rosterTable tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Sortable headings */
+.team-profile-page #rosterTable thead th[data-sort] {
+    cursor: pointer;
+    user-select: none;
+
+    transition:
+        background-color .15s ease,
+        color .15s ease;
+}
+
+/* Heading hover */
+.team-profile-page #rosterTable thead th[data-sort]:hover {
+    background: #453027;
+    color: #fff;
+}
+
+/* Currently sorted column */
+.team-profile-page #rosterTable thead th.sort-asc,
+.team-profile-page #rosterTable thead th.sort-desc {
+    background: #38271f;
+    color: #ff893e;
+}
+
+/* Ascending arrow */
+.team-profile-page #rosterTable thead th.sort-asc::after {
+    content: " ▲";
+    color: #fff;
+    font-size: 10px;
+}
+
+/* Descending arrow */
+.team-profile-page #rosterTable thead th.sort-desc::after {
+    content: " ▼";
+    color: #fff;
+    font-size: 10px;
+}
+
+/* Keyboard focus */
+.team-profile-page #rosterTable thead th[data-sort]:focus-visible {
+    outline: 2px solid #fa5500;
+    outline-offset: -2px;
+}
+
+/* ==========================================
+   13. EMPTY ROSTER
+========================================== */
+
+.team-profile-page .empty-roster {
+    padding: 35px !important;
+    text-align: center;
+
+    color: #aaa09a !important;
+    font-weight: 400 !important;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .team-profile-page #rosterTable tbody tr,
+    .team-profile-page #rosterTable thead th[data-sort] {
+        transition: none;
+    }
+}
+
+/* ==========================================
+   14. RESPONSIVE
+========================================== */
+
+@media (max-width: 767px) {
+
+    .team-profile-page .team-profile-hero {
+        min-height: 400px;
+        background-position: 65% center;
+    }
+
+    .team-profile-page .team-hero-content {
+        padding-top: 35px;
+        padding-bottom: 45px;
+    }
+
+    .team-profile-page .back-link {
+        margin-bottom: 35px;
+    }
+
+    .team-profile-page .team-hero-layout {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .team-profile-page .team-profile-title {
+        font-size: clamp(36px, 9vw, 54px);
+        letter-spacing: -1.5px;
+    }
+
+    .team-profile-page .team-hero-logo-area {
+        min-height: 175px;
+    }
+
+    .team-profile-page .profile-team-logo {
+        width: 160px;
+        height: 160px;
+    }
+
+    .team-profile-page .team-hero-stats {
+        gap: 18px 0;
+        margin-top: 30px;
+    }
+
+    .team-profile-page .team-hero-stat {
+        min-width: 100px;
+        padding: 0 15px;
+    }
+
+    .team-profile-page .team-hero-stat strong {
+        font-size: 18px;
+    }
+
+    .team-profile-page .team-profile-main {
+        padding-top: 35px;
+        padding-bottom: 65px;
+    }
+
+    .team-profile-page .team-biography {
+        padding-bottom: 40px;
+    }
+
+    .team-profile-page .team-roster-section {
+        margin-top: 40px;
+    }
+
+    .team-profile-page .roster-heading {
+        align-items: start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .team-profile-page .roster-hint {
+        display: none;
+    }
+
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .team-profile-page * {
+        scroll-behavior: auto !important;
+    }
+}

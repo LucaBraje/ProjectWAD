@@ -248,7 +248,7 @@ function showStage() {
 
     $('roundLabel').textContent =
         state.stage >= STAGES.length
-            ? 'DRAFT COMPLETE'
+            ? ''
             : `ROUND ${state.stage + 1} OF ${STAGES.length}`;
 
     if (state.stage >= STAGES.length) {
@@ -799,6 +799,37 @@ function showFinish() {
                 `${p.is_legend ? "★ LEGEND | " : ""}Natural position: ${p.position} | ${p.rating} OVR`
             )
         );
+        
+/* ==========================================
+   PLAYER STATISTICS IN COMPLETED LINEUP
+========================================== */
+
+const playerStats = node('div', 'draft-final-player-stats');
+
+const statsToShow = [
+    ['PPG', p.points_per_game],
+    ['APG', p.assists_per_game],
+    ['RPG', p.rebounds_per_game],
+    ['BPG', p.blocks_per_game],
+    ['SPG', p.steals_per_game]
+];
+
+for (const [label, value] of statsToShow) {
+
+    const stat = node('div', 'draft-final-player-stat');
+
+    const formattedValue =
+        value === null || value === undefined || value === ''
+            ? '—'
+            : Number(value).toFixed(1);
+
+    stat.append(
+        node('span', 'draft-final-stat-label', label),
+        node('strong', 'draft-final-stat-value', formattedValue)
+    );
+
+    playerStats.append(stat);
+}
 
         const playerPhoto = node('div', 'draft-final-player-photo');
 
@@ -809,7 +840,12 @@ function showFinish() {
             playerPhoto.append(node('span', '', '🏀'));
         }
 
-        playerRow.append(positionLabel, playerPhoto, playerInfo);
+        playerRow.append(
+    positionLabel,
+    playerPhoto,
+    playerInfo,
+    playerStats
+);
         lineup.append(playerRow);
     }
 
@@ -987,7 +1023,6 @@ $('restartBtn').addEventListener('click', () => {
     }
 });
 
-$('playAgainBtn').addEventListener('click', reset);
 
 // Start the game.
 init();
@@ -1332,15 +1367,16 @@ function addSimulationButton() {
         if (button.disabled) return;
 
         setDraftLayout('simulation');
+        // Hide the Draft round progress during simulation.
 
         $('finishStage').querySelector('h2').textContent =
-            'EUROLEAGUE SEASON SIMULATION';
+            'simulating season...';
 
         $('finishStage').querySelector(':scope > p').textContent =
-            'Follow your team through the regular season and playoffs.';
-
+            '';
         button.disabled = true;
-        button.textContent = 'SIMULATING SEASON...';
+        button.hidden = true;
+        button.textContent = '';
 
         const lineup = {};
 
@@ -1380,23 +1416,7 @@ function addSimulationButton() {
 
             const container = $('simulationResult');
 
-            if (data.saved) {
-                container.append(
-                    node(
-                        'p',
-                        'simulation-save-status',
-                        '✓ Result saved to your profile'
-                    )
-                );
-            } else {
-                container.append(
-                    node(
-                        'p',
-                        'simulation-save-status',
-                        'Guest result — log in to save future drafts.'
-                    )
-                );
-            }
+
 
             // Show any newly unlocked achievements.
             if (data.new_achievements?.length) {
@@ -2053,19 +2073,26 @@ function renderSeasonPostseason(target, result) {
     );
 
     // Display a club with its logo and result.
-    function teamLine(name, score, isWinner) {
-        const line = node(
-            'div',
-            `pb-team ${isWinner ? 'pb-winner' : ''}`
-        );
+  
+function teamLine(name, score, isWinner) {
 
-        line.append(
-            simulationTeamLabel(name || 'TBD'),
-            node('strong', 'pb-score', score ?? '—')
-        );
+    // Highlight only the club selected by the user.
+    const isMyTeam =
+        String(name || '').trim().toLowerCase() ===
+        String(state.club?.name || '').trim().toLowerCase();
 
-        return line;
-    }
+    const line = node(
+        'div',
+        `pb-team ${isMyTeam ? 'pb-winner' : ''}`
+    );
+
+    line.append(
+        simulationTeamLabel(name || 'TBD'),
+        node('strong', 'pb-score', score ?? '—')
+    );
+
+    return line;
+}
 
     // Reusable matchup card.
     function matchCard(label, a, b, scoreA, scoreB, winner) {

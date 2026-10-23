@@ -125,12 +125,30 @@
             </div>
 
             <!-- ACCOUNT ROLE -->
+            <button type="button" id="edit-profile-button" class="edit-profile-trigger" aria-expanded="false" aria-controls="profile-settings">✎ Edit Profile</button>
             <span class="role-tag">
                 {{ current_user.role|capitalize }}
             </span>
 
         </header>
 
+
+        <!-- PROFILE SETTINGS: editors are moved here by profile.js -->
+        <section id="profile-settings" class="profile-settings" hidden aria-label="Edit profile settings">
+            <div class="profile-settings-heading">
+                <div><p class="eyebrow">ACCOUNT CUSTOMIZATION</p><h2>Edit Profile</h2></div>
+                <button type="button" id="close-profile-settings" class="profile-settings-close" aria-label="Close profile settings">✕</button>
+            </div>
+            <form id="account-settings-form" class="account-settings-form">
+                <div class="profile-field"><label for="edit-username">Username</label>
+                    <input id="edit-username" name="username" type="text" minlength="3" maxlength="40" autocomplete="username" required value="{{ current_user.username }}"></div>
+                <div class="profile-field"><label for="edit-email">Email address</label>
+                    <input id="edit-email" name="email" type="email" maxlength="254" autocomplete="email" required value="{{ current_user.email }}"></div>
+                <button class="profile-action-btn" type="submit" id="save-account-settings">Save Account Details</button>
+                <p id="account-settings-message" role="status" aria-live="polite"></p>
+            </form>
+
+        </section>
 
         <!-- ==================================
              FAVORITE TEAM EDITOR
@@ -293,7 +311,7 @@
 
             <!-- DRAFT MODE -->
 
-            <details class="game-section" open>
+            <details class="game-section">
 
                 <summary>
 

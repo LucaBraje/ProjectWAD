@@ -1,120 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Draft Mode | Draft EuroLeague</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/draft.css') }}">
-<script src="{{ url_for('static', filename='js/countries.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/draft.js') }}" defer></script>  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Draft Mode | Draft EuroLeague</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/draft.css') }}">
+
+    <script src="{{ url_for('static', filename='js/countries.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/draft.js') }}" defer></script>
 </head>
-<body>
-  {% include 'navbar.html' %}
-  <main class="draft-shell">
+<body class="draft-page">
+    {% include 'navbar.html' %}
 
-<header class="draft-heading">
-
-  <div class="draft-hero-content">
-
-    <div class="eyebrow">DRAFT EUROLEAGUE / GAME MODE</div>
-
-    <div class="heading-line">
-      <div>
-        <h1>BUILD YOUR <span>DYNASTY.</span></h1>
-        <p>One club. Five picks. One starting lineup.</p>
-      </div>
-
-    </div>
-
-    <div class="draft-hero-progress">
-      <div class="round-meter">
-        <div id="progressBar"></div>
-      </div>
-
-      <div id="roundLabel" class="round-label">
-        Loading draft…
-      </div>
-    </div>
-    <div class="draft-restart-row">
-  <button id="restartBtn" class="secondary-btn" type="button">
-    ↻ Restart draft
-  </button>
-</div>
-  </div>
-
-</header>
-
-    <div id="errorBox" class="error-box" hidden></div>
-    <div class="draft-layout">
-      <section class="draft-main">
-        
-<div id="clubStage" class="stage-panel" hidden>
-
-  <div class="stage-top">
-    <div>
-      <div class="eyebrow">ROUND 1 / 6</div>
-      <h2>YOUR CLUB IDENTITY</h2>
-    </div>
-  </div>
-
-  <p>Spin to reveal the EuroLeague club you'll represent.</p>
-
-  <!-- Legends toggle integrated into the club panel -->
-  <div id="legendSetting" class="legend-setting">
-
-    <label for="includeLegends" class="legend-toggle-row">
-
-      <span class="legend-toggle-text">
-        <strong>INCLUDE EUROLEAGUE LEGENDS</strong>
-        <small>
-          Choose one of five random legends after your club reveal.
-        </small>
-      </span>
-
-      <input
-        id="includeLegends"
-        class="legend-toggle-input"
-        type="checkbox"
-        role="switch"
-      >
-
-      <span class="legend-toggle-track" aria-hidden="true">
-        <span class="legend-toggle-thumb"></span>
-      </span>
-
-    </label>
-
-  </div>
-          <div class="stage-top"><div><div class="eyebrow">ROUND 1 / 6</div><h2>YOUR CLUB IDENTITY</h2></div></div>
-          <p>Spin to reveal the EuroLeague club you'll represent.</p>
-          <div class="club-reveal"><div id="clubImage" class="club-image"><span>?</span></div><h3 id="clubName">MYSTERY CLUB</h3></div>
-          <button id="spinClubBtn" class="primary-btn" type="button">SPIN FOR CLUB</button>
-          <button id="confirmClubBtn" class="primary-btn" type="button" hidden>CONFIRM CLUB →</button>
+    <!-- Full-width banner: outside the centered draft-shell -->
+    <header class="draft-full-hero">
+        <div class="container draft-hero-content">
+            <div class="draft-hero-eyebrow">
+                <span class="draft-hero-line" aria-hidden="true"></span>
+                DRAFT EUROLEAGUE / GAME MODE
+            </div>
+            <h1>BUILD YOUR <span>DYNASTY.</span></h1>
+            <p>One club. Five picks. One starting lineup.</p>
+            
+            <!-- Live draft round and progress, kept inside the full-width hero -->
+            <div class="draft-hero-progress">
+                <div class="round-meter" role="progressbar" aria-label="Draft progress">
+                    <div id="progressBar"></div>
+                </div>
+                <div id="roundLabel" class="round-label" aria-live="polite">Loading draft…</div>
+            </div>
+                    <!-- Restart stays below the banner; all JavaScript IDs are preserved -->
+        <div class="draft-restart-row">
+            <button id="restartBtn" class="secondary-btn" type="button">↻ Restart draft</button>
         </div>
-        <div id="playersStage" class="stage-panel" hidden>
-          <div class="stage-top"><div><div id="playerRoundEyebrow" class="eyebrow"></div><h2>CHOOSE YOUR PLAYER</h2></div><span class="stage-count">10 OPTIONS</span></div>
-          <p id="offersDescription">Inspect any player, then choose one to add to your starting five.</p>
-          <div id="playerGrid" class="player-grid"></div>
         </div>
-        <div id="positionStage" class="stage-panel" hidden>
-          <div class="eyebrow">CONFIRM YOUR PICK</div><h2>ASSIGN A POSITION</h2>
-          <div id="chosenPlayer" class="chosen-player"></div>
-          <p>Choose an empty slot. Out-of-position players will receive a penalty in the future simulation.</p>
-          <div id="positionOptions" class="position-options"></div>
-          <button id="backToPlayersBtn" class="secondary-btn" type="button">← Back to players</button>
+    </header>
+    <div class="draft-hero-divider" aria-hidden="true"></div>
+
+    <main class="draft-shell">
+
+        <div id="errorBox" class="error-box" hidden></div>
+
+        <div class="draft-layout">
+            <section class="draft-main" aria-label="Draft selection stages">
+                <!-- Club reveal -->
+                <div id="clubStage" class="stage-panel" hidden>
+                    <div class="stage-top">
+                        <div>
+                            <div class="eyebrow">ROUND 1 / 6</div>
+                            <h2>YOUR CLUB IDENTITY</h2>
+                        </div>
+                    </div>
+                    <p>Spin to reveal the EuroLeague club you'll represent.</p>
+
+                    <div id="legendSetting" class="legend-setting">
+                        <label for="includeLegends" class="legend-toggle-row">
+                            <span class="legend-toggle-text">
+                                <strong>INCLUDE EUROLEAGUE LEGENDS</strong>
+                                <small>Choose one of five random legends after your club reveal.</small>
+                            </span>
+                            <input id="includeLegends" class="legend-toggle-input" type="checkbox" role="switch">
+                            <span class="legend-toggle-track" aria-hidden="true">
+                                <span class="legend-toggle-thumb"></span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="club-reveal">
+                        <div id="clubImage" class="club-image"><span>?</span></div>
+                        <h3 id="clubName">MYSTERY CLUB</h3>
+                    </div>
+                    <button id="spinClubBtn" class="primary-btn" type="button">SPIN FOR CLUB</button>
+                    <button id="confirmClubBtn" class="primary-btn" type="button" hidden>CONFIRM CLUB →</button>
+                </div>
+
+                <!-- Player offers -->
+                <div id="playersStage" class="stage-panel" hidden>
+                    <div class="stage-top">
+                        <div>
+                            <div id="playerRoundEyebrow" class="eyebrow"></div>
+                            <h2>CHOOSE YOUR PLAYER</h2>
+                        </div>
+                        <span class="stage-count">10 OPTIONS</span>
+                    </div>
+                    <p id="offersDescription">Inspect any player, then choose one to add to your starting five.</p>
+                    <div id="playerGrid" class="player-grid"></div>
+                </div>
+
+                <!-- Position assignment -->
+                <div id="positionStage" class="stage-panel" hidden>
+                    <div class="eyebrow">CONFIRM YOUR PICK</div>
+                    <h2>ASSIGN A POSITION</h2>
+                    <div id="chosenPlayer" class="chosen-player"></div>
+                    <p>Choose an empty slot. Out-of-position players will receive a penalty in the future simulation.</p>
+                    <div id="positionOptions" class="position-options"></div>
+                    <button id="backToPlayersBtn" class="secondary-btn" type="button">← Back to players</button>
+                </div>
+
+                <!-- Completed draft; JavaScript fills summary and simulation UI -->
+                <div id="finishStage" class="stage-panel" hidden>
+                    <div class="eyebrow">DRAFT COMPLETE</div>
+                    <h2>YOUR STARTING FIVE IS READY</h2>
+                    <p>You've assembled your squad. Simulate the season below!</p>
+                    <div id="summary" class="summary"></div>
+                    
+                </div>
+            </section>
+
+            <aside class="roster-panel" aria-label="Your draft roster">
+                <div class="eyebrow">YOUR FRANCHISE</div>
+                <div id="rosterClub" class="roster-club">Club not selected</div>
+                <h2>STARTING FIVE</h2>
+                <div id="rosterSlots" class="roster-slots"></div>
+                <div class="roster-footnote">COACH <span>COMING LATER</span></div>
+            </aside>
         </div>
-        <div id="finishStage" class="stage-panel" hidden>
-          <div class="eyebrow">DRAFT COMPLETE</div><h2>YOUR STARTING FIVE IS READY</h2>
-          <p>You've assembled your squad. Simulate the season below!</p>
-          <div id="summary" class="summary"></div>
-          <button id="playAgainBtn" class="primary-btn" type="button">DRAFT AGAIN</button>
-        </div>
-      </section>
-      <aside class="roster-panel"><div class="eyebrow">YOUR FRANCHISE</div><div id="rosterClub" class="roster-club">Club not selected</div><h2>STARTING FIVE</h2><div id="rosterSlots" class="roster-slots"></div><div class="roster-footnote">COACH <span>COMING LATER</span></div></aside>
-    </div>
-  </main>
-  <dialog id="playerDialog" class="player-dialog"><button id="closeDialogBtn" class="dialog-close" type="button" aria-label="Close">×</button><div id="playerDetails"></div><button id="selectPlayerBtn" class="primary-btn" type="button">SELECT THIS PLAYER →</button></dialog>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </main>
+
+    <dialog id="playerDialog" class="player-dialog">
+        <button id="closeDialogBtn" class="dialog-close" type="button" aria-label="Close">×</button>
+        <div id="playerDetails"></div>
+        <button id="selectPlayerBtn" class="primary-btn" type="button">SELECT THIS PLAYER →</button>
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

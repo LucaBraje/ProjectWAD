@@ -1899,6 +1899,79 @@ def my_draft_stats():
 
 
 # ---------------------------------------
+# PROFILE: UPDATE USERNAME AND EMAIL
+# ---------------------------------------
+
+@app.route("/api/profile/account", methods=["POST"])
+@login_required
+def update_profile_account():
+    """Update the authenticated user's account details."""
+    # Browser-side protection against cross-site requests.
+    origin = request.headers.get("Origin")
+    if origin and origin.rstrip("/") != request.host_url.rstrip("/"):
+        return jsonify({"error": "Invalid request origin."}), 403
+
+    # Only accept JSON objects, not forms or arbitrary content.
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "Expected JSON account details."}), 400
+
+    username = data.get("username")
+    email = data.get("email")
+
+    if not isinstance(username, str) or not isinstance(email, str):
+        return jsonify({"error": "Username and email must be text."}), 400
+
+    username = username.strip()
+    email = email.strip().lower()
+
+    # Match the database column limits (User.username=50, User.email=120).
+    if not 3 <= len(username) <= 50:
+        return jsonify({"error": "Username must be 3 to 50 characters."}), 400
+
+    if not 3 <= len(email) <= 120 or email.count("@") != 1:
+        return jsonify({"error": "Enter a valid email address."}), 400
+
+    local, domain = email.rsplit("@", 1)
+    if (not local or not domain or "." not in domain or
+            any(char.isspace() for char in email)):
+        return jsonify({"error": "Enter a valid email address."}), 400
+
+    # Do not treat the current user's own values as duplicates.
+    existing_username = User.query.filter(
+        func.lower(User.username) == username.lower(),
+        User.id != current_user.id
+    ).first()
+    if existing_username:
+        return jsonify({"error": "This username is already taken."}), 409
+
+    existing_email = User.query.filter(
+        func.lower(User.email) == email,
+        User.id != current_user.id
+    ).first()
+    if existing_email:
+        return jsonify({"error": "An account with this email already exists."}), 409
+
+    try:
+        current_user.username = username
+        current_user.email = email
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"error": "Username or email is already in use."}), 409
+    except Exception:
+        db.session.rollback()
+        app.logger.exception("Failed to update profile account")
+        return jsonify({"error": "Could not save account details."}), 500
+
+    return jsonify({
+        "success": True,
+        "username": current_user.username,
+        "email": current_user.email
+    })
+
+
+# ---------------------------------------
 # PROFILE: FAVORITE TEAM
 # ---------------------------------------
 

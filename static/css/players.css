@@ -462,3 +462,268 @@
         transition: none;
     }
 }
+
+/* ==========================================
+   PLAYERS PAGE — CLEAN HOMEPAGE-STYLE LAYOUT
+========================================== */
+
+/* Full-width hero directly below navbar */
+.players-page .players-full-hero {
+    position: relative;
+    width: 100%;
+    min-height: 380px;
+    display: flex;
+    align-items: center;
+
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(8, 8, 9, 0.94) 0%,
+            rgba(8, 8, 9, 0.78) 45%,
+            rgba(8, 8, 9, 0.35) 100%
+        ),
+        url("../images/players_bannerss.jpg");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Hero content */
+.players-page .players-hero-content {
+    position: relative;
+    z-index: 1;
+    padding-top: 65px;
+    padding-bottom: 65px;
+}
+
+.players-page .players-full-hero .directory-eyebrow {
+    color: #ff893e;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    margin-bottom: 20px;
+}
+
+.players-page .players-full-hero h1 {
+    margin: 0 0 18px;
+    color: #fff;
+    font-size: clamp(46px, 6vw, 86px);
+    font-weight: 900;
+    letter-spacing: -3px;
+    line-height: 1;
+}
+
+.players-page .players-full-hero h1 span {
+    color: #fa5500;
+}
+
+.players-page .players-full-hero p {
+    max-width: 650px;
+    margin: 0;
+    color: #c7c1be;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+/* Full-width orange line */
+.players-page .players-hero-divider {
+    width: 100%;
+    height: 4px;
+    background: #fa5500;
+}
+
+/* Main content */
+.players-page .page-container {
+    max-width: 1280px;
+    padding-top: 45px;
+    padding-bottom: 90px;
+}
+
+/* One continuous directory area */
+.players-page .players-directory-body {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+}
+
+/* Filters are no longer a separate card */
+.players-page .directory-filters {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0 0 25px;
+    margin: 0;
+}
+
+/* Cleaner input fields */
+.players-page .directory-filters .form-control,
+.players-page .directory-filters .form-select {
+    border-radius: 3px;
+    background-color: #151517;
+    border: 1px solid #343033;
+}
+
+/* Results directly underneath filters */
+.players-page .directory-results {
+    margin: 12px 0 16px;
+    padding: 0;
+}
+
+/* Table no longer appears as a rounded card */
+.players-page .player-table-container {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: hidden;
+}
+
+/* Flat table styling */
+.players-page #playerTable {
+    --bs-table-bg: #141416;
+    --bs-table-color: #e9e5e2;
+    --bs-table-border-color: #302b2c;
+    --bs-table-hover-bg: #242022;
+    --bs-table-hover-color: #fff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+    .players-page .players-full-hero {
+        min-height: 300px;
+        background-position: center;
+    }
+
+    .players-page .players-hero-content {
+        padding-top: 50px;
+        padding-bottom: 50px;
+    }
+
+    .players-page .players-full-hero h1 {
+        font-size: clamp(42px, 11vw, 65px);
+        letter-spacing: -2px;
+    }
+
+    .players-page .page-container {
+        padding-top: 30px;
+        padding-bottom: 60px;
+    }
+}
+
+/* ==========================================
+   PLAYER DIRECTORY — FULL WIDTH HERO FIX
+========================================== */
+
+/* Full width, not a floating container */
+.players-page .players-full-hero {
+    position: relative;
+    isolation: isolate;
+
+    width: 100%;
+    max-width: none;
+    min-height: 540px;
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+
+    background-color: #140d09;
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(6,6,6,.97) 0%,
+            rgba(6,6,6,.85) 34%,
+            rgba(6,6,6,.43) 72%,
+            rgba(6,6,6,.32) 100%
+        ),
+        linear-gradient(
+            0deg,
+            rgba(8,8,8,.85),
+            transparent 35%
+        ),
+        url("../images/players_bannerss.jpg");
+
+    background-size: cover;
+    background-position: center 45%;
+    background-repeat: no-repeat;
+
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Same orange atmospheric glow as homepage */
+.players-page .players-full-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background: radial-gradient(
+        ellipse at 78% 45%,
+        rgba(250,85,0,.23),
+        transparent 52%
+    );
+}
+
+/* Align the text with the rest of the site */
+.players-page .players-hero-content {
+    position: relative;
+    z-index: 1;
+
+    width: 100%;
+    max-width: 1200px;
+
+    padding-top: 65px;
+    padding-bottom: 65px;
+}
+
+/* Shorter title than the homepage */
+.players-page .players-full-hero h1 {
+    font-size: clamp(46px, 5.2vw, 76px);
+    font-weight: 950;
+    letter-spacing: -3px;
+    line-height: 1;
+}
+
+/* Subtle orange divider, not a solid bar */
+.players-page .players-hero-divider {
+    width: 100%;
+    height: 2px;
+
+    background: linear-gradient(
+        90deg,
+        #5e260c 0%,
+        #fa5500 25%,
+        #ff893e 55%,
+        #fa5500 80%,
+        #5e260c 100%
+    );
+
+    box-shadow: 0 0 12px rgba(250,85,0,.18);
+}
+
+/* Center the directory content separately */
+.players-page .page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 45px;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .players-page .players-full-hero {
+        min-height: 290px;
+    }
+
+    .players-page .players-hero-content {
+        padding-top: 45px;
+        padding-bottom: 45px;
+    }
+
+    .players-page .players-full-hero h1 {
+        font-size: clamp(42px, 10vw, 62px);
+    }
+}

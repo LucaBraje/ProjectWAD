@@ -1,116 +1,388 @@
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>{{ team.name }} | Draft EuroLeague</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/team_profile.css') }}">
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/navbar.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/team_profile.css') }}"
+    >
 </head>
+
 <body class="team-profile-page">
+
     {% include 'navbar.html' %}
 
-    <main class="container team-profile-main">
-        <a href="{{ url_for('team_directory') }}" class="back-link">&larr; ALL EUROLEAGUE TEAMS</a>
 
-        <section class="team-header">
-            <div class="team-header-topline">EUROLEAGUE / CLUB PROFILE</div>
-            <div class="row align-items-center g-4">
-                <div class="col-md-3 text-center">
-                    <div class="team-logo-frame">
-                        {% if team.image_url %}
-                        <img src="{{ url_for('static', filename=team.image_url) }}" alt="{{ team.name }} logo" class="profile-team-logo">
-                        {% else %}
-                        <span class="team-logo-fallback">EL</span>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="col-md-9">
-                    <div class="team-header-eyebrow">THE CLUB</div>
-                    <h1 class="team-profile-title">{{ team.name }}</h1>
+    <!-- =====================================
+         FULL-WIDTH TEAM PROFILE HEADER
+    ====================================== -->
+
+    <header class="team-profile-hero">
+
+        <div class="container team-hero-content">
+
+            <a
+                href="{{ url_for('team_directory') }}"
+                class="back-link"
+            >
+                &larr; ALL EUROLEAGUE TEAMS
+            </a>
+
+            <div class="team-hero-layout">
+
+                <!-- CLUB IDENTITY -->
+                <div class="team-hero-details">
+
+
+                    <h1 class="team-profile-title">
+                        {{ team.name }}
+                    </h1>
+
                     <div class="team-location">
+
+                        <img
+                            class="profile-country-flag"
+                            data-country="{{ team.country }}"
+                            alt="{{ team.country }} flag"
+                        >
+
                         <span>{{ team.country }}</span>
-                        <img class="profile-country-flag" data-country="{{ team.country }}" alt="{{ team.country }} flag">
+
                     </div>
-                    <div class="row g-3 team-stats-row">
-                        <div class="col-sm-4"><div class="team-stat"><span class="stat-label">RECORD</span><strong>{{ team.record or "N/A" }}</strong></div></div>
-                        <div class="col-sm-4"><div class="team-stat"><span class="stat-label">PLAYERS</span><strong>{{ players|length }}</strong></div></div>
-                        <div class="col-sm-4"><div class="team-stat"><span class="stat-label">COMPETITION</span><strong>EuroLeague</strong></div></div>
+
+                    <!-- CLUB INFORMATION -->
+                    <div class="team-hero-stats">
+
+                        <div class="team-hero-stat">
+                            <span class="stat-label">RECORD</span>
+                            <strong>{{ team.record or 'N/A' }}</strong>
+                        </div>
+
+                        <div class="team-hero-stat">
+                            <span class="stat-label">PLAYERS</span>
+                            <strong>{{ players|length }}</strong>
+                        </div>
+
+                        <div class="team-hero-stat">
+                            <span class="stat-label">COMPETITION</span>
+                            <strong>EuroLeague</strong>
+                        </div>
+
                     </div>
+
                 </div>
+
+
+                <!-- LARGE TEAM LOGO -->
+                <div class="team-hero-logo-area">
+
+                    {% if team.image_url %}
+
+                    <img
+                        src="{{ team.image_url if team.image_url.startswith('http') or team.image_url.startswith('/') else url_for('static', filename=team.image_url) }}"
+                        alt="{{ team.name }} logo"
+                        class="profile-team-logo"
+                    >
+
+                    {% else %}
+
+                    <span class="team-logo-fallback">
+                        EL
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
             </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================
+         ORANGE HERO DIVIDER
+    ====================================== -->
+
+    <div
+        class="team-hero-divider"
+        aria-hidden="true"
+    ></div>
+
+
+    <!-- =====================================
+         MAIN PROFILE CONTENT
+    ====================================== -->
+
+    <main class="container team-profile-main">
+
+
+        <!-- =====================================
+             ABOUT THE CLUB
+        ====================================== -->
+
+        <section class="team-biography">
+
+            <div class="section-kicker">
+                CLUB IDENTITY
+            </div>
+
+            <h2>
+                ABOUT <span>THE CLUB.</span>
+            </h2>
+
+            {% if team.biography %}
+
+            <p>{{ team.biography }}</p>
+
+            {% else %}
+
+            <p class="team-no-biography">
+                Club information for {{ team.name }}
+                will be added soon.
+            </p>
+
+            {% endif %}
+
         </section>
 
-        {% if team.biography %}
-        <section class="team-biography">
-            <div class="section-kicker">CLUB IDENTITY</div>
-            <h2>ABOUT <span>{{ team.name }}</span></h2>
-            <p>{{ team.biography }}</p>
-        </section>
-        {% endif %}
+
+        <!-- =====================================
+             TEAM ROSTER
+        ====================================== -->
 
         <section class="team-roster-section">
+
             <div class="roster-heading">
+
                 <div>
-                    <div class="section-kicker">THE SQUAD</div>
-                    <h2>TEAM <span>ROSTER.</span></h2>
+
+                    <div class="section-kicker">
+                        THE SQUAD
+                    </div>
+
+                    <h2>
+                        TEAM <span>ROSTER.</span>
+                    </h2>
+
                 </div>
-                <span class="roster-count">{{ players|length }} PLAYERS</span>
+
+                <span class="roster-count">
+                    {{ players|length }} PLAYERS
+                </span>
+
             </div>
-            <p class="roster-hint">Select a column heading to sort the roster.</p>
+
+
+            <!-- TABLE INFORMATION -->
+            <div class="roster-info">
+
+                <span>
+                    {{ players|length }} PLAYERS FOUND
+                </span>
+
+                <span class="roster-hint">
+                    CLICK HEADERS TO SORT
+                </span>
+
+            </div>
+
+
+            <!-- =====================================
+                 PLAYER TABLE
+            ====================================== -->
+
             <div class="table-responsive roster-container">
-                <table class="table table-hover align-middle mb-0" id="rosterTable">
+
+                <table
+                    class="table table-hover align-middle mb-0"
+                    id="rosterTable"
+                >
+
                     <thead>
                         <tr>
-                            <th data-sort="text">PLAYER</th>
-                            <th data-sort="text">POS</th>
-                            <th data-sort="number">OVR</th>
-                            <th data-sort="number">OFF</th>
-                            <th data-sort="number">DEF</th>
-                            <th data-sort="number">PPG</th>
-                            <th data-sort="number">APG</th>
-                            <th data-sort="number">RPG</th>
-                            <th data-sort="number">BPG</th>
-                            <th data-sort="number">SPG</th>
-                            <th data-sort="number">FG%</th>
+
+                            <th scope="col" data-sort="text">
+                                PLAYER
+                            </th>
+
+                            <th scope="col" data-sort="text">
+                                POS
+                            </th>
+
+                            <th scope="col" data-sort="number">
+                                OVR
+                            </th>
+
+                            <th scope="col" data-sort="number">
+                                OFF
+                            </th>
+
+                            <th scope="col" data-sort="number">
+                                DEF
+                            </th>
+
+                            <th scope="col" data-sort="number">
+                                PPG
+                            </th>
+
+                            <th scope="col" data-sort="number">
+                                APG
+                            </th>
+
+                            <th scope="col" data-sort="number">
+                                RPG
+                            </th>
+
+                            <th scope="col" data-sort="number">
+                                BPG
+                            </th>
+
+                            <th scope="col" data-sort="number">
+                                SPG
+                            </th>
+
+                            <th scope="col" data-sort="number">
+                                FG%
+                            </th>
+
                         </tr>
                     </thead>
+
+
                     <tbody>
+
                         {% for player in players %}
+
                         <tr>
+
+                            <!-- PLAYER -->
                             <td>
+
                                 <div class="roster-player">
+
                                     {% if player.picture_url %}
-                                    <img src="{{ player.picture_url if player.picture_url.startswith('http') or player.picture_url.startswith('/') else url_for('static', filename=player.picture_url) }}" alt="{{ player.name }}" class="roster-player-picture" loading="lazy">
+
+                                    <img
+                                        src="{{ player.picture_url if player.picture_url.startswith('http') or player.picture_url.startswith('/') else url_for('static', filename=player.picture_url) }}"
+                                        alt="{{ player.name }}"
+                                        class="roster-player-picture"
+                                        loading="lazy"
+                                    >
+
                                     {% else %}
-                                    <span class="roster-picture-placeholder">EL</span>
+
+                                    <span class="roster-picture-placeholder">
+                                        EL
+                                    </span>
+
                                     {% endif %}
-                                    <span class="roster-player-name">{{ player.name }}</span>
-                                    <img class="player-country-flag" data-country="{{ player.nationality }}" alt="{{ player.nationality }} flag" title="{{ player.nationality }}" loading="lazy">
+
+                                    <span class="roster-player-name">
+                                        {{ player.name }}
+                                    </span>
+
+                                    <img
+                                        class="player-country-flag"
+                                        data-country="{{ player.nationality or '' }}"
+                                        alt="{{ player.nationality or 'Unknown' }} flag"
+                                        title="{{ player.nationality or 'Unknown' }}"
+                                        loading="lazy"
+                                    >
+
                                 </div>
+
                             </td>
-                            <td><span class="position-tag">{{ player.position }}</span></td>
-                            <td><span class="rating-badge">{{ player.rating }}</span></td>
+
+
+                            <!-- POSITION -->
+                            <td>
+                                <span class="position-tag">
+                                    {{ player.position }}
+                                </span>
+                            </td>
+
+
+                            <!-- RATINGS -->
+                            <td>
+                                <span class="rating-badge">
+                                    {{ player.rating }}
+                                </span>
+                            </td>
+
                             <td>{{ player.offense }}</td>
+
                             <td>{{ player.defense }}</td>
-                            <td>{{ "%.1f"|format(player.points_per_game or 0) }}</td>
-                            <td>{{ "%.1f"|format(player.assists_per_game or 0) }}</td>
-                            <td>{{ "%.1f"|format(player.rebounds_per_game or 0) }}</td>
-                            <td>{{ "%.1f"|format(player.blocks_per_game or 0) }}</td>
-                            <td>{{ "%.1f"|format(player.steals_per_game or 0) }}</td>
-                            <td>{{ "%.1f"|format(player.fg_percentage or 0) }}%</td>
+
+
+                            <!-- PER-GAME STATS -->
+                            <td>
+                                {{ "%.1f"|format(player.points_per_game or 0) }}
+                            </td>
+
+                            <td>
+                                {{ "%.1f"|format(player.assists_per_game or 0) }}
+                            </td>
+
+                            <td>
+                                {{ "%.1f"|format(player.rebounds_per_game or 0) }}
+                            </td>
+
+                            <td>
+                                {{ "%.1f"|format(player.blocks_per_game or 0) }}
+                            </td>
+
+                            <td>
+                                {{ "%.1f"|format(player.steals_per_game or 0) }}
+                            </td>
+
+                            <td>
+                                {{ "%.1f"|format(player.fg_percentage or 0) }}%
+                            </td>
+
                         </tr>
+
                         {% else %}
-                        <tr><td colspan="11" class="empty-roster">No players found for this team.</td></tr>
+
+                        <tr>
+                            <td colspan="11" class="empty-roster">
+                                No players found for this team.
+                            </td>
+                        </tr>
+
                         {% endfor %}
+
                     </tbody>
+
                 </table>
+
             </div>
+
         </section>
+
     </main>
 
+
+    <!-- EXISTING JAVASCRIPT -->
     <script src="{{ url_for('static', filename='js/countries.js') }}"></script>
     <script src="{{ url_for('static', filename='js/team_profile.js') }}"></script>
+
 </body>
 </html>
