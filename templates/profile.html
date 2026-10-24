@@ -466,6 +466,20 @@
             </details>
 
 
+            <!-- BASKETBALL GRID -->
+            <details class="game-section">
+                <summary>
+                    <span class="game-icon">▦</span>
+                    <span><strong>Basketball Grid</strong><small>3 × 3 EuroLeague knowledge challenge</small></span>
+                    <span class="expand-arrow">⌄</span>
+                </summary>
+                <div class="game-body">
+                    <p id="bg-profile-status" class="status-message" role="status">Loading Basketball Grid statistics...</p>
+                    <div id="bg-profile-stats" class="stat-grid" hidden></div>
+                    <a href="{{ url_for('basketball_grid_page') }}" class="profile-action-btn" style="display:inline-block; margin-top:20px; text-decoration:none;">PLAY BASKETBALL GRID ↗</a>
+                </div>
+            </details>
+
             <!-- FANTASY -->
 
             <details class="game-section">
@@ -579,6 +593,13 @@
                     Loading achievements...
                 </p>
                 <div id="gp-profile-achievements" class="achievement-grid"></div>
+            </div>
+
+            <!-- BASKETBALL GRID ACHIEVEMENTS -->
+            <div class="achievement-group">
+                <h3>▦ Basketball Grid</h3>
+                <p id="bg-achievement-progress" class="status-message">Loading achievements...</p>
+                <div id="bg-profile-achievements" class="achievement-grid"></div>
             </div>
 
             <!-- FUTURE ACHIEVEMENTS -->

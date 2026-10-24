@@ -2174,6 +2174,62 @@ function initializeAccountSettings() {
 
 
 
+// ==========================================
+// BASKETBALL GRID — PROFILE INTEGRATION
+// ==========================================
+async function loadBasketballGridProfile() {
+    const statsContainer = byId('bg-profile-stats');
+    const achievementsContainer = byId('bg-profile-achievements');
+    const status = byId('bg-profile-status');
+    const progress = byId('bg-achievement-progress');
+    try {
+        const response = await fetch('/api/games/basketball-grid/profile', {credentials: 'same-origin'});
+        const data = await readApiResponse(response);
+        const stats = data.stats || {};
+        if (statsContainer) {
+            statsContainer.replaceChildren(
+                makeStat('Games Played', formatted(stats.games)),
+                makeStat('Wins', formatted(stats.wins)),
+                makeStat('Losses', formatted(stats.losses)),
+                makeStat('Win Rate', `${formatted(stats.win_rate)}%`),
+                makeStat('Best Correct', `${formatted(stats.best_correct)} / 9`)
+            );
+            statsContainer.hidden = false;
+        }
+        if (status) {
+            status.hidden = number(stats.games) > 0;
+            if (!status.hidden) status.textContent = 'No Basketball Grid games finished yet.';
+        }
+        const achievements = data.achievements || [];
+        if (achievementsContainer) {
+            achievementsContainer.replaceChildren();
+            for (const achievement of achievements) {
+                const card = document.createElement('article');
+                card.className = `achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'}`;
+                const symbol = document.createElement('div');
+                symbol.className = 'achievement-symbol';
+                symbol.textContent = achievement.unlocked ? achievement.icon : '🔒';
+                const heading = document.createElement('h4');
+                heading.textContent = achievement.name;
+                const description = document.createElement('p');
+                description.textContent = achievement.description;
+                const state = document.createElement('div');
+                state.className = 'achievement-state';
+                state.textContent = achievement.unlocked ? 'Unlocked' : 'Locked';
+                card.append(symbol, heading, description, state);
+                achievementsContainer.append(card);
+            }
+        }
+        if (progress) {
+            progress.textContent = `${achievements.filter(a => a.unlocked).length} / ${achievements.length} Basketball Grid achievements unlocked`;
+        }
+    } catch (error) {
+        console.error('Basketball Grid profile error:', error);
+        if (status) {status.hidden = false; status.textContent = 'Unable to load Basketball Grid statistics.';}
+        if (progress) progress.textContent = 'Unable to load Basketball Grid achievements.';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
 
@@ -2232,6 +2288,7 @@ loadProfile();
 
 loadHigherLowerProfile();
     loadGuessPlayerProfile();
+    loadBasketballGridProfile();
 
 loadFavoriteTeams();
 

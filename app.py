@@ -2061,6 +2061,61 @@ def profile_favorite_team():
     })
 
 
+# ==========================================
+# BASKETBALL GRID — PROFILE INTEGRATION
+# ==========================================
+GRID_ACHIEVEMENTS = {
+    "bg_first_game": {"name": "Grid Rookie", "description": "Finish your first Basketball Grid game.", "icon": "🏀"},
+    "bg_first_win": {"name": "Grid Winner", "description": "Win your first Basketball Grid game.", "icon": "🏆"},
+    "bg_five_wins": {"name": "Grid Specialist", "description": "Win five Basketball Grid games.", "icon": "🎯"},
+    "bg_twenty_wins": {"name": "Grid Master", "description": "Win twenty Basketball Grid games.", "icon": "👑"},
+    "bg_nine_correct": {"name": "Perfect Grid", "description": "Complete all nine squares in a game.", "icon": "💎"},
+    "bg_25_games": {"name": "Grid Veteran", "description": "Finish 25 Basketball Grid games.", "icon": "🎖️"},
+}
+
+def sync_grid_achievements(user_id, grid_record):
+    if grid_record is None:
+        return
+    eligible = set()
+    if grid_record.games >= 1:
+        eligible.add("bg_first_game")
+    if grid_record.wins >= 1:
+        eligible.add("bg_first_win")
+    if grid_record.wins >= 5:
+        eligible.add("bg_five_wins")
+    if grid_record.wins >= 20:
+        eligible.add("bg_twenty_wins")
+    if grid_record.best_correct >= 9:
+        eligible.add("bg_nine_correct")
+    if grid_record.games >= 25:
+        eligible.add("bg_25_games")
+    existing = {item.achievement_key for item in UserAchievement.query.filter_by(user_id=user_id).all()}
+    for key in eligible - existing:
+        db.session.add(UserAchievement(user_id=user_id, achievement_key=key))
+    if eligible - existing:
+        db.session.commit()
+
+@app.get("/api/games/basketball-grid/profile")
+@login_required
+def basketball_grid_profile():
+    grid_record = BasketballGridGame.query.filter_by(user_id=current_user.id).first()
+    sync_grid_achievements(current_user.id, grid_record)
+    games = grid_record.games if grid_record else 0
+    wins = grid_record.wins if grid_record else 0
+    stats = {
+        "games": games,
+        "wins": wins,
+        "losses": grid_record.losses if grid_record else 0,
+        "best_correct": grid_record.best_correct if grid_record else 0,
+        "win_rate": round(wins * 100 / games, 1) if games else 0,
+    }
+    unlocked = {item.achievement_key for item in UserAchievement.query.filter_by(user_id=current_user.id).all()}
+    return jsonify({
+        "stats": stats,
+        "achievements": [dict(key=key, **definition, unlocked=(key in unlocked)) for key, definition in GRID_ACHIEVEMENTS.items()]
+    })
+
+
 # ---------------------------------------
 # PROFILE: EQUIPPABLE TITLES
 # ---------------------------------------
@@ -2089,6 +2144,12 @@ PROFILE_TITLES = {
     "gp_first_try": "Perfect Read",
     "gp_streak_5": "Unstoppable Scout",
     "gp_games_25": "Dedicated Scout",
+    "bg_first_game": "Grid Rookie",
+    "bg_first_win": "Grid Winner",
+    "bg_five_wins": "Grid Specialist",
+    "bg_twenty_wins": "Grid Master",
+    "bg_nine_correct": "Perfect Grid",
+    "bg_25_games": "Grid Veteran",
 
 }
 
@@ -2096,6 +2157,7 @@ PROFILE_TITLES = {
 @app.route("/api/profile/titles", methods=["GET"])
 @login_required
 def profile_titles():
+    sync_grid_achievements(current_user.id, BasketballGridGame.query.filter_by(user_id=current_user.id).first())
     achievements = UserAchievement.query.filter_by(
         user_id=current_user.id
     ).all()
@@ -2444,6 +2506,7 @@ def admin_delete_user(user_id):
 @app.route("/api/profile/titles/equip", methods=["POST"])
 @login_required
 def equip_profile_title():
+    sync_grid_achievements(current_user.id, BasketballGridGame.query.filter_by(user_id=current_user.id).first())
     data = request.get_json(silent=True) or {}
     title_key = data.get("title_key")
 
