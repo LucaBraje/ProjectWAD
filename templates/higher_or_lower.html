@@ -1,0 +1,449 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Higher or Lower | Draft EuroLeague</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+    
+    <!-- Existing navbar -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/navbar.css') }}"
+    >
+
+    <!-- Game styling -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/higher_or_lower.css') }}"
+    >
+
+    <!-- Game logic -->
+    <script
+        src="{{ url_for('static', filename='js/higher_or_lower.js') }}"
+        defer
+    ></script>
+</head>
+
+<body>
+
+    {% include 'navbar.html' %}
+
+    <main class="higher-lower-page">
+
+        <!-- ==========================================
+             GAME HEADER
+        =========================================== -->
+
+        <section class="hl-hero">
+
+            <div class="container">
+
+                <a
+                    href="{{ url_for('other_games') }}"
+                    class="hl-back-link"
+                >
+                    ← ALL GAMES
+                </a>
+
+                <p class="hl-eyebrow">
+                    DRAFT EUROLEAGUE / ARCADE
+                </p>
+
+                <h1>
+                    HIGHER <span>OR LOWER</span>
+                </h1>
+
+                <p class="hl-hero-description">
+                    Two players. One statistic.
+                    Make the right call and keep your streak alive.
+                    One wrong answer and it's game over.
+                </p>
+
+            </div>
+
+        </section>
+
+        <!-- ==========================================
+             GAME AREA
+        =========================================== -->
+
+        <!-- FULL-WIDTH SCOREBOARD -->
+        <section class="hl-score-strip" aria-label="Your game scores">
+            <!-- SCOREBOARD -->
+            <div class="hl-scoreboard">
+
+                    <div class="hl-score-item">
+                        <span class="hl-score-label">
+                            CURRENT STREAK
+                        </span>
+
+                        <strong id="hl-streak">0</strong>
+                    </div>
+
+                    <div class="hl-score-center">
+                        <span class="hl-live-dot"></span>
+                        
+                    </div>
+
+                    <div class="hl-score-item hl-score-right">
+                        <span class="hl-score-label">
+                            ALL-TIME BEST
+                        </span>
+
+                        <strong id="hl-best">0</strong>
+                    </div>
+
+            </div>
+        </section>
+
+        <section class="hl-main">
+            <div class="container">
+
+                <!-- GAME SETUP -->
+
+                <section
+                    id="hl-setup"
+                    class="hl-setup"
+                >
+
+                    <div class="hl-setup-heading">
+
+                        <p class="hl-eyebrow">
+                            BEFORE YOU BEGIN
+                        </p>
+
+                        <h2>Choose Your Statistic</h2>
+
+                        <p>
+                            Select what you want to compare.
+                            In Random Stats mode, the category
+                            changes throughout the game.
+                        </p>
+
+                    </div>
+
+                    <div class="hl-stat-grid">
+
+                        <button
+                            class="hl-stat-option active"
+                            data-stat="random"
+                            type="button"
+                        >
+                            <span class="hl-stat-icon">★</span>
+                            <span>Random Stats</span>
+                        </button>
+
+                        <button
+                            class="hl-stat-option"
+                            data-stat="rating"
+                            type="button"
+                        >
+                            <span class="hl-stat-icon">OVR</span>
+                            <span>Overall Rating</span>
+                        </button>
+
+                        <button
+                            class="hl-stat-option"
+                            data-stat="points_per_game"
+                            type="button"
+                        >
+                            <span class="hl-stat-icon">PTS</span>
+                            <span>Points</span>
+                        </button>
+
+                        <button
+                            class="hl-stat-option"
+                            data-stat="assists_per_game"
+                            type="button"
+                        >
+                            <span class="hl-stat-icon">AST</span>
+                            <span>Assists</span>
+                        </button>
+
+                        <button
+                            class="hl-stat-option"
+                            data-stat="rebounds_per_game"
+                            type="button"
+                        >
+                            <span class="hl-stat-icon">REB</span>
+                            <span>Rebounds</span>
+                        </button>
+
+                        <button
+                            class="hl-stat-option"
+                            data-stat="steals_per_game"
+                            type="button"
+                        >
+                            <span class="hl-stat-icon">STL</span>
+                            <span>Steals</span>
+                        </button>
+
+                        <button
+                            class="hl-stat-option"
+                            data-stat="blocks_per_game"
+                            type="button"
+                        >
+                            <span class="hl-stat-icon">BLK</span>
+                            <span>Blocks</span>
+                        </button>
+
+                        <button
+                            class="hl-stat-option"
+                            data-stat="fg_percentage"
+                            type="button"
+                        >
+                            <span class="hl-stat-icon">FG%</span>
+                            <span>Field Goal %</span>
+                        </button>
+
+                    </div>
+
+                    <button
+                        id="hl-start-button"
+                        class="hl-primary-button"
+                        type="button"
+                    >
+                        START GAME ↗
+                    </button>
+
+                </section>
+
+                <!-- ACTIVE GAME -->
+
+                <section
+                    id="hl-game"
+                    class="hl-game hidden"
+                    aria-label="Higher or Lower game"
+                >
+
+                    <div class="hl-round-header">
+
+                        <div>
+                            <p class="hl-eyebrow">
+                                CURRENT COMPARISON
+                            </p>
+
+                            <h2 id="hl-stat-title">
+                                Points Per Game
+                            </h2>
+                        </div>
+
+                        <span class="hl-round-badge">
+                            ROUND <span id="hl-round">1</span>
+                        </span>
+
+                    </div>
+
+                    <div class="hl-comparison">
+
+                        <!-- FIRST PLAYER -->
+
+                        <article class="hl-player-card">
+
+                            <div class="hl-player-photo">
+
+                                <img
+                                    id="hl-player-one-image"
+                                    alt="First player"
+                                >
+
+                                <span class="hl-player-badge">
+                                    PLAYER 01
+                                </span>
+
+                            </div>
+
+                            <div class="hl-player-information">
+
+                                <p
+                                    id="hl-player-one-team"
+                                    class="hl-player-team"
+                                >
+                                    —
+                                </p>
+
+                                <h3 id="hl-player-one-name">
+                                    Loading...
+                                </h3>
+
+                                <div class="hl-stat-display">
+
+                                    <span id="hl-stat-label-one">
+                                        POINTS PER GAME
+                                    </span>
+
+                                    <strong id="hl-player-one-value">
+                                        —
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </article>
+
+                        <!-- VS -->
+
+                        <div class="hl-versus">
+                            VS
+                        </div>
+
+                        <!-- SECOND PLAYER -->
+
+                        <article class="hl-player-card">
+
+                            <div class="hl-player-photo">
+
+                                <img
+                                    id="hl-player-two-image"
+                                    alt="Second player"
+                                >
+
+                                <span class="hl-player-badge">
+                                    PLAYER 02
+                                </span>
+
+                            </div>
+
+                            <div class="hl-player-information">
+
+                                <p
+                                    id="hl-player-two-team"
+                                    class="hl-player-team"
+                                >
+                                    —
+                                </p>
+
+                                <h3 id="hl-player-two-name">
+                                    Loading...
+                                </h3>
+
+                                <div class="hl-stat-display hl-hidden-stat">
+
+                                    <span id="hl-stat-label-two">
+                                        POINTS PER GAME
+                                    </span>
+
+                                    <strong id="hl-player-two-value">
+                                        ?
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </article>
+
+                    </div>
+
+                    <!-- GUESS CONTROLS -->
+
+                    <div
+                        id="hl-guess-controls"
+                        class="hl-guess-controls"
+                    >
+
+                        <p id="hl-question">
+                            Does the second player have a higher
+                            or lower statistic?
+                        </p>
+
+                        <div class="hl-guess-buttons">
+
+                            <button
+                                id="hl-higher-button"
+                                class="hl-guess-button hl-higher"
+                                type="button"
+                            >
+                                ↑ HIGHER
+                            </button>
+
+                            <button
+                                id="hl-lower-button"
+                                class="hl-guess-button hl-lower"
+                                type="button"
+                            >
+                                ↓ LOWER
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <p
+                        id="hl-feedback"
+                        class="hl-feedback"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
+
+                </section>
+
+            </div>
+        </section>
+
+        <!-- FULL-WIDTH GAME OVER -->
+        <section class="hl-game-over-strip">
+                <section
+                    id="hl-game-over"
+                    class="hl-game-over hidden"
+                    aria-live="polite"
+                >
+
+                    <p class="hl-eyebrow">
+                        END OF THE RUN
+                    </p>
+
+                    <h2>GAME OVER</h2>
+
+                    <p>
+                        Your final streak
+                    </p>
+
+                    <strong id="hl-final-score">
+                        0
+                    </strong>
+
+                    <p id="hl-result-message">
+                        Ready for another attempt?
+                    </p>
+
+                    <button
+                        id="hl-restart-button"
+                        class="hl-primary-button"
+                        type="button"
+                    >
+                        PLAY AGAIN ↗
+                    </button>
+
+                </section>
+
+        </section>
+
+        <section class="hl-error-strip">
+            <div class="container">
+                <!-- ERROR MESSAGE -->
+
+                <p
+                    id="hl-error"
+                    class="hl-error hidden"
+                    role="alert"
+                ></p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

@@ -236,6 +236,162 @@ function showAchievements(data) {
 // LOAD DRAFT STATISTICS AND ACHIEVEMENTS
 // =====================================================
 
+// =====================================================
+// HIGHER OR LOWER — PROFILE STATISTICS
+// =====================================================
+
+const HL_PROFILE_ACHIEVEMENTS = [
+    {
+        key: 'hl_first_game',
+        name: 'First Comparison',
+        description: 'Complete your first Higher or Lower game.',
+        icon: '🏀'
+    },
+    {
+        key: 'hl_streak_5',
+        name: 'Getting Warm',
+        description: 'Reach a streak of 5.',
+        icon: '🔥'
+    },
+    {
+        key: 'hl_streak_10',
+        name: 'On Fire',
+        description: 'Reach a streak of 10.',
+        icon: '⚡'
+    },
+    {
+        key: 'hl_streak_20',
+        name: 'EuroLeague Expert',
+        description: 'Reach a streak of 20.',
+        icon: '🏆'
+    },
+    {
+        key: 'hl_correct_50',
+        name: 'Sharp Shooter',
+        description: 'Make 50 correct guesses.',
+        icon: '🎯'
+    },
+    {
+        key: 'hl_games_25',
+        name: 'Dedicated Analyst',
+        description: 'Complete 25 games.',
+        icon: '🎖️'
+    }
+];
+
+
+async function loadHigherLowerProfile() {
+
+    const statsContainer = byId('hl-profile-stats');
+    const achievementsContainer = byId('hl-profile-achievements');
+    const status = byId('hl-profile-status');
+    const progress = byId('hl-achievement-progress');
+
+    try {
+
+        const response = await fetch(
+            '/api/games/higher-or-lower/my-stats',
+            { credentials: 'same-origin' }
+        );
+
+        const data = await readApiResponse(response);
+
+        // ---------------------------------------------
+        // STATISTICS
+        // ---------------------------------------------
+
+        if (statsContainer) {
+
+            statsContainer.replaceChildren(
+                makeStat('Best Streak', formatted(data.best_streak)),
+                makeStat('Games Played', formatted(data.total_games)),
+                makeStat('Correct Guesses', formatted(data.total_correct)),
+                makeStat('Accuracy', `${formatted(data.accuracy)}%`)
+            );
+
+            statsContainer.hidden = false;
+        }
+
+        if (status) {
+            status.hidden = data.total_games > 0
+                || data.total_correct > 0;
+
+            if (!status.hidden) {
+                status.textContent =
+                    'No completed games yet. Play Higher or Lower to start your record!';
+            }
+        }
+
+        // ---------------------------------------------
+        // ACHIEVEMENTS
+        // ---------------------------------------------
+
+        const unlocked = new Set(
+            (data.achievements || [])
+                .filter(item => item.unlocked)
+                .map(item => item.key)
+        );
+
+        if (achievementsContainer) {
+
+            achievementsContainer.replaceChildren();
+
+            for (const achievement of HL_PROFILE_ACHIEVEMENTS) {
+
+                const isUnlocked = unlocked.has(achievement.key);
+
+                const card = document.createElement('article');
+
+                card.className =
+                    `achievement-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+
+                const symbol = document.createElement('div');
+                symbol.className = 'achievement-symbol';
+                symbol.textContent = isUnlocked
+                    ? achievement.icon
+                    : '🔒';
+
+                const title = document.createElement('h4');
+                title.textContent = achievement.name;
+
+                const description = document.createElement('p');
+                description.textContent = achievement.description;
+
+                const state = document.createElement('div');
+                state.className = 'achievement-state';
+                state.textContent = isUnlocked
+                    ? 'Unlocked'
+                    : 'Locked';
+
+                card.append(symbol, title, description, state);
+
+                achievementsContainer.append(card);
+            }
+        }
+
+        if (progress) {
+            progress.textContent =
+                `${unlocked.size} / ${HL_PROFILE_ACHIEVEMENTS.length} ` +
+                'Higher or Lower achievements unlocked';
+        }
+
+    } catch (error) {
+
+        console.error('Higher or Lower profile error:', error);
+
+        if (status) {
+            status.hidden = false;
+            status.textContent =
+                'Unable to load Higher or Lower statistics.';
+        }
+
+        if (progress) {
+            progress.textContent =
+                'Unable to load Higher or Lower achievements.';
+        }
+    }
+}
+
 async function loadProfile() {
     try {
         const response = await fetch('/api/draft/my-stats', {
@@ -907,9 +1063,12 @@ document.addEventListener('DOMContentLoaded', () => {
         ?.addEventListener('click', equipProfileTitle);
 
     // 8. Load profile data from Flask.
-    loadProfile();
-    loadFavoriteTeams();
-    loadProfileTitles();
+
+loadProfile();
+loadHigherLowerProfile();
+loadFavoriteTeams();
+loadProfileTitles();
+
 
     console.log(
         'Draft EuroLeague Profile initialized successfully.'

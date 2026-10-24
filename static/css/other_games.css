@@ -1,0 +1,496 @@
+
+/* =====================================================
+   DRAFT EUROLEAGUE — OTHER GAMES
+===================================================== */
+
+:root {
+    --games-bg: #0d0e12;
+    --games-surface: #191b22;
+    --games-accent: #fa5500;
+    --games-text: #f5f5f5;
+    --games-muted: #a2a4ae;
+    --games-border: rgba(255, 255, 255, 0.09);
+}
+
+body {
+    margin: 0;
+    background: var(--games-bg);
+    color: var(--games-text);
+}
+
+.other-games-page {
+    min-height: 100vh;
+}
+
+.other-games-page a {
+    text-decoration: none;
+}
+
+.games-eyebrow {
+    color: var(--games-accent);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+/* =====================================================
+   HERO — PHOTOGRAPHIC HEADER
+===================================================== */
+
+.games-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 470px;
+
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(8, 9, 13, 0.94) 0%,
+            rgba(8, 9, 13, 0.73) 45%,
+            rgba(8, 9, 13, 0.22) 100%
+        ),
+        url("../images/games/other_games_banner.jpg");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    border-bottom: 3px solid var(--games-accent);
+}
+
+.games-hero-content {
+    position: relative;
+    z-index: 1;
+    padding-top: 75px;
+    padding-bottom: 75px;
+}
+
+.games-hero h1 {
+    font-size: clamp(52px, 7vw, 90px);
+    font-weight: 900;
+    letter-spacing: -3px;
+    line-height: 1;
+    margin-bottom: 24px;
+}
+
+.games-hero h1 span {
+    color: var(--games-accent);
+}
+
+.games-hero-description {
+    max-width: 650px;
+    color: #d4d4da;
+    font-size: 17px;
+    line-height: 1.8;
+    margin-bottom: 28px;
+}
+
+.games-hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.games-hero-meta span {
+    padding: 10px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(0, 0, 0, 0.28);
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+/* =====================================================
+   GAME SELECTION SECTION
+===================================================== */
+
+.games-section {
+    padding: 85px 0 105px;
+}
+
+.games-section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 25px;
+    margin-bottom: 38px;
+}
+
+.games-section-heading h2 {
+    color: var(--games-text);
+    font-size: 36px;
+    font-weight: 850;
+    margin: 0;
+}
+
+.games-section-description {
+    max-width: 320px;
+    color: var(--games-muted);
+    text-align: right;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* =====================================================
+   GAME CARDS — HOMEPAGE STYLE
+===================================================== */
+
+.other-games-page .games-feature-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+
+    width: 100%;
+    min-height: 455px;
+    height: 100%;
+
+    overflow: hidden;
+    padding: 30px;
+
+    background-color: #202128;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 15px;
+
+    color: white;
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.other-games-page .games-feature-card:hover {
+    transform: translateY(-5px);
+
+    border-color: var(--games-accent);
+
+    box-shadow:
+        0 16px 40px rgba(0, 0, 0, 0.35);
+
+    color: white;
+}
+
+.other-games-page .games-feature-card:focus-visible {
+    outline: 3px solid var(--games-accent);
+    outline-offset: 3px;
+}
+
+/* =====================================================
+   HIGHER OR LOWER BACKGROUND
+===================================================== */
+
+.games-feature-higher-lower {
+    background-image:
+        linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.94) 0%,
+            rgba(0, 0, 0, 0.72) 38%,
+            rgba(0, 0, 0, 0.15) 100%
+        ),
+        url("../images/games/higher_lower.jpg");
+}
+
+/* =====================================================
+   GUESS THE PLAYER BACKGROUND
+===================================================== */
+
+.games-feature-guess-player {
+    background-image:
+        linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.94) 0%,
+            rgba(0, 0, 0, 0.72) 38%,
+            rgba(0, 0, 0, 0.15) 100%
+        ),
+        url("../images/games/guess_the_player.jpg");
+}
+
+/* =====================================================
+   TIC TAC TOE BACKGROUND
+===================================================== */
+
+.games-feature-tic-tac-toe {
+    background-image:
+        linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.94) 0%,
+            rgba(0, 0, 0, 0.72) 38%,
+            rgba(0, 0, 0, 0.15) 100%
+        ),
+        url("../images/games/tic_tac_toe.jpg");
+}
+
+/* =====================================================
+   INDIVIDUAL IMAGE ZOOM & POSITION CONTROLS
+
+   First value = gradient
+   Second value = photograph
+
+   Change the second value to customize each image.
+===================================================== */
+
+.games-feature-higher-lower {
+    background-size: 100% 100%, cover;
+    background-position: center, center 10%;
+}
+
+.games-feature-guess-player {
+    background-size: 100% 100%, cover;
+    background-position: center, center 45%;
+}
+
+.games-feature-tic-tac-toe {
+    background-size: 100% 100%, cover;
+    background-position: center, center 75%;
+}
+
+/* =====================================================
+   GAME CARD CONTENT
+===================================================== */
+
+.games-feature-content {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    width: 100%;
+    min-height: 260px;
+}
+
+.games-feature-category {
+    color: var(--games-accent);
+
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 1.5px;
+
+    margin-bottom: 13px;
+}
+
+.games-feature-content h3 {
+    color: white;
+
+    font-size: clamp(26px, 2.5vw, 35px);
+    font-weight: 900;
+
+    line-height: 1.04;
+    letter-spacing: -0.8px;
+
+    margin-bottom: 18px;
+
+    text-transform: uppercase;
+}
+
+.games-feature-description {
+    color: #e1e1e5;
+
+    font-size: 14px;
+    line-height: 1.7;
+
+    max-width: 340px;
+
+    margin-bottom: 28px;
+}
+
+/* =====================================================
+   ORANGE BUTTON — HOMEPAGE STYLE
+===================================================== */
+
+.games-feature-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    margin-top: auto;
+
+    min-height: 50px;
+    padding: 15px 20px;
+
+    background: var(--games-accent);
+    border-radius: 6px;
+
+    color: #090909;
+
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.3px;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.games-feature-card:hover .games-feature-button {
+    background: #ff762d;
+    transform: translateY(-2px);
+}
+
+/* =====================================================
+   BOTTOM SECTION
+===================================================== */
+
+.games-bottom {
+    padding: 60px 0;
+    background: #15171d;
+    border-top: 1px solid var(--games-border);
+}
+
+.games-bottom-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+}
+
+.games-bottom h2 {
+    color: white;
+    font-size: 28px;
+    font-weight: 850;
+    margin-bottom: 12px;
+}
+
+.games-bottom-content p:not(.games-eyebrow) {
+    color: var(--games-muted);
+    line-height: 1.7;
+    margin: 0;
+}
+
+.other-games-page .games-back-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 15px 20px;
+
+    border: 1px solid var(--games-accent);
+    border-radius: 6px;
+
+    color: var(--games-accent);
+
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+
+    white-space: nowrap;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.other-games-page .games-back-button:hover {
+    background: var(--games-accent);
+    color: white;
+}
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 991px) {
+
+    .games-hero {
+        min-height: 400px;
+    }
+
+    .games-section {
+        padding: 65px 0 85px;
+    }
+
+    .other-games-page .games-feature-card {
+        min-height: 440px;
+    }
+
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 767px) {
+
+    .games-hero {
+        min-height: 370px;
+        background-position: 65% center;
+    }
+
+    .games-hero-content {
+        padding-top: 65px;
+        padding-bottom: 65px;
+    }
+
+    .games-hero h1 {
+        font-size: 52px;
+        letter-spacing: -1.5px;
+    }
+
+    .games-hero-description {
+        font-size: 15px;
+    }
+
+    .games-section {
+        padding: 55px 0 75px;
+    }
+
+    .games-section-heading {
+        display: block;
+    }
+
+    .games-section-heading h2 {
+        font-size: 30px;
+    }
+
+    .games-section-description {
+        text-align: left;
+        margin-top: 12px;
+    }
+
+    .other-games-page .games-feature-card {
+        min-height: 420px;
+        padding: 25px;
+    }
+
+    .games-feature-content {
+        min-height: 245px;
+    }
+
+    .games-feature-content h3 {
+        font-size: 32px;
+    }
+
+    .games-bottom-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .other-games-page .games-back-button {
+        width: 100%;
+    }
+
+}
+
+/* =====================================================
+   ACCESSIBILITY
+===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .games-feature-card,
+    .games-feature-button,
+    .games-back-button {
+        transition: none;
+    }
+
+}

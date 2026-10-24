@@ -392,10 +392,33 @@
 
                 </summary>
 
-                <div class="game-body muted">
-                    Statistics will be available when
-                    this game mode is implemented.
-                </div>
+
+<div class="game-body">
+
+    <p
+        id="hl-profile-status"
+        class="status-message"
+        role="status"
+    >
+        Loading Higher or Lower statistics...
+    </p>
+
+    <div
+        id="hl-profile-stats"
+        class="stat-grid"
+        hidden
+    ></div>
+
+    <a
+        href="{{ url_for('higher_or_lower') }}"
+        class="profile-action-btn"
+        style="display:inline-block; margin-top:20px; text-decoration:none;"
+    >
+        PLAY HIGHER OR LOWER ↗
+    </a>
+
+</div>
+
 
             </details>
 
@@ -520,6 +543,26 @@
                 ></div>
 
             </div>
+
+<!-- HIGHER OR LOWER ACHIEVEMENTS -->
+
+<div class="achievement-group">
+
+    <h3>↕ Higher or Lower</h3>
+
+    <p
+        id="hl-achievement-progress"
+        class="status-message"
+    >
+        Loading achievements...
+    </p>
+
+    <div
+        id="hl-profile-achievements"
+        class="achievement-grid"
+    ></div>
+
+</div>
 
 
             <!-- FUTURE ACHIEVEMENTS -->

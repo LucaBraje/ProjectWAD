@@ -24,6 +24,7 @@ from uuid import uuid4
 from flask import request, jsonify
 from sqlalchemy.exc import IntegrityError
 
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "development-only-change-me")
 # SQLite database
@@ -156,6 +157,36 @@ class User(UserMixin, db.Model):
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
+
+# =====================================================
+# HIGHER OR LOWER — USER STATISTICS
+# =====================================================
+
+class HigherLowerStats(db.Model):
+    __tablename__ = "higher_lower_stats"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        unique=True,
+        nullable=False
+    )
+
+    best_streak = db.Column(db.Integer, default=0)
+    total_games = db.Column(db.Integer, default=0)
+    total_correct = db.Column(db.Integer, default=0)
+    total_guesses = db.Column(db.Integer, default=0)
+    current_streak = db.Column(db.Integer, default=0)
+
+    user = db.relationship(
+        "User",
+        backref=db.backref(
+            "higher_lower_stats",
+            uselist=False
+        )
+    )
 
 
 # =====================================================
@@ -2041,7 +2072,15 @@ PROFILE_TITLES = {
     "five_championships": "Dynasty Builder",
     "elite_draft": "Elite Architect",
     "perfect_positions": "Master Tactician",
-    "draft_veteran": "Draft Veteran"
+    "draft_veteran": "Draft Veteran",
+    
+    "hl_first_game": "First Comparison",
+    "hl_streak_5": "Getting Warm",
+    "hl_streak_10": "On Fire",
+    "hl_streak_20": "EuroLeague Expert",
+    "hl_correct_50": "Sharp Shooter",
+    "hl_games_25": "Dedicated Analyst",
+
 }
 
 
@@ -2445,6 +2484,621 @@ def equip_profile_title():
             else None
         )
     })
+
+
+# =====================================================
+# OTHER GAMES PAGE
+# =====================================================
+
+@app.route("/other-games")
+def other_games():
+    return render_template("other_games.html")
+
+
+# =====================================================
+# HIGHER OR LOWER — CLASSIC ENDLESS MODE
+# =====================================================
+
+# Available statistics and their labels.
+HL_STATISTICS = {
+    "rating": "Overall Rating",
+    "points_per_game": "Points Per Game",
+    "assists_per_game": "Assists Per Game",
+    "rebounds_per_game": "Rebounds Per Game",
+    "steals_per_game": "Steals Per Game",
+    "blocks_per_game": "Blocks Per Game",
+    "fg_percentage": "Field Goal Percentage"
+}
+
+HL_SESSION_KEY = "higher_or_lower_game"
+
+
+# =====================================================
+# HIGHER OR LOWER — ACHIEVEMENTS
+# =====================================================
+
+HL_ACHIEVEMENTS = {
+    "hl_first_game": {
+        "name": "First Comparison",
+        "description": "Complete your first Higher or Lower game.",
+        "title": "First Comparison"
+    },
+    "hl_streak_5": {
+        "name": "Getting Warm",
+        "description": "Reach a streak of 5.",
+        "title": "Getting Warm"
+    },
+    "hl_streak_10": {
+        "name": "On Fire",
+        "description": "Reach a streak of 10.",
+        "title": "On Fire"
+    },
+    "hl_streak_20": {
+        "name": "EuroLeague Expert",
+        "description": "Reach a streak of 20.",
+        "title": "EuroLeague Expert"
+    },
+    "hl_correct_50": {
+        "name": "Sharp Shooter",
+        "description": "Make 50 correct guesses.",
+        "title": "Sharp Shooter"
+    },
+    "hl_games_25": {
+        "name": "Dedicated Analyst",
+        "description": "Complete 25 games.",
+        "title": "Dedicated Analyst"
+    }
+}
+
+
+def hl_get_stats():
+    """Get or create the logged-in user's game statistics."""
+    stats = HigherLowerStats.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    if stats is None:
+        stats = HigherLowerStats(user_id=current_user.id)
+        db.session.add(stats)
+        db.session.flush()
+
+    return stats
+
+
+def hl_unlock_achievements(stats):
+    """Add newly earned achievements to the existing user system."""
+    eligible = set()
+
+    if stats.total_games >= 1:
+        eligible.add("hl_first_game")
+
+    if stats.best_streak >= 5:
+        eligible.add("hl_streak_5")
+
+    if stats.best_streak >= 10:
+        eligible.add("hl_streak_10")
+
+    if stats.best_streak >= 20:
+        eligible.add("hl_streak_20")
+
+    if stats.total_correct >= 50:
+        eligible.add("hl_correct_50")
+
+    if stats.total_games >= 25:
+        eligible.add("hl_games_25")
+
+    existing = {
+        item.achievement_key
+        for item in UserAchievement.query.filter_by(
+            user_id=current_user.id
+        ).all()
+    }
+
+    unlocked = []
+
+    for key in sorted(eligible - existing):
+        db.session.add(UserAchievement(
+            user_id=current_user.id,
+            achievement_key=key
+        ))
+
+        unlocked.append({
+            "key": key,
+            "name": HL_ACHIEVEMENTS[key]["name"]
+        })
+
+    return unlocked
+
+# =====================================================
+# HELPERS
+# =====================================================
+
+def hl_valid_players(players, stat_key):
+    """
+    Return players with valid, positive values
+    for the selected statistic.
+    """
+
+    valid = []
+
+    for player in players:
+
+        value = getattr(player, stat_key, None)
+
+        if value is None:
+            continue
+
+        try:
+            value = float(value)
+        except (TypeError, ValueError):
+            continue
+
+        if value <= 0:
+            continue
+
+        valid.append(player)
+
+    return valid
+
+
+def hl_available_statistics(players):
+    """
+    Find statistics that have at least two
+    different positive values in the database.
+    """
+
+    available = []
+
+    for stat_key in HL_STATISTICS:
+
+        valid = hl_valid_players(players, stat_key)
+
+        distinct_values = {
+            float(getattr(player, stat_key))
+            for player in valid
+        }
+
+        if len(distinct_values) >= 2:
+            available.append(stat_key)
+
+    return available
+
+
+def hl_choose_pair(players, stat_key, first_id=None):
+    """
+    Select two different players whose values
+    for the chosen statistic are not equal.
+
+    If possible, use first_id as the first player.
+    """
+
+    eligible = hl_valid_players(players, stat_key)
+
+    if len(eligible) < 2:
+        raise ValueError(
+            "Not enough players with valid statistics."
+        )
+
+    first = None
+
+    if first_id is not None:
+
+        first = next(
+            (
+                player for player in eligible
+                if player.id == first_id
+            ),
+            None
+        )
+
+    if first is None:
+        first = random.choice(eligible)
+
+    first_value = float(
+        getattr(first, stat_key)
+    )
+
+    possible_second = [
+        player
+        for player in eligible
+        if (
+            player.id != first.id
+            and float(getattr(player, stat_key)) != first_value
+        )
+    ]
+
+    # A carried-over player might have a value
+    # that matches every other eligible player.
+    if not possible_second:
+
+        possible_first = [
+            player
+            for player in eligible
+            if any(
+                other.id != player.id
+                and float(getattr(other, stat_key))
+                != float(getattr(player, stat_key))
+                for other in eligible
+            )
+        ]
+
+        if not possible_first:
+            raise ValueError(
+                "No valid player comparisons are available."
+            )
+
+        first = random.choice(possible_first)
+
+        first_value = float(
+            getattr(first, stat_key)
+        )
+
+        possible_second = [
+            player
+            for player in eligible
+            if (
+                player.id != first.id
+                and float(getattr(player, stat_key))
+                != first_value
+            )
+        ]
+
+    second = random.choice(possible_second)
+
+    return first, second
+
+
+def hl_format_value(value, stat_key):
+    """
+    Format a statistic for display.
+    """
+
+    if value is None:
+        return "—"
+
+    if stat_key == "rating":
+        return str(int(value))
+
+    if stat_key == "fg_percentage":
+        return f"{float(value):.1f}%"
+
+    return f"{float(value):.1f}"
+
+
+def hl_player_data(player):
+    """
+    Return public player information.
+
+    The hidden statistic is NOT included here.
+    """
+
+    return {
+        "id": player.id,
+        "name": player.name,
+        "team": (
+            player.team.name
+            if player.team
+            else "EuroLeague"
+        ),
+        "picture_url": player.picture_url or ""
+    }
+
+
+def hl_make_round(players, mode, streak, first_id=None):
+    """
+    Generate a new comparison.
+
+    mode can be a specific statistic or 'random'.
+    """
+
+    available = hl_available_statistics(players)
+
+    if not available:
+        raise ValueError(
+            "The database needs at least two players "
+            "with different valid statistics."
+        )
+
+    if mode == "random":
+        stat_key = random.choice(available)
+    else:
+        stat_key = mode
+
+        if stat_key not in available:
+            raise ValueError(
+                "Not enough valid player data "
+                "for this statistic."
+            )
+
+    first, second = hl_choose_pair(
+        players,
+        stat_key,
+        first_id=first_id
+    )
+
+    return {
+        "mode": mode,
+        "stat": stat_key,
+        "first_id": first.id,
+        "second_id": second.id,
+        "streak": streak,
+        "active": True
+    }
+
+
+def hl_public_round(state, players_by_id, best):
+    """
+    Prepare the game data sent to JavaScript.
+
+    Only the first player's statistic is visible.
+    """
+
+    first = players_by_id[state["first_id"]]
+    second = players_by_id[state["second_id"]]
+
+    stat_key = state["stat"]
+
+    first_data = hl_player_data(first)
+
+    first_data["value_display"] = hl_format_value(
+        getattr(first, stat_key),
+        stat_key
+    )
+
+    second_data = hl_player_data(second)
+
+    return {
+        "stat_key": stat_key,
+        "stat_label": HL_STATISTICS[stat_key],
+        "round": state["streak"] + 1,
+        "streak": state["streak"],
+        "best": best,
+        "player_one": first_data,
+        "player_two": second_data
+    }
+
+
+# =====================================================
+# PAGE ROUTE
+# =====================================================
+
+@app.route("/games/higher-or-lower")
+def higher_or_lower():
+    return render_template("higher_or_lower.html")
+
+
+# =====================================================
+# START A NEW GAME
+# =====================================================
+
+@app.route(
+    "/api/games/higher-or-lower/start",
+    methods=["POST"]
+)
+
+# =====================================================
+# HIGHER OR LOWER — START
+# =====================================================
+
+@app.route(
+    "/api/games/higher-or-lower/start",
+    methods=["POST"]
+)
+@login_required
+def hl_start():
+    data = request.get_json(silent=True) or {}
+    mode = data.get("stat", "random")
+
+    if mode != "random" and mode not in HL_STATISTICS:
+        return jsonify({"error": "Invalid statistic."}), 400
+
+    players = Player.query.all()
+
+    try:
+        state = hl_make_round(players, mode, streak=0)
+    except ValueError as error:
+        return jsonify({"error": str(error)}), 400
+
+    stats = hl_get_stats()
+
+    # Starting a new run abandons any previous unfinished run.
+    stats.current_streak = 0
+    db.session.commit()
+
+    session[HL_SESSION_KEY] = state
+
+    players_by_id = {p.id: p for p in players}
+
+    return jsonify(
+        hl_public_round(
+            state,
+            players_by_id,
+            stats.best_streak or 0
+        )
+    )
+
+
+# =====================================================
+# HIGHER OR LOWER — GUESS
+# =====================================================
+
+@app.route(
+    "/api/games/higher-or-lower/guess",
+    methods=["POST"]
+)
+@login_required
+def hl_guess():
+    data = request.get_json(silent=True) or {}
+    guess = data.get("guess")
+
+    if guess not in ("higher", "lower"):
+        return jsonify({"error": "Invalid guess."}), 400
+
+    state = session.get(HL_SESSION_KEY)
+
+    if not state or not state.get("active"):
+        return jsonify({
+            "error": "No active game. Start a new game."
+        }), 400
+
+    players = Player.query.all()
+    players_by_id = {p.id: p for p in players}
+
+    first = players_by_id.get(state["first_id"])
+    second = players_by_id.get(state["second_id"])
+
+    if first is None or second is None:
+        session.pop(HL_SESSION_KEY, None)
+        return jsonify({
+            "error": "Player data changed. Restart the game."
+        }), 409
+
+    stat_key = state["stat"]
+
+    first_value = float(getattr(first, stat_key))
+    second_value = float(getattr(second, stat_key))
+
+    correct_answer = (
+        "higher" if second_value > first_value else "lower"
+    )
+
+    correct = guess == correct_answer
+
+    revealed_value = hl_format_value(
+        second_value,
+        stat_key
+    )
+
+    stats = hl_get_stats()
+
+    # Every submitted guess counts.
+    stats.total_guesses = (stats.total_guesses or 0) + 1
+
+    if correct:
+        new_streak = state["streak"] + 1
+
+        # Prepare the next round before saving the answer.
+        try:
+            next_state = hl_make_round(
+                players,
+                state["mode"],
+                streak=new_streak,
+                first_id=second.id
+            )
+        except ValueError:
+            db.session.rollback()
+            return jsonify({
+                "error": "Cannot generate the next comparison."
+            }), 409
+
+        stats.total_correct = (stats.total_correct or 0) + 1
+        stats.current_streak = new_streak
+        stats.best_streak = max(
+            stats.best_streak or 0,
+            new_streak
+        )
+
+        unlocked = hl_unlock_achievements(stats)
+        best = stats.best_streak
+
+        db.session.commit()
+        session[HL_SESSION_KEY] = next_state
+
+        return jsonify({
+            "correct": True,
+            "revealed_value": revealed_value,
+            "streak": new_streak,
+            "best": best,
+            "new_achievements": unlocked,
+            "next_round": hl_public_round(
+                next_state,
+                players_by_id,
+                best
+            )
+        })
+
+    # One incorrect guess ends the run.
+    final_streak = state["streak"]
+
+    stats.total_games = (stats.total_games or 0) + 1
+    stats.current_streak = 0
+    stats.best_streak = max(
+        stats.best_streak or 0,
+        final_streak
+    )
+
+    unlocked = hl_unlock_achievements(stats)
+    best = stats.best_streak
+
+    db.session.commit()
+
+    state["active"] = False
+    session[HL_SESSION_KEY] = state
+
+    return jsonify({
+        "correct": False,
+        "game_over": True,
+        "revealed_value": revealed_value,
+        "correct_answer": correct_answer,
+        "streak": final_streak,
+        "best": best,
+        "new_achievements": unlocked
+    })
+
+
+
+
+
+
+# =====================================================
+# HIGHER OR LOWER — PROFILE STATISTICS
+# =====================================================
+
+@app.route("/api/games/higher-or-lower/my-stats")
+@login_required
+def hl_my_stats():
+    stats = HigherLowerStats.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    achievements = UserAchievement.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+    unlocked = {
+        achievement.achievement_key
+        for achievement in achievements
+    }
+
+    if stats is None:
+        best = games = correct = guesses = 0
+    else:
+        best = stats.best_streak or 0
+        games = stats.total_games or 0
+        correct = stats.total_correct or 0
+        guesses = stats.total_guesses or 0
+
+    accuracy = round(
+        correct / guesses * 100, 1
+    ) if guesses else 0
+
+    return jsonify({
+        "best_streak": best,
+        "total_games": games,
+        "total_correct": correct,
+        "total_guesses": guesses,
+        "accuracy": accuracy,
+        "achievements": [
+            {
+                "key": key,
+                "name": definition["name"],
+                "description": definition["description"],
+                "unlocked": key in unlocked
+            }
+            for key, definition in HL_ACHIEVEMENTS.items()
+        ]
+    })
+
 
 
 

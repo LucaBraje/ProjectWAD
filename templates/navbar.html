@@ -25,8 +25,11 @@
                     href="{{ url_for('draft_mode') }}"> Draft</a>
 
                 <span class="nav-link nav-link-soon" title="Fantasy mode is coming soon">Fantasy <small>SOON</small></span>
-                <span class="nav-link nav-link-soon" title="Other games are coming soon">Others <small>SOON</small></span>
+                
+<a class="nav-link {% if request.endpoint == 'other_games' %}active{% endif %}"
+   href="{{ url_for('other_games') }}">Others</a>
 
+                
                 <div class="navbar-divider d-none d-lg-block"></div>
 
                 {% if current_user.is_authenticated %}
