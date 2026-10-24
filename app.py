@@ -23,7 +23,7 @@ from uuid import uuid4
 
 from flask import request, jsonify
 from sqlalchemy.exc import IntegrityError
-
+from basketball_grid_backend import register_basketball_grid
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "development-only-change-me")
@@ -800,6 +800,9 @@ def get_teams():
         for team in teams
     ])
 
+BasketballGridGame = register_basketball_grid(
+    app, db, Player, User
+)
 
 # CREATE DATABASE TABLES
 def initialize_database():

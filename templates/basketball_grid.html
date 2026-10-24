@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EuroLeague Basketball Grid</title><link rel="stylesheet" href="{{ url_for('static',filename='css/basketball_grid.css') }}"></head>
+<body><main class="wrap"><a class="back" href="/">← Draft EuroLeague</a><header><div class="eyebrow">DRAFT EUROLEAGUE · MINIGAMES</div><h1>BASKETBALL <span>GRID</span></h1><p>Match each row and column using current teams, nationalities, positions, ratings, or player statistics. Three wrong guesses end the game.</p></header>
+<div class="toolbar"><div class="game-info"><div id="status" role="status">Loading your grid…</div><div id="lives" class="lives" aria-label="3 lives remaining">♥ ♥ ♥</div></div><div class="actions"><button id="give-up" type="button" class="secondary" disabled>GIVE UP</button><button id="new-game" type="button">NEW GRID</button></div></div>
+<div class="board-scroll"><div id="board" class="board" aria-label="Basketball grid"></div></div>
+<section class="search-panel" id="search-panel" hidden><h2 id="selection-label">Select a player</h2><input id="player-search" placeholder="Type at least 2 letters of a player name" autocomplete="off" aria-label="Search player"><div id="results" class="results"></div><button type="button" id="cancel" class="secondary">Cancel</button></section>
+<section class="stats"><h2>YOUR RECORD</h2><div id="stats" class="stat-grid"></div></section>
+</main><script src="{{ url_for('static',filename='js/countries.js') }}" defer></script><script src="{{ url_for('static',filename='js/basketball_grid.js') }}" defer></script></body></html>
