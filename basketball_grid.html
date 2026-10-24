@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basketball Grid | Draft EuroLeague</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/basketball_grid.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <main class="basketball-grid-page">
+        <!-- HERO: unchanged -->
+        <section class="bg-hero">
+            <div class="container">
+                <a href="{{ url_for('other_games') }}" class="bg-back-link">← ALL GAMES</a>
+                <p class="bg-eyebrow">DRAFT EUROLEAGUE / ARCADE</p>
+                <h1>BASKETBALL <span>GRID</span></h1>
+                <p class="bg-hero-description">Nine squares. Six categories. Three lives.
+                    Match EuroLeague players with teams, nationalities, positions, ratings and
+                    statistics to complete the grid.</p>
+            </div>
+        </section>
+
+        <section class="bg-main">
+            <div class="container">
+                <!-- SCOREBOARD: one continuous strip, buttons on the same row -->
+                <div class="toolbar">
+                    <div class="game-info">
+                        <div class="bg-score-group">
+                            <span class="bg-score-label">CORRECT GUESSES</span>
+                            <strong id="correct-count">0/9</strong>
+                        </div>
+                        <div class="bg-score-group">
+                            <span class="bg-score-label">HEARTS</span>
+                            <!-- Keep id=lives: basketball_grid.js updates the hearts -->
+                            <div id="lives" class="lives" aria-label="3 lives remaining">♥ ♥ ♥</div>
+                        </div>
+                        <!-- Screen-reader status and error messages; JS updates score directly. -->
+                        <div id="status" role="status" aria-live="polite">Loading your grid…</div>
+                    </div>
+                    <div class="actions">
+                        <button id="give-up" type="button" class="secondary" disabled>GIVE UP</button>
+                        <button id="new-game" type="button">NEW GRID ↗</button>
+                    </div>
+                </div>
+
+                <!-- Result appears after a win, loss, or give up -->
+                <section id="game-result" class="game-result" role="status" aria-live="polite" hidden>
+                    <h2 id="game-result-title"></h2>
+                    <p id="game-result-description"></p>
+                </section>
+
+                <!-- GAME BOARD -->
+                <div class="board-scroll">
+                    <div id="board" class="board" aria-label="Basketball grid"></div>
+                </div>
+
+                <!-- PLAYER SEARCH -->
+                <section class="search-panel" id="search-panel" hidden>
+                    <h2 id="selection-label">Select a player</h2>
+                    <input id="player-search" placeholder="Type at least 2 letters of a player name"
+                           autocomplete="off" aria-label="Search player">
+                    <div id="results" class="results"></div>
+                    <button type="button" id="cancel" class="secondary">Cancel</button>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/countries.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/basketball_grid.js') }}" defer></script>
+</body>
+</html>

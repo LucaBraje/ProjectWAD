@@ -37,7 +37,7 @@
                             <!-- Keep id=lives: basketball_grid.js updates the hearts -->
                             <div id="lives" class="lives" aria-label="3 lives remaining">♥ ♥ ♥</div>
                         </div>
-                        <!-- Keep id=status: existing JS writes progress and messages here. -->
+                        <!-- Screen-reader status and error messages; JS updates score directly. -->
                         <div id="status" role="status" aria-live="polite">Loading your grid…</div>
                     </div>
                     <div class="actions">
@@ -45,6 +45,12 @@
                         <button id="new-game" type="button">NEW GRID ↗</button>
                     </div>
                 </div>
+
+                <!-- Result appears after a win, loss, or give up -->
+                <section id="game-result" class="game-result" role="status" aria-live="polite" hidden>
+                    <h2 id="game-result-title"></h2>
+                    <p id="game-result-description"></p>
+                </section>
 
                 <!-- GAME BOARD -->
                 <div class="board-scroll">
@@ -59,37 +65,11 @@
                     <div id="results" class="results"></div>
                     <button type="button" id="cancel" class="secondary">Cancel</button>
                 </section>
-
-                <!-- YOUR RECORD -->
-                <section class="stats">
-                    <p class="bg-eyebrow">YOUR CAREER</p>
-                    <h2>YOUR RECORD</h2>
-                    <div id="stats" class="stat-grid"></div>
-                </section>
             </div>
         </section>
     </main>
 
     <script src="{{ url_for('static', filename='js/countries.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/basketball_grid.js') }}" defer></script>
-
-    <!-- Compatibility with existing JS: extract the 2/9 progress from #status.
-         No change to basketball_grid.js is required if it writes text such as
-         '2/9 correct · 1 lives remaining'. If its format differs, send that JS. -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const status = document.getElementById('status');
-            const count = document.getElementById('correct-count');
-            if (!status || !count) return;
-            const sync = () => {
-                const match = status.textContent.match(/(\d+)\s*\/\s*9\b/);
-                if (match) count.textContent = `${match[1]}/9`;
-            };
-            new MutationObserver(sync).observe(status, {
-                childList: true, characterData: true, subtree: true
-            });
-            sync();
-        });
-    </script>
 </body>
 </html>
