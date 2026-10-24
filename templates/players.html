@@ -272,7 +272,77 @@
                             <option value="fg_percentage-asc">
                                 FG%: Lowest First
                             </option>
+                            <!-- GAMES PLAYED -->
+<option value="games_played-desc">
+    GP: Highest First
+</option>
+<option value="games_played-asc">
+    GP: Lowest First
+</option>
 
+<!-- TOTAL POINTS -->
+<option value="total_points-desc">
+    PTS: Highest First
+</option>
+<option value="total_points-asc">
+    PTS: Lowest First
+</option>
+
+<!-- TOTAL ASSISTS -->
+<option value="total_assists-desc">
+    AST: Highest First
+</option>
+<option value="total_assists-asc">
+    AST: Lowest First
+</option>
+
+<!-- TOTAL REBOUNDS -->
+<option value="total_rebounds-desc">
+    REB: Highest First
+</option>
+<option value="total_rebounds-asc">
+    REB: Lowest First
+</option>
+
+<!-- TOTAL BLOCKS -->
+<option value="total_blocks-desc">
+    BLK: Highest First
+</option>
+<option value="total_blocks-asc">
+    BLK: Lowest First
+</option>
+
+<!-- TOTAL STEALS -->
+<option value="total_steals-desc">
+    STL: Highest First
+</option>
+<option value="total_steals-asc">
+    STL: Lowest First
+</option>
+
+<!-- TOTAL TURNOVERS -->
+<option value="total_turnovers-desc">
+    TOV: Highest First
+</option>
+<option value="total_turnovers-asc">
+    TOV: Lowest First
+</option>
+
+<!-- FIELD GOALS MADE -->
+<option value="total_fgm-desc">
+    FGM: Highest First
+</option>
+<option value="total_fgm-asc">
+    FGM: Lowest First
+</option>
+
+<!-- FIELD GOALS ATTEMPTED -->
+<option value="total_fga-desc">
+    FGA: Highest First
+</option>
+<option value="total_fga-asc">
+    FGA: Lowest First
+</option>
 
                             <!-- TEAM -->
                             <option value="team-asc">
@@ -386,7 +456,6 @@
                                     tabindex="0"
                                 >
                                     DEF
-                                </th>
 
                                 <th
                                     scope="col"
@@ -435,7 +504,42 @@
                                 >
                                     FG%
                                 </th>
+                                <!-- ADDITIONAL SEASON STATISTICS -->
+                                                                </th>
+                                    <th scope="col" data-sort="games_played" tabindex="0">
+                                    GP
+                                </th>
+                                <th scope="col" data-sort="total_points" tabindex="0">
+                                    PTS
+                                </th>
 
+                                <th scope="col" data-sort="total_assists" tabindex="0">
+                                    AST
+                                </th>
+
+                                <th scope="col" data-sort="total_rebounds" tabindex="0">
+                                    REB
+                                </th>
+
+                                <th scope="col" data-sort="total_blocks" tabindex="0">
+                                    BLK
+                                </th>
+
+                                <th scope="col" data-sort="total_steals" tabindex="0">
+                                    STL
+                                </th>
+
+                                <th scope="col" data-sort="total_turnovers" tabindex="0">
+                                    TOV
+                                </th>
+
+                                <th scope="col" data-sort="total_fgm" tabindex="0">
+                                    FGM
+                                </th>
+
+                                <th scope="col" data-sort="total_fga" tabindex="0">
+                                    FGA
+                                </th>
                             </tr>
                         </thead>
 
@@ -445,7 +549,7 @@
 
                             <tr>
                                 <td
-                                    colspan="12"
+                                    colspan="21"
                                     class="loading-message"
                                 >
                                     Loading players...
@@ -624,7 +728,15 @@
                     <h6 class="stat-section-title">
                         PER-GAME STATISTICS
                     </h6>
-
+                    <!-- GAMES PLAYED -->
+<div class="row g-3 mb-3">
+    <div class="col-12">
+        <div class="stat-card">
+            <div class="stat-label">GAMES PLAYED</div>
+            <div id="modalGamesPlayed" class="stat-value"></div>
+        </div>
+    </div>
+</div>
                     <div class="row g-3">
 
                         <div class="col-6 col-md-4">

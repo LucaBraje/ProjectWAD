@@ -96,6 +96,19 @@ class Player(db.Model):
     steals_per_game = db.Column(db.Float, default=0.0)
     fg_percentage = db.Column(db.Float, default=0.0)
 
+    # Official EuroLeague season totals (populated by a separate sync script).
+    # NULL means not yet imported; existing averages are preserved until then.
+    games_played = db.Column(db.Integer, nullable=True)
+    total_points = db.Column(db.Integer, nullable=True)
+    total_assists = db.Column(db.Integer, nullable=True)
+    total_rebounds = db.Column(db.Integer, nullable=True)
+    total_blocks = db.Column(db.Integer, nullable=True)
+    total_steals = db.Column(db.Integer, nullable=True)
+    total_turnovers = db.Column(db.Integer, nullable=True)
+    total_fgm = db.Column(db.Integer, nullable=True)
+    total_fga = db.Column(db.Integer, nullable=True)
+
+
     team_id = db.Column(
         db.Integer,
         db.ForeignKey("team.id"),
@@ -506,81 +519,149 @@ def admin_players():
     )
 
 
+# =====================================================
+# ADMIN - PLAYER SEASON STATISTICS
+# =====================================================
+
+PLAYER_TOTAL_FIELDS = (
+    "games_played",
+    "total_points",
+    "total_assists",
+    "total_rebounds",
+    "total_blocks",
+    "total_steals",
+    "total_turnovers",
+    "total_fgm",
+    "total_fga",
+)
+
+
+def read_player_statistics(form):
+    """
+    Validate the submitted season totals.
+    Return a dictionary containing totals and calculated averages.
+    """
+
+    stats = {}
+
+    for field in PLAYER_TOTAL_FIELDS:
+        raw_value = form.get(field, "").strip()
+
+        if not raw_value:
+            raise ValueError(f"{field} is required.")
+
+        try:
+            value = int(raw_value)
+        except ValueError:
+            raise ValueError(f"{field} must be a whole number.")
+
+        if value < 0:
+            raise ValueError(f"{field} cannot be negative.")
+
+        stats[field] = value
+
+    games = stats["games_played"]
+    fgm = stats["total_fgm"]
+    fga = stats["total_fga"]
+
+    if fgm > fga:
+        raise ValueError(
+            "Field goals made cannot exceed field goals attempted."
+        )
+
+    if games == 0 and any(
+        stats[field] > 0
+        for field in PLAYER_TOTAL_FIELDS
+        if field != "games_played"
+    ):
+        raise ValueError(
+            "Games played must be greater than zero "
+            "when season totals are entered."
+        )
+
+    def average(total):
+        return round(total / games, 2) if games > 0 else 0.0
+
+    stats["points_per_game"] = average(stats["total_points"])
+    stats["assists_per_game"] = average(stats["total_assists"])
+    stats["rebounds_per_game"] = average(stats["total_rebounds"])
+    stats["blocks_per_game"] = average(stats["total_blocks"])
+    stats["steals_per_game"] = average(stats["total_steals"])
+
+    stats["fg_percentage"] = (
+        round(fgm / fga * 100, 2)
+        if fga > 0
+        else 0.0
+    )
+
+    return stats
+
+
+def apply_player_statistics(player, stats):
+    """Assign validated statistics to a Player model."""
+
+    for field, value in stats.items():
+        setattr(player, field, value)
+
+
+# =====================================================
 # ADMIN - ADD PLAYER
+# =====================================================
+
 @app.route("/admin/players/add", methods=["GET", "POST"])
 @admin_required
 def admin_add_player():
+
     teams = Team.query.order_by(Team.name).all()
 
     if request.method == "POST":
 
-        # BASIC PLAYER INFORMATION
         name = request.form.get("name", "").strip()
         nationality = request.form.get("nationality", "").strip()
         position = request.form.get("position", "").strip()
         picture_url = request.form.get("picture_url", "").strip()
 
         try:
-            # TEAM
             team_id = int(request.form.get("team_id", ""))
 
-            # PLAYER RATINGS
             rating = int(request.form.get("rating", "70"))
             offense = int(request.form.get("offense", "70"))
             defense = int(request.form.get("defense", "70"))
 
-            # PLAYER STATISTICS
-            points_per_game = float(request.form.get("points_per_game", "0"))
-            assists_per_game = float(request.form.get("assists_per_game", "0"))
-            rebounds_per_game = float(request.form.get("rebounds_per_game", "0"))
-            blocks_per_game = float(request.form.get("blocks_per_game", "0"))
-            steals_per_game = float(request.form.get("steals_per_game", "0"))
-            fg_percentage = float(request.form.get("fg_percentage", "0"))
+            if not name:
+                raise ValueError("Player name is required.")
 
-            # VALIDATE BASIC INFORMATION
-            if not name or not position:
-                raise ValueError("Name and position are required.")
+            if len(name) > 100 or len(nationality) > 50:
+                raise ValueError("Name or nationality is too long.")
 
-            if len(name) > 100 or len(nationality) > 50 or len(position) > 10:
-                raise ValueError("One or more text fields are too long.")
-
-            if position not in ["PG", "SG", "SF", "PF", "C"]:
+            if position not in ("PG", "SG", "SF", "PF", "C"):
                 raise ValueError("Invalid player position.")
 
             if len(picture_url) > 200:
-                raise ValueError("Picture URL must be 200 characters or fewer.")
+                raise ValueError(
+                    "Picture URL must be 200 characters or fewer."
+                )
 
-            # VALIDATE RATINGS
-# VALIDATE RATINGS
-            if not all(0 <= value <= 100 for value in (rating, offense, defense)):
-                raise ValueError("Ratings must be between 0 and 100.")
+            if not all(
+                0 <= value <= 100
+                for value in (rating, offense, defense)
+            ):
+                raise ValueError(
+                    "Ratings must be between 0 and 100."
+                )
 
-            # VALIDATE STATISTICS
-            stats = [
-                points_per_game,
-                assists_per_game,
-                rebounds_per_game,
-                blocks_per_game,
-                steals_per_game
-            ]
-
-            if not all(math.isfinite(value) and 0 <= value <= 100 for value in stats):
-                raise ValueError("Statistics must be between 0 and 100.")
-
-            if not 0 <= fg_percentage <= 100:
-                raise ValueError("FG% must be between 0 and 100.")
-
-            # VALIDATE TEAM
             team = db.session.get(Team, team_id)
 
             if team is None:
                 raise ValueError("Please select a valid team.")
 
+            # Read totals and calculate averages.
+            statistics = read_player_statistics(request.form)
+
         except (ValueError, TypeError) as error:
             flash(f"Invalid player information: {error}", "danger")
             return redirect(url_for("admin_add_player"))
 
-        # CREATE NEW PLAYER
         player = Player(
             name=name,
             nationality=nationality,
@@ -589,16 +670,11 @@ def admin_add_player():
             rating=rating,
             offense=offense,
             defense=defense,
-            points_per_game=points_per_game,
-            assists_per_game=assists_per_game,
-            rebounds_per_game=rebounds_per_game,
-            blocks_per_game=blocks_per_game,
-            steals_per_game=steals_per_game,
-            fg_percentage=fg_percentage,
             team_id=team_id
         )
 
-        # SAVE TO DATABASE
+        apply_player_statistics(player, statistics)
+
         db.session.add(player)
         db.session.commit()
 
@@ -612,7 +688,13 @@ def admin_add_player():
     )
 
 
+
+
+
+# =====================================================
 # ADMIN - EDIT PLAYER
+# =====================================================
+
 @app.route("/admin/players/<int:player_id>/edit", methods=["GET", "POST"])
 @admin_required
 def admin_edit_player(player_id):
@@ -622,96 +704,72 @@ def admin_edit_player(player_id):
 
     if request.method == "POST":
 
-        # BASIC PLAYER INFORMATION
         name = request.form.get("name", "").strip()
         nationality = request.form.get("nationality", "").strip()
         position = request.form.get("position", "").strip()
         picture_url = request.form.get("picture_url", "").strip()
 
         try:
-            # TEAM
             team_id = int(request.form.get("team_id", ""))
 
-            # PLAYER RATINGS
             rating = int(request.form.get("rating", "70"))
             offense = int(request.form.get("offense", "70"))
             defense = int(request.form.get("defense", "70"))
 
-            # PLAYER STATISTICS
-            points_per_game = float(request.form.get("points_per_game", "0"))
-            assists_per_game = float(request.form.get("assists_per_game", "0"))
-            rebounds_per_game = float(request.form.get("rebounds_per_game", "0"))
-            blocks_per_game = float(request.form.get("blocks_per_game", "0"))
-            steals_per_game = float(request.form.get("steals_per_game", "0"))
-            fg_percentage = float(request.form.get("fg_percentage", "0"))
+            if not name:
+                raise ValueError("Player name is required.")
 
-            # VALIDATE BASIC INFORMATION
-            if not name or not position:
-                raise ValueError("Name and position are required.")
+            if len(name) > 100 or len(nationality) > 50:
+                raise ValueError("Name or nationality is too long.")
 
-            if len(name) > 100 or len(nationality) > 50 or len(position) > 10:
-                raise ValueError("One or more text fields are too long.")
-
-            if position not in ["PG", "SG", "SF", "PF", "C"]:
+            if position not in ("PG", "SG", "SF", "PF", "C"):
                 raise ValueError("Invalid player position.")
 
             if len(picture_url) > 200:
-                raise ValueError("Picture URL must be 200 characters or fewer.")
+                raise ValueError(
+                    "Picture URL must be 200 characters or fewer."
+                )
 
-            # VALIDATE RATINGS
-            if not all(0 <= value <= 100 for value in (rating, offense, defense)):
-                raise ValueError("Ratings must be between 0 and 100.")
+            if not all(
+                0 <= value <= 100
+                for value in (rating, offense, defense)
+            ):
+                raise ValueError(
+                    "Ratings must be between 0 and 100."
+                )
 
-            # VALIDATE STATISTICS
-            stats = [
-                points_per_game,
-                assists_per_game,
-                rebounds_per_game,
-                blocks_per_game,
-                steals_per_game
-            ]
-
-            if not all(0 <= value <= 100 for value in stats):
-                raise ValueError("Statistics must be between 0 and 100.")
-
-            if not 0 <= fg_percentage <= 100:
-                raise ValueError("FG% must be between 0 and 100.")
-
-            # VALIDATE TEAM
             team = db.session.get(Team, team_id)
 
             if team is None:
                 raise ValueError("Please select a valid team.")
 
+            # Read totals and calculate averages.
+            statistics = read_player_statistics(request.form)
+
         except (ValueError, TypeError) as error:
             flash(f"Invalid player information: {error}", "danger")
+
             return redirect(
                 url_for("admin_edit_player", player_id=player.id)
             )
 
-        # UPDATE BASIC INFORMATION
+        # Update player information.
         player.name = name
         player.nationality = nationality
         player.position = position
         player.picture_url = picture_url
 
-        # UPDATE RATINGS
+        # Update ratings.
         player.rating = rating
         player.offense = offense
         player.defense = defense
 
-        # UPDATE STATISTICS
-        player.points_per_game = points_per_game
-        player.assists_per_game = assists_per_game
-        player.rebounds_per_game = rebounds_per_game
-        player.blocks_per_game = blocks_per_game
-        player.steals_per_game = steals_per_game
-        player.fg_percentage = fg_percentage
-
-        # UPDATE TEAM (TRANSFER PLAYER)
+        # Update team.
         player.team_id = team_id
 
-        # SAVE CHANGES
+        # Update totals and calculated averages.
+        apply_player_statistics(player, statistics)
+
         db.session.commit()
 
         flash("Player updated successfully!", "success")
@@ -722,6 +780,8 @@ def admin_edit_player(player_id):
         player=player,
         teams=teams
     )
+
+
 
 
 # ADMIN - DELETE PLAYER
@@ -779,6 +839,15 @@ def get_players():
             "fg_percentage": player.fg_percentage,
             "team": player.team.name,
             "team_image_url": player.team.image_url,
+            "games_played": player.games_played,
+            "total_points": player.total_points,
+            "total_assists": player.total_assists,
+            "total_rebounds": player.total_rebounds,
+            "total_blocks": player.total_blocks,
+            "total_steals": player.total_steals,
+            "total_turnovers": player.total_turnovers,
+            "total_fgm": player.total_fgm,
+            "total_fga": player.total_fga,
         }
         for player in players
     ])
@@ -808,6 +877,12 @@ BasketballGridGame = register_basketball_grid(
 def initialize_database():
     with app.app_context():
         db.create_all()
+
+        # Update averages from imported season totals, without resetting players
+        # who have not yet been matched to official EuroLeague statistics.
+        from update_player_stats import update_all_player_stats
+        update_all_player_stats(db, Player)
+
         print("Database tables checked successfully!")
         print(f"Teams in database: {Team.query.count()}")
         print(f"Players in database: {Player.query.count()}")
@@ -3177,12 +3252,14 @@ def hl_my_stats():
 
 # Register Guess the Player models and routes BEFORE db.create_all().
 from guess_the_player_backend import register_guess_the_player
+
 GuessPlayerStats = register_guess_the_player(
     app, db, Player, User, UserAchievement
 )
 
-initialize_database()
 
-
+# Initialize database only when running app.py directly.
+# This prevents migration scripts from triggering initialization.
 if __name__ == "__main__":
+    initialize_database()
     app.run(debug=True)

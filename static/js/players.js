@@ -320,7 +320,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${decimal(player.blocks_per_game)}</td>
                 <td>${decimal(player.steals_per_game)}</td>
                 <td>${decimal(player.fg_percentage)}%</td>
+                <!-- ADDITIONAL SEASON STATISTICS -->
 
+                <td>${number(player.games_played)}</td>
+                <td>${number(player.total_points)}</td>
+                <td>${number(player.total_assists)}</td>
+                <td>${number(player.total_rebounds)}</td>
+                <td>${number(player.total_blocks)}</td>
+                <td>${number(player.total_steals)}</td>
+                <td>${number(player.total_turnovers)}</td>
+                <td>${number(player.total_fgm)}</td>
+                <td>${number(player.total_fga)}</td>
             </tr>
         `;
     }
@@ -392,7 +402,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (filteredPlayers.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="12" class="loading-message">
+                    <td colspan="21" class="loading-message">
                         No players found.
                     </td>
                 </tr>
@@ -421,12 +431,15 @@ document.addEventListener("DOMContentLoaded", () => {
         setText("modalDefense", player.defense);
 
         // Statistics
-        setText("modalPoints", decimal(player.points_per_game));
-        setText("modalAssists", decimal(player.assists_per_game));
-        setText("modalRebounds", decimal(player.rebounds_per_game));
-        setText("modalBlocks", decimal(player.blocks_per_game));
-        setText("modalSteals", decimal(player.steals_per_game));
-        setText("modalFG", `${decimal(player.fg_percentage)}%`);
+// Statistics
+setText("modalGamesPlayed", number(player.games_played));
+
+setText("modalPoints", decimal(player.points_per_game));
+setText("modalAssists", decimal(player.assists_per_game));
+setText("modalRebounds", decimal(player.rebounds_per_game));
+setText("modalBlocks", decimal(player.blocks_per_game));
+setText("modalSteals", decimal(player.steals_per_game));
+setText("modalFG", `${decimal(player.fg_percentage)}%`);
 
         // Nationality and flag
         const nationality = document.getElementById("modalNationality");
@@ -553,17 +566,28 @@ document.addEventListener("DOMContentLoaded", () => {
         "#playerTable thead th[data-sort]"
     );
 
-    const numericFields = new Set([
-        "rating",
-        "offense",
-        "defense",
-        "points_per_game",
-        "assists_per_game",
-        "rebounds_per_game",
-        "blocks_per_game",
-        "steals_per_game",
-        "fg_percentage"
-    ]);
+const numericFields = new Set([
+    "rating",
+    "offense",
+    "defense",
+    "points_per_game",
+    "assists_per_game",
+    "rebounds_per_game",
+    "blocks_per_game",
+    "steals_per_game",
+    "fg_percentage",
+
+    // Additional season statistics
+    "games_played",
+    "total_points",
+    "total_assists",
+    "total_rebounds",
+    "total_blocks",
+    "total_steals",
+    "total_turnovers",
+    "total_fgm",
+    "total_fga"
+]);
 
     function updateSortIndicators() {
         const selectedSort = sortFilter.value;
@@ -686,7 +710,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="12" class="loading-message">
+                    <td colspan="21" class="loading-message">
                         Unable to load players.
                         Please refresh the page.
                     </td>
