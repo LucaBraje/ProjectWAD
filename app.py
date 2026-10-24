@@ -2080,6 +2080,12 @@ PROFILE_TITLES = {
     "hl_streak_20": "EuroLeague Expert",
     "hl_correct_50": "Sharp Shooter",
     "hl_games_25": "Dedicated Analyst",
+    "gp_first_win": "First Identification",
+    "gp_five_wins": "Scout",
+    "gp_twenty_wins": "Master Scout",
+    "gp_first_try": "Perfect Read",
+    "gp_streak_5": "Unstoppable Scout",
+    "gp_games_25": "Dedicated Scout",
 
 }
 
@@ -3102,6 +3108,12 @@ def hl_my_stats():
 
 
 
+
+# Register Guess the Player models and routes BEFORE db.create_all().
+from guess_the_player_backend import register_guess_the_player
+GuessPlayerStats = register_guess_the_player(
+    app, db, Player, User, UserAchievement
+)
 
 initialize_database()
 

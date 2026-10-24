@@ -451,9 +451,16 @@
 
                 </summary>
 
-                <div class="game-body muted">
-                    Statistics will be available when
-                    this game mode is implemented.
+                <div class="game-body">
+                    <p id="gp-profile-status" class="status-message" role="status">
+                        Loading Guess the Player statistics...
+                    </p>
+                    <div id="gp-profile-stats" class="stat-grid" hidden></div>
+                    <a href="{{ url_for('guess_the_player') }}"
+                       class="profile-action-btn"
+                       style="display:inline-block; margin-top:20px; text-decoration:none;">
+                        PLAY GUESS THE PLAYER ↗
+                    </a>
                 </div>
 
             </details>
@@ -564,6 +571,15 @@
 
 </div>
 
+
+            <!-- GUESS THE PLAYER ACHIEVEMENTS -->
+            <div class="achievement-group">
+                <h3>🔎 Guess the Player</h3>
+                <p id="gp-achievement-progress" class="status-message">
+                    Loading achievements...
+                </p>
+                <div id="gp-profile-achievements" class="achievement-grid"></div>
+            </div>
 
             <!-- FUTURE ACHIEVEMENTS -->
 

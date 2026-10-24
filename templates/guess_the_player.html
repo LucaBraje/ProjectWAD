@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guess the Player | Draft EuroLeague</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/navbar.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/guess_the_player.css') }}" rel="stylesheet">
+  <script src="{{ url_for('static', filename='js/guess_the_player.js') }}" defer></script>
+</head>
+<body>
+{% include 'navbar.html' %}
+<main class="gp-page">
+  <header class="gp-hero">
+    <div class="container">
+      <a href="{{ url_for('other_games') }}" class="gp-back">← ALL GAMES</a>
+      <p class="gp-eyebrow">DRAFT EUROLEAGUE / ARCADE</p>
+      <h1>GUESS <span>THE PLAYER</span></h1>
+      <p>Eight attempts. Six clues per guess. Can you identify the mystery EuroLeague player?</p>
+    </div>
+  </header>
+
+  <section class="gp-score-strip">
+    <div class="container gp-score-grid">
+      <div><small>WINS</small><strong id="gp-wins">0</strong></div>
+      <div><small>WIN RATE</small><strong id="gp-win-rate">0%</strong></div>
+      <div><small>CURRENT STREAK</small><strong id="gp-streak">0</strong></div>
+      <div><small>BEST STREAK</small><strong id="gp-best">0</strong></div>
+    </div>
+  </section>
+
+  <section class="container gp-content">
+    <div id="gp-intro" class="gp-intro">
+      <p class="gp-eyebrow">CLASSIC MODE</p>
+      <h2>Think you know the league?</h2>
+      <p>Choose a player. Green means the attribute matches. Red means it doesn't. An arrow shows whether the hidden player's rating is higher or lower.</p>
+      <button id="gp-start" class="gp-primary">START GAME ↗</button>
+    </div>
+
+    <div id="gp-play" class="gp-hidden">
+      <div class="gp-heading">
+        <div><p class="gp-eyebrow">FIND THE MYSTERY PLAYER</p><h2>Make your guess</h2></div>
+        <div class="gp-counter"><span id="gp-attempt">1</span> / 8 ATTEMPTS</div>
+      </div>
+      <div class="gp-search-wrap">
+        <label for="gp-search">SEARCH EUROLeague PLAYERS</label>
+        <input id="gp-search" type="search" placeholder="Start typing a player name..." autocomplete="off" aria-autocomplete="list" aria-controls="gp-suggestions">
+        <div id="gp-suggestions" class="gp-suggestions gp-hidden" role="listbox"></div>
+        <p id="gp-selected-label" class="gp-selected-label">Select a player from the results.</p>
+        <button id="gp-submit" class="gp-primary" disabled>SUBMIT GUESS ↗</button>
+      </div>
+      <p class="gp-history-title">YOUR GUESSES <span id="gp-remaining">8 remaining</span></p>
+      <div id="gp-history" class="gp-history"></div>
+    </div>
+    <p id="gp-error" class="gp-error gp-hidden" role="alert"></p>
+  </section>
+
+  <section id="gp-finish" class="gp-finish gp-hidden" aria-live="polite">
+    <div class="container">
+      <p class="gp-eyebrow">END OF THE RUN</p>
+      <h2 id="gp-finish-title">GAME OVER</h2>
+      <p id="gp-finish-message"></p>
+      <div id="gp-answer" class="gp-answer"></div>
+      <div id="gp-unlocks" class="gp-unlocks"></div>
+      <button id="gp-again" class="gp-primary">PLAY AGAIN ↗</button>
+    </div>
+  </section>
+</main>
+</body>
+</html>
