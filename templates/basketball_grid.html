@@ -1,203 +1,95 @@
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Basketball Grid | Draft EuroLeague</title>
-
-    <!-- Bootstrap -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
-    <!-- Shared navbar -->
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/navbar.css') }}"
-    >
-
-    <!-- Basketball Grid styling -->
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/basketball_grid.css') }}"
-    >
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/basketball_grid.css') }}">
 </head>
-
 <body>
-
     {% include 'navbar.html' %}
-
     <main class="basketball-grid-page">
-
-        <!-- ==========================================
-             FULL-WIDTH HERO
-        =========================================== -->
-
+        <!-- HERO: unchanged -->
         <section class="bg-hero">
-
             <div class="container">
-
-                <a
-                    href="{{ url_for('other_games') }}"
-                    class="bg-back-link"
-                >
-                    ← ALL GAMES
-                </a>
-
-                <p class="bg-eyebrow">
-                    DRAFT EUROLEAGUE / ARCADE
-                </p>
-
-                <h1>
-                    BASKETBALL <span>GRID</span>
-                </h1>
-
-                <p class="bg-hero-description">
-                    Nine squares. Six categories. Three lives.
-                    Match EuroLeague players with teams,
-                    nationalities, positions, ratings and
-                    statistics to complete the grid.
-                </p>
-
+                <a href="{{ url_for('other_games') }}" class="bg-back-link">← ALL GAMES</a>
+                <p class="bg-eyebrow">DRAFT EUROLEAGUE / ARCADE</p>
+                <h1>BASKETBALL <span>GRID</span></h1>
+                <p class="bg-hero-description">Nine squares. Six categories. Three lives.
+                    Match EuroLeague players with teams, nationalities, positions, ratings and
+                    statistics to complete the grid.</p>
             </div>
-
         </section>
 
-        <!-- ==========================================
-             GAME AREA
-        =========================================== -->
-
         <section class="bg-main">
-
             <div class="container">
-
+                <!-- SCOREBOARD: one continuous strip, buttons on the same row -->
                 <div class="toolbar">
-
                     <div class="game-info">
-
-                        <p class="bg-eyebrow">
-                            CURRENT CHALLENGE
-                        </p>
-
-                        <div id="status" role="status">
-                            Loading your grid…
+                        <div class="bg-score-group">
+                            <span class="bg-score-label">CORRECT GUESSES</span>
+                            <strong id="correct-count">0/9</strong>
                         </div>
-
-                        <div
-                            id="lives"
-                            class="lives"
-                            aria-label="3 lives remaining"
-                        >
-                            ♥ ♥ ♥
+                        <div class="bg-score-group">
+                            <span class="bg-score-label">HEARTS</span>
+                            <!-- Keep id=lives: basketball_grid.js updates the hearts -->
+                            <div id="lives" class="lives" aria-label="3 lives remaining">♥ ♥ ♥</div>
                         </div>
-
+                        <!-- Keep id=status: existing JS writes progress and messages here. -->
+                        <div id="status" role="status" aria-live="polite">Loading your grid…</div>
                     </div>
-
                     <div class="actions">
-
-                        <button
-                            id="give-up"
-                            type="button"
-                            class="secondary"
-                            disabled
-                        >
-                            GIVE UP
-                        </button>
-
-                        <button
-                            id="new-game"
-                            type="button"
-                        >
-                            NEW GRID ↗
-                        </button>
-
+                        <button id="give-up" type="button" class="secondary" disabled>GIVE UP</button>
+                        <button id="new-game" type="button">NEW GRID ↗</button>
                     </div>
-
                 </div>
 
                 <!-- GAME BOARD -->
-
                 <div class="board-scroll">
-
-                    <div
-                        id="board"
-                        class="board"
-                        aria-label="Basketball grid"
-                    ></div>
-
+                    <div id="board" class="board" aria-label="Basketball grid"></div>
                 </div>
 
                 <!-- PLAYER SEARCH -->
-
-                <section
-                    class="search-panel"
-                    id="search-panel"
-                    hidden
-                >
-
-                    <h2 id="selection-label">
-                        Select a player
-                    </h2>
-
-                    <input
-                        id="player-search"
-                        placeholder="Type at least 2 letters of a player name"
-                        autocomplete="off"
-                        aria-label="Search player"
-                    >
-
-                    <div
-                        id="results"
-                        class="results"
-                    ></div>
-
-                    <button
-                        type="button"
-                        id="cancel"
-                        class="secondary"
-                    >
-                        Cancel
-                    </button>
-
+                <section class="search-panel" id="search-panel" hidden>
+                    <h2 id="selection-label">Select a player</h2>
+                    <input id="player-search" placeholder="Type at least 2 letters of a player name"
+                           autocomplete="off" aria-label="Search player">
+                    <div id="results" class="results"></div>
+                    <button type="button" id="cancel" class="secondary">Cancel</button>
                 </section>
 
-                <!-- STATISTICS -->
-
+                <!-- YOUR RECORD -->
                 <section class="stats">
-
-                    <p class="bg-eyebrow">
-                        YOUR CAREER
-                    </p>
-
+                    <p class="bg-eyebrow">YOUR CAREER</p>
                     <h2>YOUR RECORD</h2>
-
-                    <div
-                        id="stats"
-                        class="stat-grid"
-                    ></div>
-
+                    <div id="stats" class="stat-grid"></div>
                 </section>
-
             </div>
-
         </section>
-
     </main>
 
-    <script
-        src="{{ url_for('static', filename='js/countries.js') }}"
-        defer
-    ></script>
+    <script src="{{ url_for('static', filename='js/countries.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/basketball_grid.js') }}" defer></script>
 
-    <script
-        src="{{ url_for('static', filename='js/basketball_grid.js') }}"
-        defer
-    ></script>
-
+    <!-- Compatibility with existing JS: extract the 2/9 progress from #status.
+         No change to basketball_grid.js is required if it writes text such as
+         '2/9 correct · 1 lives remaining'. If its format differs, send that JS. -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const status = document.getElementById('status');
+            const count = document.getElementById('correct-count');
+            if (!status || !count) return;
+            const sync = () => {
+                const match = status.textContent.match(/(\d+)\s*\/\s*9\b/);
+                if (match) count.textContent = `${match[1]}/9`;
+            };
+            new MutationObserver(sync).observe(status, {
+                childList: true, characterData: true, subtree: true
+            });
+            sync();
+        });
+    </script>
 </body>
 </html>

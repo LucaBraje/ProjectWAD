@@ -1,31 +1,504 @@
-/* Guess the Player — Draft EuroLeague black/orange arcade */
-:root{--gp-bg:#080809;--gp-panel:#141416;--gp-orange:#fa5500;--gp-muted:#aaa6a3}
-*{box-sizing:border-box}body,.gp-page{background:var(--gp-bg);color:#f7f5f2;margin:0;font-family:Inter,Arial,sans-serif}.gp-hidden{display:none!important}
-.gp-hero{padding:90px 0 70px;border-bottom:2px solid var(--gp-orange);background:radial-gradient(ellipse at 85% 10%,#59251266,transparent 48%),#080809}
-.gp-back{display:inline-block;color:#ccc;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:2px;margin-bottom:35px}.gp-back:hover{color:#ff893e}
-.gp-eyebrow{font-size:11px;font-weight:900;letter-spacing:2px;color:#ff893e;text-transform:uppercase}
-.gp-hero h1{font-size:clamp(48px,7vw,100px);font-weight:950;letter-spacing:-3px;line-height:1;margin:14px 0 20px}.gp-hero h1 span{color:var(--gp-orange)}
-.gp-hero p:last-child{color:#c5beba;max-width:600px;line-height:1.7}
-.gp-score-strip{width:100%;background:#101013;border-bottom:1px solid #302d2d}
-.gp-score-grid{display:grid;grid-template-columns:repeat(4,1fr);padding-top:25px;padding-bottom:25px;gap:16px}
-.gp-score-grid>div{display:flex;flex-direction:column;gap:8px}.gp-score-grid small{color:var(--gp-muted);font-size:10px;font-weight:900;letter-spacing:1.7px}.gp-score-grid strong{font-size:clamp(27px,4vw,48px);font-weight:950;color:var(--gp-orange)}
-.gp-content{padding-top:55px;padding-bottom:65px;min-height:300px}
-.gp-intro{max-width:780px}.gp-intro h2,.gp-heading h2{font-size:clamp(28px,4vw,48px);font-weight:950;letter-spacing:-1px}.gp-intro>p:not(.gp-eyebrow){color:#aaa6a3;line-height:1.8;margin:20px 0 28px}
-.gp-primary{border:0;border-radius:8px;background:linear-gradient(130deg,#ff893e,#fa5500);color:#100a08;font-weight:950;letter-spacing:.5px;padding:15px 26px;cursor:pointer;min-height:52px}.gp-primary:disabled{opacity:.45;cursor:not-allowed}.gp-primary:hover:not(:disabled){filter:brightness(1.1)}
-.gp-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:25px}.gp-counter{font-size:13px;font-weight:900;color:#ff893e;background:#201b19;border:1px solid #593624;padding:13px 18px;border-radius:8px;white-space:nowrap}
-.gp-search-wrap{position:relative;max-width:660px}.gp-search-wrap label{display:block;color:#b8b0ad;font-size:11px;font-weight:900;letter-spacing:1.6px;margin-bottom:10px}
-#gp-search{display:block;width:100%;padding:17px 19px;background:#18181d;border:1px solid #48464b;border-radius:9px;color:#fff;outline:none}#gp-search:focus{border-color:#fa5500}
-.gp-suggestions{position:absolute;top:76px;left:0;right:0;max-height:310px;overflow-y:auto;background:#202026;border:1px solid #4b3a34;border-radius:8px;z-index:10;box-shadow:0 15px 30px #0009}
-.gp-option{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;background:transparent;color:white;text-align:left;border:0;border-bottom:1px solid #333;cursor:pointer}.gp-option:hover,.gp-option:focus{background:#36241e}.gp-option img{width:42px;height:42px;object-fit:contain;background:#141416;border-radius:5px}.gp-option small{display:block;color:#aaa6a3}
-.gp-selected-label{font-size:12px;color:#aaa6a3;margin:12px 0 18px}
-.gp-history-title{display:flex;justify-content:space-between;margin-top:45px;color:#bbb;font-size:12px;letter-spacing:1px;font-weight:900}
-.gp-history{display:flex;flex-direction:column;gap:16px}.gp-guess{border:1px solid #34343a;background:#121216;border-radius:10px;padding:17px}
-.gp-guess-top{display:flex;align-items:center;gap:12px;margin-bottom:13px}.gp-guess-top img{width:48px;height:48px;object-fit:contain;background:#24242b;border-radius:7px}.gp-guess-top strong{font-size:17px}.gp-guess-top small{display:block;color:#aaa6a3}
-.gp-attributes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
-.gp-attribute{min-width:0;border:1px solid #9c4343;background:#3b2023;border-radius:7px;padding:12px 6px;text-align:center}
-.gp-attribute.match{background:#183e2c;border-color:#238856}.gp-attribute small{display:block;color:#ddd;font-size:9px;letter-spacing:.5px;font-weight:900}.gp-attribute strong{display:block;margin-top:7px;font-size:13px;overflow-wrap:anywhere}
-.gp-error{color:#ffb0aa;margin-top:18px}
-.gp-finish{width:100%;background:#080809;border-top:1px solid #2f2b2b;text-align:center;padding:70px 0 90px}
-.gp-finish h2{font-size:clamp(48px,8vw,94px);font-weight:950;letter-spacing:-3px}.gp-finish>div>p:not(.gp-eyebrow){color:#bbb}
-.gp-answer{margin:30px auto;font-size:22px;font-weight:900;color:#ff893e}.gp-answer img{width:110px;height:110px;object-fit:contain;display:block;margin:0 auto 10px}.gp-unlocks{color:#ffae73;margin-bottom:25px}
-@media(max-width:850px){.gp-attributes{grid-template-columns:repeat(3,minmax(0,1fr))}.gp-score-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:480px){.gp-hero{padding:60px 0 45px}.gp-heading{align-items:flex-start}.gp-attributes{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* =====================================================
+   DRAFT EUROLEAGUE — GUESS THE PLAYER
+   Black / Orange Arcade Theme
+===================================================== */
+
+:root {
+    --gp-bg: #080809;
+    --gp-panel: #141416;
+    --gp-orange: #fa5500;
+    --gp-muted: #aaa6a3;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body,
+.gp-page {
+    background: var(--gp-bg);
+    color: #f7f5f2;
+    margin: 0;
+    font-family: Inter, Arial, sans-serif;
+}
+
+.gp-hidden {
+    display: none !important;
+}
+
+/* =====================================================
+   HERO BANNER — CUSTOMIZE HERE
+===================================================== */
+
+.gp-hero {
+    position: relative;
+    isolation: isolate;
+
+    /* EDIT 1 — BANNER HEIGHT
+       Change 540px to make the entire banner taller
+       or shorter. */
+    min-height: 540px;
+
+    /* EDIT 2 — TEXT SPACING
+       105px = top spacing
+       0 = left/right spacing
+       85px = bottom spacing */
+    padding: 105px 0 85px;
+
+    border-bottom: 2px solid var(--gp-orange);
+
+    /* EDIT 3 — BANNER IMAGE
+       Change the filename if your image is different. */
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(5, 5, 6, 0.97) 0%,
+            rgba(5, 5, 6, 0.75) 58%,
+            rgba(5, 5, 6, 0.45) 100%
+        ),
+        url("../images/games/guess_the_player.jpg");
+
+    background-color: #080809;
+
+    /* EDIT 4 — IMAGE ZOOM
+       First value = dark gradient
+       Second value = actual image
+
+       cover     = fills the entire banner
+       110% auto = zoomed in
+       100% auto = fits image to banner width
+       95% auto  = slightly zoomed out
+       90% auto  = further zoomed out
+
+       Smaller sizes may expose empty space. */
+    background-size: 100% 100%, cover;
+
+    /* EDIT 5 — IMAGE POSITION
+       First value = dark gradient
+       Second value = actual image
+
+       center 0%   = show upper portion
+       center 50%  = show middle portion
+       center 100% = show lower portion */
+    background-position: center, center 50%;
+
+    background-repeat: no-repeat;
+}
+
+/* Back to Other Games link */
+.gp-back {
+    display: inline-block;
+    color: #ccc;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 35px;
+}
+
+.gp-back:hover {
+    color: #ff893e;
+}
+
+.gp-eyebrow {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #ff893e;
+    text-transform: uppercase;
+}
+
+.gp-hero h1 {
+    font-size: clamp(48px, 7vw, 100px);
+    font-weight: 950;
+    letter-spacing: -3px;
+    line-height: 1;
+    margin: 14px 0 20px;
+}
+
+.gp-hero h1 span {
+    color: var(--gp-orange);
+}
+
+.gp-hero p:last-child {
+    color: #c5beba;
+    max-width: 600px;
+    line-height: 1.7;
+}
+
+/* =====================================================
+   SCOREBOARD — CURRENT GAME STATISTICS
+===================================================== */
+
+.gp-score-strip {
+    width: 100%;
+    background: #101013;
+    border-bottom: 1px solid #302d2d;
+}
+
+.gp-score-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
+    /* EDIT 6 — SCOREBOARD HEIGHT
+       Increase/decrease these values to control
+       vertical space inside the scoreboard. */
+    padding-top: 25px;
+    padding-bottom: 25px;
+
+    gap: 16px;
+}
+
+.gp-score-grid > div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.gp-score-grid small {
+    color: var(--gp-muted);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.7px;
+}
+
+.gp-score-grid strong {
+    /* EDIT 7 — SCOREBOARD NUMBER SIZE */
+    font-size: clamp(27px, 4vw, 48px);
+    font-weight: 950;
+    color: var(--gp-orange);
+}
+
+/* =====================================================
+   MAIN GAME CONTENT
+===================================================== */
+
+.gp-content {
+    padding-top: 55px;
+    padding-bottom: 65px;
+    min-height: 300px;
+}
+
+.gp-intro {
+    max-width: 780px;
+}
+
+.gp-intro h2,
+.gp-heading h2 {
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 950;
+    letter-spacing: -1px;
+}
+
+.gp-intro > p:not(.gp-eyebrow) {
+    color: #aaa6a3;
+    line-height: 1.8;
+    margin: 20px 0 28px;
+}
+
+.gp-primary {
+    border: 0;
+    border-radius: 8px;
+    background: linear-gradient(130deg, #ff893e, #fa5500);
+    color: #100a08;
+    font-weight: 950;
+    letter-spacing: .5px;
+    padding: 15px 26px;
+    cursor: pointer;
+    min-height: 52px;
+}
+
+.gp-primary:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.gp-primary:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
+
+/* =====================================================
+   GAME HEADING AND ROUND COUNTER
+===================================================== */
+
+.gp-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.gp-counter {
+    font-size: 13px;
+    font-weight: 900;
+    color: #ff893e;
+    background: #201b19;
+    border: 1px solid #593624;
+    padding: 13px 18px;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+/* =====================================================
+   PLAYER SEARCH
+===================================================== */
+
+.gp-search-wrap {
+    position: relative;
+    max-width: 660px;
+}
+
+.gp-search-wrap label {
+    display: block;
+    color: #b8b0ad;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.6px;
+    margin-bottom: 10px;
+}
+
+#gp-search {
+    display: block;
+    width: 100%;
+    padding: 17px 19px;
+    background: #18181d;
+    border: 1px solid #48464b;
+    border-radius: 9px;
+    color: #fff;
+    outline: none;
+}
+
+#gp-search:focus {
+    border-color: #fa5500;
+}
+
+.gp-suggestions {
+    position: absolute;
+    top: 76px;
+    left: 0;
+    right: 0;
+    max-height: 310px;
+    overflow-y: auto;
+    background: #202026;
+    border: 1px solid #4b3a34;
+    border-radius: 8px;
+    z-index: 10;
+    box-shadow: 0 15px 30px #0009;
+}
+
+.gp-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 14px;
+    background: transparent;
+    color: white;
+    text-align: left;
+    border: 0;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+}
+
+.gp-option:hover,
+.gp-option:focus {
+    background: #36241e;
+}
+
+.gp-option img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    background: #141416;
+    border-radius: 5px;
+}
+
+.gp-option small {
+    display: block;
+    color: #aaa6a3;
+}
+
+.gp-selected-label {
+    font-size: 12px;
+    color: #aaa6a3;
+    margin: 12px 0 18px;
+}
+
+/* =====================================================
+   GUESS HISTORY
+===================================================== */
+
+.gp-history-title {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 45px;
+    color: #bbb;
+    font-size: 12px;
+    letter-spacing: 1px;
+    font-weight: 900;
+}
+
+.gp-history {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.gp-guess {
+    border: 1px solid #34343a;
+    background: #121216;
+    border-radius: 10px;
+    padding: 17px;
+}
+
+.gp-guess-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 13px;
+}
+
+.gp-guess-top img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    background: #24242b;
+    border-radius: 7px;
+}
+
+.gp-guess-top strong {
+    font-size: 17px;
+}
+
+.gp-guess-top small {
+    display: block;
+    color: #aaa6a3;
+}
+
+/* =====================================================
+   PLAYER ATTRIBUTE COMPARISON
+===================================================== */
+
+.gp-attributes {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.gp-attribute {
+    min-width: 0;
+    border: 1px solid #9c4343;
+    background: #3b2023;
+    border-radius: 7px;
+    padding: 12px 6px;
+    text-align: center;
+}
+
+.gp-attribute.match {
+    background: #183e2c;
+    border-color: #238856;
+}
+
+.gp-attribute small {
+    display: block;
+    color: #ddd;
+    font-size: 9px;
+    letter-spacing: .5px;
+    font-weight: 900;
+}
+
+.gp-attribute strong {
+    display: block;
+    margin-top: 7px;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.gp-error {
+    color: #ffb0aa;
+    margin-top: 18px;
+}
+
+/* =====================================================
+   GAME FINISH SCREEN
+===================================================== */
+
+.gp-finish {
+    width: 100%;
+    background: #080809;
+    border-top: 1px solid #2f2b2b;
+    text-align: center;
+    padding: 70px 0 90px;
+}
+
+.gp-finish h2 {
+    font-size: clamp(48px, 8vw, 94px);
+    font-weight: 950;
+    letter-spacing: -3px;
+}
+
+.gp-finish > div > p:not(.gp-eyebrow) {
+    color: #bbb;
+}
+
+.gp-answer {
+    margin: 30px auto;
+    font-size: 22px;
+    font-weight: 900;
+    color: #ff893e;
+}
+
+.gp-answer img {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 10px;
+}
+
+.gp-unlocks {
+    color: #ffae73;
+    margin-bottom: 25px;
+}
+
+/* =====================================================
+   RESPONSIVE DESIGN — TABLETS
+===================================================== */
+
+@media (max-width: 850px) {
+    .gp-attributes {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .gp-score-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* =====================================================
+   RESPONSIVE DESIGN — MOBILE
+===================================================== */
+
+@media (max-width: 480px) {
+
+    /* EDIT 8 — MOBILE BANNER HEIGHT */
+    .gp-hero {
+        min-height: 370px;
+
+        /* EDIT 9 — MOBILE TEXT SPACING */
+        padding: 60px 0 45px;
+
+        /* EDIT 10 — MOBILE IMAGE POSITION */
+        background-position: center, 65% center;
+    }
+
+    .gp-heading {
+        align-items: flex-start;
+    }
+
+    .gp-attributes {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
