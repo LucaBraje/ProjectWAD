@@ -52,6 +52,135 @@ class Team(db.Model):
     players = db.relationship("Player", backref="team", lazy=True)
     pictures = db.relationship("TeamPicture", backref="team", lazy=True)
 
+# ============================================================
+# FICTIONAL EUROLEAGUE SEASON
+# ============================================================
+
+class SimulationSeason(db.Model):
+    __tablename__ = "simulation_season"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(100), nullable=False)
+
+    status = db.Column(
+        db.String(20),
+        nullable=False,
+        default="active"
+    )
+
+    current_week = db.Column(
+        db.Integer,
+        nullable=False,
+        default=1
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc)
+    )
+
+    weeks = db.relationship(
+        "SimulationWeek",
+        backref="season",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
+
+class SimulationWeek(db.Model):
+    __tablename__ = "simulation_week"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    season_id = db.Column(
+        db.Integer,
+        db.ForeignKey("simulation_season.id"),
+        nullable=False
+    )
+
+    week_number = db.Column(db.Integer, nullable=False)
+
+    status = db.Column(
+        db.String(20),
+        nullable=False,
+        default="scheduled"
+    )
+
+    games = db.relationship(
+        "SimulationGame",
+        backref="week",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "season_id",
+            "week_number",
+            name="uq_simulation_season_week"
+        ),
+    )
+
+
+class SimulationGame(db.Model):
+    __tablename__ = "simulation_game"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    week_id = db.Column(
+        db.Integer,
+        db.ForeignKey("simulation_week.id"),
+        nullable=False
+    )
+
+    home_team_id = db.Column(
+        db.Integer,
+        db.ForeignKey("team.id"),
+        nullable=False
+    )
+
+    away_team_id = db.Column(
+        db.Integer,
+        db.ForeignKey("team.id"),
+        nullable=False
+    )
+
+    home_score = db.Column(db.Integer, nullable=True)
+    away_score = db.Column(db.Integer, nullable=True)
+
+    status = db.Column(
+        db.String(20),
+        nullable=False,
+        default="scheduled"
+    )
+
+    home_team = db.relationship(
+        "Team",
+        foreign_keys=[home_team_id]
+    )
+
+    away_team = db.relationship(
+        "Team",
+        foreign_keys=[away_team_id]
+    )
+
+    __table_args__ = (
+        db.CheckConstraint(
+            "home_team_id != away_team_id",
+            name="ck_simulation_different_teams"
+        ),
+        db.UniqueConstraint(
+            "week_id",
+            "home_team_id",
+            name="uq_simulation_week_home"
+        ),
+        db.UniqueConstraint(
+            "week_id",
+            "away_team_id",
+            name="uq_simulation_week_away"
+        ),
+    )
 
 #Legends
 class Legend(db.Model):
@@ -3256,6 +3385,82 @@ from guess_the_player_backend import register_guess_the_player
 GuessPlayerStats = register_guess_the_player(
     app, db, Player, User, UserAchievement
 )
+
+
+# ============================================================
+# FICTIONAL EUROLEAGUE SCHEDULE
+# ============================================================
+
+@app.route("/schedule")
+def schedule():
+    return render_template("schedule.html")
+
+
+@app.route("/api/schedule/<int:week_number>")
+def api_schedule(week_number):
+
+    season = SimulationSeason.query.filter_by(
+        status="active"
+    ).first()
+
+    if not season:
+        return jsonify({
+            "error": "No active season found."
+        }), 404
+
+    week = SimulationWeek.query.filter_by(
+        season_id=season.id,
+        week_number=week_number
+    ).first()
+
+    if not week:
+        return jsonify({
+            "error": "Week not found."
+        }), 404
+
+    games = (
+        SimulationGame.query
+        .filter_by(week_id=week.id)
+        .order_by(SimulationGame.id)
+        .all()
+    )
+
+    games_data = []
+
+    for game in games:
+
+        games_data.append({
+            "id": game.id,
+            "status": game.status,
+
+            "home_team": {
+                "id": game.home_team.id,
+                "name": game.home_team.name,
+                "image_url": game.home_team.image_url
+            },
+
+            "away_team": {
+                "id": game.away_team.id,
+                "name": game.away_team.name,
+                "image_url": game.away_team.image_url
+            },
+
+            "home_score": game.home_score,
+            "away_score": game.away_score
+        })
+
+    return jsonify({
+        "season": {
+            "id": season.id,
+            "name": season.name,
+            "current_week": season.current_week
+        },
+        "week": week.week_number,
+        "total_weeks": 38,
+        "status": week.status,
+        "games": games_data
+    })
+
 
 
 # Initialize database only when running app.py directly.
