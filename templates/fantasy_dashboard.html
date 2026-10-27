@@ -44,7 +44,7 @@
 
         <div class="header-actions">
 
-            <a href="{{ url_for('schedule') }}" class="dashboard-button secondary">Season Schedule ↗</a>
+            <a href="{{ url_for('schedule') }}" class="dashboard-button secondary">Season Schedule </a>
             <a
                 href="{{ url_for('fantasy') }}"
                 class="dashboard-button secondary"
@@ -57,7 +57,7 @@
                     href="{{ url_for('fantasy_lineup') }}"
                     class="dashboard-button primary"
                 >
-                    Manage Lineup →
+                    Manage Lineup
                 </a>
             {% endif %}
 
@@ -98,22 +98,6 @@
         </div>
 
 
-        <div class="overview-card">
-
-            <p>LATEST ROUND <span class="card-symbol">↗</span></p>
-
-            <h2>
-                {% if latest_round %}
-                    {{ latest_round }}
-                {% else %}
-                    —
-                {% endif %}
-            </h2>
-
-            <span>Most recently finalized</span>
-
-        </div>
-
 
         <div class="overview-card">
 
@@ -148,34 +132,7 @@
     </section>
 
 
-    {% if round_history %}
-    <section class="dashboard-panel trajectory-panel" aria-label="Fantasy points by round">
-        <div class="section-heading">
-            <div>
-                <p class="eyebrow">SEASON ANALYTICS</p>
-                <h2>THE <span>POINTS TRAJECTORY</span></h2>
-                <p>Round-by-round scoring. Select any bar to inspect that round.</p>
-            </div>
-            <span class="section-badge">{{ completed_rounds }} / 38 ROUNDS</span>
-        </div>
-        {% set chart = namespace(max_points=1) %}
-        {% for item in round_history %}
-            {% if item.points > chart.max_points %}{% set chart.max_points = item.points %}{% endif %}
-        {% endfor %}
-        <div class="round-chart" role="group" aria-label="Round score chart">
-            {% for item in round_history|reverse %}
-                <a href="{{ url_for('fantasy_dashboard', round=item.round) }}"
-                   class="chart-column {% if selected_round == item.round %}active{% endif %}"
-                   aria-label="Round {{ item.round }}: {{ '%.2f'|format(item.points) }} points"
-                   title="Round {{ item.round }} · {{ '%.2f'|format(item.points) }} points">
-                    <span class="chart-value">{{ '%.1f'|format(item.points) }}</span>
-                    <span class="chart-track"><span class="chart-bar" style="height: {{ ((item.points / chart.max_points) * 100)|round(1) }}%"></span></span>
-                    <span class="chart-round">R{{ item.round }}</span>
-                </a>
-            {% endfor %}
-        </div>
-    </section>
-    {% endif %}
+
 
     <!-- ================================================= -->
     <!-- ROUND SELECTOR -->
