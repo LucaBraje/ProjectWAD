@@ -23,26 +23,20 @@
     >
 </head>
 
-<body>
+<body class="fantasy-builder-page">
 
     {% include 'navbar.html' %}
 
-    <main class="fantasy-container">
-
-        <header class="fantasy-header">
-            <p class="fantasy-eyebrow">DRAFT EUROLEAGUE</p>
-
-            <h1>FANTASY <span>MODE</span></h1>
-
-            <p>
-                Build your dream EuroLeague squad.
-                Choose 10 players and stay within the 100M budget.
-            </p>
-
-            <div class="fantasy-season">
-                {{ season.name }} · Round {{ season.current_week }}
-            </div>
-        </header>
+    <header class="fantasy-hero">
+    <div class="fantasy-hero-inner">
+        <div class="fantasy-hero-kicker"><span></span> DRAFT EUROLEAGUE / FANTASY MODE</div>
+        <h1>BUILD YOUR <em>LEGACY.</em></h1>
+        <p>Scout the league. Balance your budget. Assemble your ultimate ten.</p>
+        <div class="fantasy-hero-meta">{{ season.name }} <b>•</b> ROUND {{ season.current_week }}</div>
+    </div>
+</header>
+<div class="fantasy-hero-divider"></div>
+<main class="fantasy-container">
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% for category, message in messages %}
@@ -52,16 +46,16 @@
             {% endfor %}
         {% endwith %}
 
-        <section class="fantasy-summary">
+        <section class="fantasy-summary" aria-label="Squad overview">
 
             <div class="summary-card">
                 <span>REMAINING BUDGET</span>
-                <strong id="budget-display">100.00M</strong>
+                <strong id="budget-display">100.00M</strong><div class="fantasy-meter"><div id="fantasy-budget-fill"></div></div>
             </div>
 
             <div class="summary-card">
                 <span>PLAYERS SELECTED</span>
-                <strong id="players-display">0 / 10</strong>
+                <strong id="players-display">0 / 10</strong><div class="fantasy-meter"><div id="fantasy-progress-fill"></div></div>
             </div>
 
             <div class="summary-card">
@@ -79,20 +73,18 @@
 
         </section>
 {% if squad and selected_ids | length == 10 %}
-<div style="display: flex; gap: 12px; flex-wrap: wrap;">
+<div class="fantasy-quicklinks">
 
     <a
         href="{{ url_for('fantasy_lineup') }}"
-        class="save-squad-button"
-        style="display: inline-block; width: auto; text-decoration: none;"
+        class="save-squad-button fantasy-link-button"
     >
         Manage Starting Five & Captain →
     </a>
 
     <a
         href="{{ url_for('fantasy_dashboard') }}"
-        class="save-squad-button"
-        style="display: inline-block; width: auto; text-decoration: none;"
+        class="save-squad-button fantasy-link-button"
     >
         View Fantasy Dashboard →
     </a>
@@ -108,7 +100,8 @@
             <section class="fantasy-panel">
 
                 <div class="panel-heading">
-                    <h2>Player Market</h2>
+                    <span class="fantasy-section-kicker">01 / SCOUTING DEPARTMENT</span>
+                    <h2>PLAYER <span>MARKET</span></h2>
                     <p>Select your EuroLeague players.</p>
                 </div>
 
@@ -141,7 +134,8 @@
 
                 </div>
 
-                <div id="player-market" class="player-market"></div>
+                <div class="market-meta"><span id="market-count">PLAYER DATABASE</span><span>OVR / POSITION / PRICE</span></div>
+                <div id="player-market" class="player-market" aria-live="polite"></div>
 
             </section>
 
@@ -153,7 +147,8 @@
             <aside class="fantasy-panel squad-panel">
 
                 <div class="panel-heading">
-                    <h2>My Fantasy Squad</h2>
+                    <span class="fantasy-section-kicker">02 / YOUR FRANCHISE</span>
+                    <h2>MY <span>SQUAD</span></h2>
                     <p>Two players per position.</p>
                 </div>
 

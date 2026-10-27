@@ -498,3 +498,89 @@ a {
         font-size: 12px;
     }
 }
+/* ============================================================
+   ARENA REDESIGN — aligned with Draft Mode
+   ============================================================ */
+:root {
+    --background:#080809; --panel:#141416; --panel-light:#1b1b20;
+    --border:#34343c; --gold:#fa5500; --gold-light:#ff893e;
+    --text:#f7f5f2; --muted:#aaa6a3; --green:#ff893e;
+}
+html { scroll-behavior:smooth; }
+body.fantasy-dashboard-page { background:#080809; font-family:Inter,Arial,sans-serif; }
+.dashboard-hero {
+    position:relative; overflow:hidden;
+    background:radial-gradient(ellipse at 78% 50%,rgba(250,85,0,.20),transparent 45%),
+        linear-gradient(112deg,#161315 0%,#100f11 48%,#21140f 100%);
+    border-bottom:1px solid rgba(250,85,0,.35);
+}
+.dashboard-hero::after {content:"";position:absolute;inset:0;pointer-events:none;opacity:.2;
+    background:repeating-linear-gradient(105deg,transparent 0 110px,rgba(255,255,255,.04) 111px 112px);}
+.dashboard-hero-inner {max-width:1450px;margin:auto;padding:76px 30px 74px;position:relative;z-index:1;}
+.hero-kicker {font-size:12px;font-weight:900;letter-spacing:2.3px;color:#ff893e;display:flex;align-items:center;gap:12px;}
+.hero-kicker i {width:30px;height:3px;background:#fa5500;display:inline-block;}
+.dashboard-hero h1 {font-size:clamp(39px,6vw,82px);font-weight:950;letter-spacing:-2.8px;line-height:1.05;margin:20px 0 15px;}
+.dashboard-hero h1 span {color:#fa5500;}
+.dashboard-hero p {color:#c4bdba;font-size:16px;margin:0 0 24px;}
+.hero-season {display:inline-flex;align-items:center;gap:12px;background:rgba(0,0,0,.35);border:1px solid #514036;border-radius:8px;padding:10px 16px;font-size:12px;letter-spacing:.6px;font-weight:850;text-transform:uppercase;}
+.hero-season span {color:#fa5500;}
+.hero-divider {height:4px;background:linear-gradient(90deg,#fa5500 0%,#fa5500 18%,#292325 18%,#292325 100%);}
+.dashboard-container {padding-top:43px;}
+.dashboard-header {padding-bottom:28px;border-bottom:1px solid #343039;}
+.dashboard-header h1 {font-size:clamp(28px,3.5vw,43px);}
+.dashboard-header h1 span,.section-heading h2 span {color:#fa5500;}
+.eyebrow {color:#ff893e;}
+.dashboard-button {display:inline-flex;align-items:center;justify-content:center;min-height:43px;letter-spacing:.5px;text-transform:uppercase;}
+.dashboard-button.primary {color:#fff;background:#fa5500;}
+.dashboard-button.secondary {background:#1b1b20;}
+.overview-card {position:relative;overflow:hidden;background:linear-gradient(150deg,#1d1d22,#121215);border:1px solid #35353d;padding:27px 25px 25px;min-height:165px;transition:transform .2s,border-color .2s;}
+.overview-card:hover {transform:translateY(-3px);border-color:#fa5500;}
+.overview-card.highlight {background:linear-gradient(120deg,#4b2415,#221719 68%,#161417);border-color:#a64720;}
+.overview-card p {display:flex;justify-content:space-between;align-items:center;color:#bfb7b2;}
+.card-symbol {color:#fa5500;font-size:22px;line-height:1;}
+.overview-card h2 {font-size:clamp(30px,3.5vw,45px);letter-spacing:-1.3px;}
+.overview-card.highlight h2 {color:#ff893e;}
+.dashboard-panel {background:linear-gradient(145deg,#1b1b20,#111115);border:1px solid #34343c;border-radius:16px;padding:28px;}
+.section-heading h2 {font-size:20px;letter-spacing:-.4px;}
+.section-badge {background:#2b2220;color:#ffac7c;border:1px solid #5b3626;letter-spacing:1px;}
+.round-select {background:#18181d;border:1px solid #454047;font-weight:800;}
+.selected-round-banner {background:linear-gradient(105deg,#4a2215,#1d191c 65%,#121215);border:1px solid #a04b2a;position:relative;overflow:hidden;}
+.selected-round-banner::after {content:"";position:absolute;right:20%;top:-55px;width:210px;height:210px;border:35px solid rgba(250,85,0,.09);border-radius:50%;pointer-events:none;}
+.selected-round-banner span,.selected-round-banner strong {color:#ff893e;}
+.selected-round-banner strong {font-size:clamp(34px,4vw,51px);letter-spacing:-1.5px;}
+.selected-round-banner h3 {font-weight:900;}
+.performance-player {background:#151519;border-color:#34343c;transition:transform .18s,border-color .18s;}
+.performance-player:hover {transform:translateX(3px);border-color:#fa5500;}
+.performance-player.captain {background:linear-gradient(100deg,#352019,#19171b);border-color:#fa5500;}
+.player-avatar {background:radial-gradient(circle at 50% 70%,#373039,#1a1a20);width:64px;height:70px;min-width:64px;}
+.player-avatar img {object-fit:contain;}
+.player-name {font-weight:900;}
+.player-calculation,.player-points strong {color:#ff893e;}
+.captain-badge {background:#fa5500;color:#fff;font-weight:950;}
+.history-table th {color:#ff893e;}
+.history-table tbody tr:hover {background:#292125;}
+.selected-history-row {background:#30211d;}
+.total-column,.history-link {color:#ff893e;}
+.trajectory-panel {margin-bottom:25px;}
+.round-chart {display:flex;gap:9px;overflow-x:auto;align-items:stretch;padding:12px 4px 5px;scrollbar-color:#fa5500 #19191d;}
+.chart-column {flex:1 0 35px;min-width:35px;max-width:95px;display:flex;flex-direction:column;align-items:center;gap:9px;text-decoration:none;color:#aaa6a3;}
+.chart-value {font-size:10px;font-weight:850;color:#c5b9b2;white-space:nowrap;}
+.chart-track {height:155px;width:100%;display:flex;align-items:flex-end;border-radius:5px 5px 0 0;background:linear-gradient(0deg,#211b1b,#17171b);overflow:hidden;border-bottom:1px solid #484047;}
+.chart-bar {display:block;width:100%;min-height:3px;background:linear-gradient(0deg,#ad3700,#fa5500 70%,#ff9d65);border-radius:5px 5px 0 0;transition:filter .2s;}
+.chart-column:hover .chart-bar,.chart-column.active .chart-bar {filter:brightness(1.4);}
+.chart-column.active .chart-track {outline:1px solid #ff893e;outline-offset:2px;}
+.chart-round {font-size:10px;font-weight:850;color:#bdb4ae;}
+.chart-column.active .chart-round {color:#ff893e;}
+@media(max-width:650px) {
+ .dashboard-hero-inner {padding:52px 18px 56px;}
+ .dashboard-hero h1 {letter-spacing:-1.5px;}
+ .dashboard-container {padding:26px 15px 60px;}
+ .dashboard-panel {padding:18px;}
+ .overview-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+ .overview-card {min-height:140px;padding:18px 14px;}
+ .overview-card h2 {font-size:clamp(24px,6vw,35px);}
+ .overview-card p {font-size:10px;}
+ .chart-track {height:120px;}
+}
+@media(max-width:370px) {.overview-grid {grid-template-columns:1fr;}}
+@media(prefers-reduced-motion:reduce) {*,*::before,*::after {transition:none!important;scroll-behavior:auto!important;}}

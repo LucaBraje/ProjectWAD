@@ -12,14 +12,22 @@
         rel="stylesheet"
     >
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/fantasy_dashboard.css') }}"
-    >
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fantasy_dashboard.css') }}">
 </head>
 
-<body>
+<body class="fantasy-dashboard-page">
+{% include 'navbar.html' %}
 
+<header class="dashboard-hero">
+    <div class="dashboard-hero-inner">
+        <div class="hero-kicker"><i></i> DRAFT EUROLEAGUE / FANTASY MODE</div>
+        <h1>THE ROAD TO <span>GREATNESS.</span></h1>
+        <p>Every round matters. Every point counts. Track your legacy.</p>
+        <div class="hero-season">{{ squad.name }} <span>·</span> {{ season.name }}</div>
+    </div>
+</header>
+<div class="hero-divider" aria-hidden="true"></div>
 <main class="dashboard-container">
 
     <!-- ================================================= -->
@@ -29,17 +37,14 @@
     <header class="dashboard-header">
 
         <div>
-            <p class="eyebrow">DRAFT EUROLEAGUE · FANTASY MODE</p>
-
+            <p class="eyebrow">YOUR FRANCHISE / PERFORMANCE CENTER</p>
             <h1>FANTASY <span>DASHBOARD</span></h1>
-
-            <p class="subtitle">
-                {{ squad.name }} · {{ season.name }}
-            </p>
+            <p class="subtitle">Season statistics, official scores, and your round-by-round journey.</p>
         </div>
 
         <div class="header-actions">
 
+            <a href="{{ url_for('schedule') }}" class="dashboard-button secondary">Season Schedule ↗</a>
             <a
                 href="{{ url_for('fantasy') }}"
                 class="dashboard-button secondary"
@@ -82,7 +87,7 @@
 
         <div class="overview-card highlight">
 
-            <p>SEASON POINTS</p>
+            <p>SEASON POINTS <span class="card-symbol">★</span></p>
 
             <h2>
                 {{ "%.2f"|format(season_total) }}
@@ -95,7 +100,7 @@
 
         <div class="overview-card">
 
-            <p>LATEST ROUND</p>
+            <p>LATEST ROUND <span class="card-symbol">↗</span></p>
 
             <h2>
                 {% if latest_round %}
@@ -112,7 +117,7 @@
 
         <div class="overview-card">
 
-            <p>LATEST ROUND SCORE</p>
+            <p>LATEST ROUND SCORE <span class="card-symbol">◈</span></p>
 
             <h2>
                 {% if latest_round %}
@@ -129,7 +134,7 @@
 
         <div class="overview-card">
 
-            <p>ROUNDS COMPLETED</p>
+            <p>ROUNDS COMPLETED <span class="card-symbol">◷</span></p>
 
             <h2>
                 {{ completed_rounds }}
@@ -143,6 +148,35 @@
     </section>
 
 
+    {% if round_history %}
+    <section class="dashboard-panel trajectory-panel" aria-label="Fantasy points by round">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">SEASON ANALYTICS</p>
+                <h2>THE <span>POINTS TRAJECTORY</span></h2>
+                <p>Round-by-round scoring. Select any bar to inspect that round.</p>
+            </div>
+            <span class="section-badge">{{ completed_rounds }} / 38 ROUNDS</span>
+        </div>
+        {% set chart = namespace(max_points=1) %}
+        {% for item in round_history %}
+            {% if item.points > chart.max_points %}{% set chart.max_points = item.points %}{% endif %}
+        {% endfor %}
+        <div class="round-chart" role="group" aria-label="Round score chart">
+            {% for item in round_history|reverse %}
+                <a href="{{ url_for('fantasy_dashboard', round=item.round) }}"
+                   class="chart-column {% if selected_round == item.round %}active{% endif %}"
+                   aria-label="Round {{ item.round }}: {{ '%.2f'|format(item.points) }} points"
+                   title="Round {{ item.round }} · {{ '%.2f'|format(item.points) }} points">
+                    <span class="chart-value">{{ '%.1f'|format(item.points) }}</span>
+                    <span class="chart-track"><span class="chart-bar" style="height: {{ ((item.points / chart.max_points) * 100)|round(1) }}%"></span></span>
+                    <span class="chart-round">R{{ item.round }}</span>
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
     <!-- ================================================= -->
     <!-- ROUND SELECTOR -->
     <!-- ================================================= -->
@@ -152,7 +186,7 @@
         <div class="section-heading">
 
             <div>
-                <h2>ROUND PERFORMANCE</h2>
+                <h2>ROUND <span>PERFORMANCE</span></h2>
                 <p>Review your team's official Fantasy results.</p>
             </div>
 
@@ -196,7 +230,7 @@
             <div class="selected-round-banner">
 
                 <div>
-                    <span>ROUND {{ selected_round }}</span>
+                    <span>● OFFICIAL RESULT / ROUND {{ selected_round }}</span>
                     <h3>Official Fantasy Score</h3>
                 </div>
 
@@ -240,7 +274,7 @@
             <div class="section-heading">
 
                 <div>
-                    <h2>STARTING FIVE</h2>
+                    <h2>STARTING <span>FIVE</span></h2>
                     <p>Full points · Captain earns double</p>
                 </div>
 
@@ -326,7 +360,7 @@
             <div class="section-heading">
 
                 <div>
-                    <h2>BENCH</h2>
+                    <h2>THE <span>BENCH</span></h2>
                     <p>Bench players earn 50% of their points.</p>
                 </div>
 
@@ -408,7 +442,7 @@
         <div class="section-heading">
 
             <div>
-                <h2>ROUND HISTORY</h2>
+                <h2>ROUND <span>HISTORY</span></h2>
                 <p>Your Fantasy journey through the season.</p>
             </div>
 

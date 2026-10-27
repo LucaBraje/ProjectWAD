@@ -24,7 +24,8 @@
                 <a class="nav-link {% if request.endpoint == 'draft' %}active{% endif %}"
                     href="{{ url_for('draft_mode') }}"> Draft</a>
 
-                <span class="nav-link nav-link-soon" title="Fantasy mode is coming soon">Fantasy <small>SOON</small></span>
+                <a class="nav-link {% if request.endpoint == 'fantasy' %}active{% endif %}"
+   href="{{ url_for('fantasy') }}">Fantasy</a>
                 
 <a class="nav-link {% if request.endpoint == 'other_games' %}active{% endif %}"
    href="{{ url_for('other_games') }}">Others</a>

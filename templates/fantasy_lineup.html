@@ -16,91 +16,15 @@
         href="{{ url_for('static', filename='css/fantasy.css') }}"
     >
 
-    <style>
-        .lineup-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 20px;
-        }
-
-        .lineup-player {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            padding: 15px;
-            background: #1b2c42;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            margin-bottom: 12px;
-        }
-
-        .lineup-player strong {
-            display: block;
-            font-size: 15px;
-        }
-
-        .lineup-player small {
-            color: #94a3b8;
-        }
-
-        .lineup-player label {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            white-space: nowrap;
-            cursor: pointer;
-        }
-
-        .lineup-player input {
-            accent-color: #f59e0b;
-        }
-
-        .lineup-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .lineup-player.is-starter {
-            border-color: #f59e0b;
-        }
-
-        .lineup-player.is-captain {
-            background: #27371f;
-        }
-
-        .lineup-status {
-            color: #fbbf24;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 850px) {
-            .lineup-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fantasy_lineup.css') }}">
 </head>
 
-<body>
+<body class="fantasy-lineup-page">
+{% include "navbar.html" %}
 
-<main class="fantasy-container">
-
-    <header class="fantasy-header">
-        <p class="fantasy-eyebrow">DRAFT EUROLEAGUE</p>
-        <h1>MY <span>LINEUP</span></h1>
-
-        <p>
-            Choose your starting five and captain for Round
-            {{ week.week_number }}.
-        </p>
-
-        <div class="fantasy-season">
-            {{ season.name }} · Round {{ week.week_number }}
-        </div>
-    </header>
+<header class="lineup-hero"><div class="lineup-hero-inner"><div class="lineup-eyebrow">DRAFT EUROLEAGUE / FANTASY MODE</div><h1>OWN THE <span>COURT.</span></h1><p>Build your starting five. Choose your captain. Chase the points.</p><div class="lineup-hero-progress"><span>{{ season.name }}</span><span>ROUND {{ week.week_number }} / 38</span></div></div></header>
+<main class="fantasy-container lineup-shell">
 
     <p>
         <a href="{{ url_for('fantasy') }}" class="btn btn-outline-light">
@@ -116,7 +40,7 @@
         {% endfor %}
     {% endwith %}
 
-    <div class="lineup-status">
+    <div class="lineup-status {{ 'is-open' if editable else 'is-locked' }}">
         {% if editable %}
             Lineup open — changes are allowed.
         {% else %}
@@ -137,25 +61,16 @@
         >
 
         <div class="lineup-grid">
-
-            <section class="fantasy-panel">
-                <div class="panel-heading">
-                    <h2>Starting Five</h2>
-                    <p>One player per position.</p>
-                </div>
-
-                <div id="starters-container"></div>
+            <section class="fantasy-panel court-panel">
+                <div class="panel-heading"><div class="lineup-eyebrow">THE FIRST UNIT</div><h2>STARTING FIVE</h2><p>One player per position · Captain scores 2×</p></div>
+                <div class="tactical-court"><div class="court-center-circle"></div><div class="court-key"></div><div class="court-arc"></div><div class="court-hoop"></div><div id="starters-container" class="court-players"></div></div>
+                <p class="court-caption">TAP A PLAYER TO SET YOUR CAPTAIN OR MOVE THEM TO THE BENCH</p>
             </section>
-
-            <section class="fantasy-panel">
-                <div class="panel-heading">
-                    <h2>Bench</h2>
-                    <p>Bench players earn 50% of their points.</p>
-                </div>
-
-                <div id="bench-container"></div>
+            <section class="fantasy-panel bench-panel">
+                <div class="panel-heading"><div class="lineup-eyebrow">THE SECOND UNIT</div><h2>YOUR BENCH</h2><p>Bench players earn 50% of their Fantasy points.</p></div>
+                <div id="bench-container" class="bench-players"></div>
+                <div class="lineup-explainer"><strong>THE RULES</strong><p>Five starters, one at each position. One captain. Swapping a starter automatically moves the other player at that position to the bench.</p></div>
             </section>
-
         </div>
 
         <p id="lineup-error" class="squad-warning"></p>
@@ -163,8 +78,8 @@
         {% if editable %}
             <button
                 type="submit"
-                class="save-squad-button"
-                style="margin-top: 20px;"
+                class="save-squad-button lineup-save"
+                
             >
                 Save Starting Five & Captain
             </button>
@@ -182,7 +97,8 @@
             name: {{ player.name | tojson }},
             position: {{ player.position | tojson }},
             team: {{ player.team.name | tojson }},
-            rating: {{ (player.rating or 70) | tojson }}
+            rating: {{ (player.rating or 70) | tojson }},
+            picture_url: {{ player.picture_url | tojson }}
         }{% if not loop.last %},{% endif %}
         {% endfor %}
     ];

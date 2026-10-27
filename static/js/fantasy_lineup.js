@@ -80,7 +80,16 @@ function createPlayerCard(player) {
         (isCaptain ? " is-captain" : "")
     );
 
-    const info = createElement("div");
+    const photo = createElement("div", "lineup-photo");
+    if (player.picture_url) {
+        const image = document.createElement("img");
+        image.src = /^(https?:\/\/|\/)/i.test(player.picture_url) ? player.picture_url : "/static/" + player.picture_url.replace(/^static\//, "");
+        image.alt = player.name;
+        image.loading = "lazy";
+        image.onerror = () => image.remove();
+        photo.appendChild(image);
+    }
+    const info = createElement("div", "lineup-player-info");
 
     info.appendChild(
         createElement("strong", "", player.name)
@@ -138,7 +147,9 @@ function createPlayerCard(player) {
         actions.appendChild(captainLabel);
     }
 
-    card.append(info, actions);
+    const badge = createElement("span", "lineup-ovr", String(player.rating));
+    card.append(photo, badge, info, actions);
+    if (isCaptain) card.append(createElement("span", "captain-badge", "C ×2"));
 
     return card;
 }
@@ -173,20 +184,19 @@ function renderLineup() {
             position
         );
 
-        startersContainer.appendChild(starterHeading);
-        benchContainer.appendChild(benchHeading);
-
+        const courtSlot = createElement("div", "court-slot court-slot-" + position.toLowerCase());
+        courtSlot.appendChild(starterHeading);
         if (starter) {
-            startersContainer.appendChild(createPlayerCard(starter));
+            courtSlot.appendChild(createPlayerCard(starter));
         } else {
-            startersContainer.appendChild(
-                createElement("p", "empty-position", "No starter selected")
-            );
+            courtSlot.appendChild(createElement("p", "empty-position", "Choose a " + position));
         }
+        startersContainer.appendChild(courtSlot);
 
-        if (bench) {
-            benchContainer.appendChild(createPlayerCard(bench));
-        }
+        const benchSlot = createElement("div", "bench-slot");
+        benchSlot.appendChild(benchHeading);
+        if (bench) benchSlot.appendChild(createPlayerCard(bench));
+        benchContainer.appendChild(benchSlot);
     }
 
     const valid = starters.size === 5 &&
