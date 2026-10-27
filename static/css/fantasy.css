@@ -1,0 +1,293 @@
+/* ============================================================
+   FANTASY MODE
+   ============================================================ */
+
+body {
+    background: #080d18;
+    color: #f8fafc;
+}
+
+.fantasy-container {
+    max-width: 1450px;
+    margin: 0 auto;
+    padding: 45px 25px 90px;
+}
+
+.fantasy-header {
+    margin-bottom: 35px;
+}
+
+.fantasy-eyebrow {
+    color: #f59e0b;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 3px;
+}
+
+.fantasy-header h1 {
+    font-size: clamp(36px, 5vw, 60px);
+    font-weight: 900;
+    letter-spacing: -2px;
+}
+
+.fantasy-header h1 span {
+    color: #f59e0b;
+}
+
+.fantasy-header p {
+    color: #94a3b8;
+}
+
+.fantasy-season {
+    display: inline-block;
+    padding: 9px 15px;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #fbbf24;
+    font-weight: 700;
+}
+
+.fantasy-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+.summary-card,
+.fantasy-panel {
+    background: #111b2c;
+    border: 1px solid #25334b;
+    border-radius: 14px;
+}
+
+.summary-card {
+    padding: 23px;
+}
+
+.summary-card span {
+    display: block;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.summary-card strong {
+    display: block;
+    margin-top: 10px;
+    font-size: 28px;
+    color: #fbbf24;
+}
+
+.fantasy-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(320px, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.fantasy-panel {
+    padding: 24px;
+}
+
+.panel-heading {
+    margin-bottom: 22px;
+}
+
+.panel-heading h2 {
+    font-size: 23px;
+    font-weight: 800;
+}
+
+.panel-heading p {
+    color: #94a3b8;
+    margin-bottom: 0;
+}
+
+.fantasy-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.fantasy-filters input,
+.fantasy-filters select {
+    min-width: 0;
+    width: 100%;
+    padding: 12px;
+    background: #0b1321;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: white;
+}
+
+.player-market {
+    max-height: 700px;
+    overflow-y: auto;
+}
+
+.market-player {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 15px;
+    border-bottom: 1px solid #25334b;
+}
+
+.market-player.selected {
+    background: #172e2b;
+}
+
+.market-player-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.player-name {
+    font-size: 15px;
+}
+
+.player-details {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.market-player-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.player-price {
+    color: #fbbf24;
+}
+
+.select-player-button {
+    padding: 8px 13px;
+    border: none;
+    border-radius: 7px;
+    background: #f59e0b;
+    color: #111827;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.select-player-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.selected .select-player-button {
+    background: #ef4444;
+    color: white;
+}
+
+.squad-panel {
+    position: sticky;
+    top: 20px;
+}
+
+.position-group {
+    margin-bottom: 22px;
+}
+
+.position-heading {
+    font-size: 14px;
+    color: #fbbf24;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.squad-player,
+.empty-position {
+    padding: 12px;
+    margin-bottom: 7px;
+    border-radius: 7px;
+}
+
+.squad-player {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #1b2c42;
+    font-size: 13px;
+}
+
+.empty-position {
+    border: 1px dashed #334155;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.remove-player-button {
+    border: none;
+    background: transparent;
+    color: #f87171;
+    font-size: 23px;
+    cursor: pointer;
+}
+
+.save-squad-button {
+    width: 100%;
+    padding: 15px;
+    background: #f59e0b;
+    color: #111827;
+    border: none;
+    border-radius: 8px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.save-squad-button:disabled {
+    background: #475569;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.squad-warning {
+    margin-top: 14px;
+    color: #f87171;
+    font-size: 13px;
+}
+
+.locked-message {
+    padding: 14px;
+    background: #3b2424;
+    color: #fca5a5;
+    border-radius: 8px;
+}
+
+.empty-market {
+    padding: 20px;
+    color: #94a3b8;
+}
+
+@media (max-width: 950px) {
+    .fantasy-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .squad-panel {
+        position: static;
+    }
+}
+
+@media (max-width: 650px) {
+    .fantasy-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .fantasy-filters {
+        flex-direction: column;
+    }
+
+    .market-player {
+        flex-wrap: wrap;
+    }
+}

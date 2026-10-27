@@ -20,13 +20,22 @@ from datetime import datetime, timezone
 from sqlalchemy import func
 import random
 from uuid import uuid4
-
+from services.basketball_simulator import simulate_game
+from flask import session
+import secrets
+import hmac
 from flask import request, jsonify
 from sqlalchemy.exc import IntegrityError
 from basketball_grid_backend import register_basketball_grid
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "development-only-change-me")
+# Allow full-season resets only when explicitly enabled.
+# Set ALLOW_SEASON_RESET=1 in your local development environment.
+# Leave it unset in production.
+app.config["ALLOW_SEASON_RESET"] = (
+    os.environ.get("ALLOW_SEASON_RESET", "0") == "1"
+)
 # SQLite database
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///draft_euroleague.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -182,6 +191,69 @@ class SimulationGame(db.Model):
         ),
     )
 
+
+# ============================================================
+# FICTIONAL EUROLEAGUE - PLAYER GAME STATISTICS
+# ============================================================
+
+class SimulationPlayerStats(db.Model):
+    __tablename__ = "simulation_player_stats"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    game_id = db.Column(
+        db.Integer,
+        db.ForeignKey("simulation_game.id"),
+        nullable=False
+    )
+
+    player_id = db.Column(
+        db.Integer,
+        db.ForeignKey("player.id"),
+        nullable=False
+    )
+
+    team_id = db.Column(
+        db.Integer,
+        db.ForeignKey("team.id"),
+        nullable=False
+    )
+
+    minutes = db.Column(db.Float, nullable=False, default=0)
+
+    points = db.Column(db.Integer, nullable=False, default=0)
+    rebounds = db.Column(db.Integer, nullable=False, default=0)
+    assists = db.Column(db.Integer, nullable=False, default=0)
+    steals = db.Column(db.Integer, nullable=False, default=0)
+    blocks = db.Column(db.Integer, nullable=False, default=0)
+    turnovers = db.Column(db.Integer, nullable=False, default=0)
+
+    field_goals_made = db.Column(
+        db.Integer, nullable=False, default=0
+    )
+
+    field_goals_attempted = db.Column(
+        db.Integer, nullable=False, default=0
+    )
+
+    fantasy_points = db.Column(
+        db.Float, nullable=False, default=0
+    )
+
+    player = db.relationship("Player")
+    team = db.relationship("Team")
+    game = db.relationship(
+        "SimulationGame",
+        backref=db.backref("player_stats", lazy=True)
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "game_id",
+            "player_id",
+            name="uq_simulation_game_player"
+        ),
+    )
 #Legends
 class Legend(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -298,6 +370,202 @@ class User(UserMixin, db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
+
+
+# ============================================================
+# FANTASY MODE - DATABASE MODELS
+# ============================================================
+
+class FantasySquad(db.Model):
+    __tablename__ = "fantasy_squad"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        nullable=False
+    )
+
+    season_id = db.Column(
+        db.Integer,
+        db.ForeignKey("simulation_season.id"),
+        nullable=False
+    )
+
+    name = db.Column(
+        db.String(100),
+        nullable=False,
+        default="My Fantasy Team"
+    )
+
+    budget_remaining = db.Column(
+        db.Integer,
+        nullable=False,
+        default=10000
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc)
+    )
+
+    user = db.relationship("User")
+    season = db.relationship("SimulationSeason")
+
+    players = db.relationship(
+        "FantasySquadPlayer",
+        backref="squad",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "user_id",
+            "season_id",
+            name="uq_fantasy_user_season"
+        ),
+    )
+
+
+class FantasySquadPlayer(db.Model):
+    __tablename__ = "fantasy_squad_player"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    squad_id = db.Column(
+        db.Integer,
+        db.ForeignKey("fantasy_squad.id"),
+        nullable=False
+    )
+
+    player_id = db.Column(
+        db.Integer,
+        db.ForeignKey("player.id"),
+        nullable=False
+    )
+
+    # Price stored in hundredths of a million.
+    # Example: 12.50M = 1250
+    purchase_price = db.Column(
+        db.Integer,
+        nullable=False
+    )
+
+    player = db.relationship("Player")
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "squad_id",
+            "player_id",
+            name="uq_fantasy_squad_player"
+        ),
+    )
+
+
+class FantasyRoundLineup(db.Model):
+    __tablename__ = "fantasy_round_lineup"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    squad_id = db.Column(
+        db.Integer,
+        db.ForeignKey("fantasy_squad.id"),
+        nullable=False
+    )
+
+    week_id = db.Column(
+        db.Integer,
+        db.ForeignKey("simulation_week.id"),
+        nullable=False
+    )
+
+    player_id = db.Column(
+        db.Integer,
+        db.ForeignKey("player.id"),
+        nullable=False
+    )
+
+    is_starter = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=False
+    )
+
+    is_captain = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=False
+    )
+
+    squad = db.relationship("FantasySquad")
+    week = db.relationship("SimulationWeek")
+    player = db.relationship("Player")
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "squad_id",
+            "week_id",
+            "player_id",
+            name="uq_fantasy_lineup_player"
+        ),
+    )
+
+
+# ============================================================
+# FANTASY MODE - ROUND SCORES
+# ============================================================
+
+class FantasyRoundScore(db.Model):
+    __tablename__ = "fantasy_round_score"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    squad_id = db.Column(
+        db.Integer,
+        db.ForeignKey("fantasy_squad.id"),
+        nullable=False
+    )
+
+    week_id = db.Column(
+        db.Integer,
+        db.ForeignKey("simulation_week.id"),
+        nullable=False
+    )
+
+    # Store points as hundredths to avoid rounding errors.
+    # Example: 12345 = 123.45 Fantasy points.
+    total_points = db.Column(
+        db.Integer,
+        nullable=False,
+        default=0
+    )
+
+    calculated_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+
+    squad = db.relationship(
+        "FantasySquad",
+        backref=db.backref(
+            "round_scores",
+            lazy=True,
+            cascade="all, delete-orphan"
+        )
+    )
+
+    week = db.relationship("SimulationWeek")
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "squad_id",
+            "week_id",
+            name="uq_fantasy_squad_week_score"
+        ),
+    )
 
 
 # =====================================================
@@ -593,6 +861,34 @@ def admin_required(f):
         return f(*args, **kwargs)
 
     return decorated_function
+
+# ============================================================
+# ADMIN FORM CSRF PROTECTION
+# ============================================================
+
+def admin_form_token():
+    if "admin_form_token" not in session:
+        session["admin_form_token"] = secrets.token_urlsafe(32)
+
+    return session["admin_form_token"]
+
+
+@app.context_processor
+def inject_admin_form_token():
+    return {"admin_form_token": admin_form_token}
+
+
+def valid_admin_form_token():
+    expected = session.get("admin_form_token")
+    submitted = request.form.get("csrf_token", "")
+
+    return bool(
+        expected
+        and hmac.compare_digest(expected, submitted)
+    )
+
+
+
 
 # HOMEPAGE
 @app.route("/")
@@ -928,6 +1224,1535 @@ def admin_delete_player(player_id):
     return redirect(url_for("admin_players"))
 
 
+# ============================================================
+# ADMIN - FICTIONAL SEASON MANAGEMENT
+# ============================================================
+
+@app.route("/admin/schedule")
+@admin_required
+def admin_schedule():
+
+    season = SimulationSeason.query.filter_by(
+    status="active"
+).first()
+
+# If there is no active season, display the most recently
+# completed season instead of an empty dashboard.
+    if season is None:
+        season = (
+            SimulationSeason.query
+            .filter_by(status="completed")
+            .order_by(SimulationSeason.id.desc())
+            .first()
+        )
+
+    if season is None:
+        return render_template(
+            "admin_schedule.html",
+            season=None,
+            week=None,
+            games=[],
+            completed_weeks=0,
+            total_weeks=38
+        )
+
+    week = SimulationWeek.query.filter_by(
+        season_id=season.id,
+        week_number=season.current_week
+    ).first()
+
+    games = []
+
+    if week is not None:
+        games = (
+            SimulationGame.query
+            .filter_by(week_id=week.id)
+            .order_by(SimulationGame.id)
+            .all()
+        )
+
+    completed_weeks = SimulationWeek.query.filter_by(
+        season_id=season.id,
+        status="finalized"
+    ).count()
+
+    return render_template(
+        "admin_schedule.html",
+        season=season,
+        week=week,
+        games=games,
+        completed_weeks=completed_weeks,
+        total_weeks=38
+    )
+
+
+# ============================================================
+# ADMIN - LOCK CURRENT ROUND AND FANTASY LINEUPS
+# ============================================================
+
+@app.route("/admin/schedule/lock", methods=["POST"])
+@admin_required
+def admin_schedule_lock():
+
+    # --------------------------------------------------------
+    # 1. CSRF PROTECTION
+    # --------------------------------------------------------
+
+    if not valid_admin_form_token():
+        abort(400, description="Invalid form security token.")
+
+    # --------------------------------------------------------
+    # 2. FIND ACTIVE SEASON
+    # --------------------------------------------------------
+
+    season = SimulationSeason.query.filter_by(
+        status="active"
+    ).first()
+
+    if season is None:
+        flash("No active season found.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    # --------------------------------------------------------
+    # 3. FIND CURRENT ROUND
+    # --------------------------------------------------------
+
+    week = SimulationWeek.query.filter_by(
+        season_id=season.id,
+        week_number=season.current_week
+    ).first()
+
+    if week is None:
+        flash("Current round was not found.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    # --------------------------------------------------------
+    # 4. CHECK ROUND STATUS
+    # --------------------------------------------------------
+
+    if week.status != "scheduled":
+        flash(
+            "This round cannot be locked in its current state.",
+            "warning"
+        )
+        return redirect(url_for("admin_schedule"))
+
+    # --------------------------------------------------------
+    # 5. VALIDATE NUMBER OF GAMES
+    # --------------------------------------------------------
+
+    games_count = SimulationGame.query.filter_by(
+        week_id=week.id
+    ).count()
+
+    if games_count != 10:
+        flash(
+            "Cannot lock this round: expected exactly 10 games.",
+            "danger"
+        )
+        return redirect(url_for("admin_schedule"))
+
+    # --------------------------------------------------------
+    # 6. LOCK FANTASY LINEUPS AND ROUND
+    # --------------------------------------------------------
+
+    try:
+
+        # Automatically create missing Fantasy lineups.
+        # Existing valid lineups are preserved.
+        fantasy_lock_round_lineups(season, week)
+
+        # Lock the current round.
+        week.status = "locked"
+
+        # Save everything in one database transaction.
+        db.session.commit()
+
+    # --------------------------------------------------------
+    # 7. HANDLE VALIDATION ERRORS
+    # --------------------------------------------------------
+
+    except ValueError as error:
+
+        db.session.rollback()
+
+        flash(
+            f"Cannot lock round: {error}",
+            "danger"
+        )
+
+        return redirect(url_for("admin_schedule"))
+
+    # --------------------------------------------------------
+    # 8. HANDLE UNEXPECTED ERRORS
+    # --------------------------------------------------------
+
+    except Exception:
+
+        db.session.rollback()
+
+        app.logger.exception(
+            "Failed to lock round and Fantasy lineups"
+        )
+
+        flash(
+            "Could not lock the round. "
+            "Check the Flask terminal for details.",
+            "danger"
+        )
+
+        return redirect(url_for("admin_schedule"))
+
+    # --------------------------------------------------------
+    # 9. SUCCESS MESSAGE
+    # --------------------------------------------------------
+
+    flash(
+        f"Round {week.week_number} has been locked successfully! "
+        f"All Fantasy lineups are now locked.",
+        "success"
+    )
+
+    return redirect(url_for("admin_schedule"))
+# ============================================================
+# ADMIN - SIMULATE CURRENT ROUND
+# ============================================================
+
+@app.route("/admin/schedule/simulate", methods=["POST"])
+@admin_required
+def admin_schedule_simulate():
+
+    if not valid_admin_form_token():
+        abort(400, description="Invalid form security token.")
+
+    season = SimulationSeason.query.filter_by(
+        status="active"
+    ).first()
+
+    if season is None:
+        flash("No active season found.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    week = SimulationWeek.query.filter_by(
+        season_id=season.id,
+        week_number=season.current_week
+    ).first()
+
+    if week is None:
+        flash("Current round not found.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    if week.status != "locked":
+        flash(
+            "You must lock the round before simulating it.",
+            "warning"
+        )
+        return redirect(url_for("admin_schedule"))
+
+    games = (
+        SimulationGame.query
+        .filter_by(week_id=week.id)
+        .order_by(SimulationGame.id)
+        .all()
+    )
+
+    if len(games) != 10:
+        flash(
+            "Simulation cancelled: expected exactly 10 games.",
+            "danger"
+        )
+        return redirect(url_for("admin_schedule"))
+
+    if any(
+        game.status != "scheduled"
+        or game.home_score is not None
+        or game.away_score is not None
+        for game in games
+    ):
+        flash(
+            "Simulation cancelled: some games already have results.",
+            "danger"
+        )
+        return redirect(url_for("admin_schedule"))
+
+    if SimulationPlayerStats.query.filter(
+        SimulationPlayerStats.game_id.in_(
+            [game.id for game in games]
+        )
+    ).first() is not None:
+        flash(
+            "Simulation cancelled: player statistics already exist.",
+            "danger"
+        )
+        return redirect(url_for("admin_schedule"))
+
+    # Load players for all participating teams.
+    team_ids = set()
+
+    for game in games:
+        team_ids.add(game.home_team_id)
+        team_ids.add(game.away_team_id)
+
+    players = Player.query.filter(
+        Player.team_id.in_(team_ids)
+    ).all()
+
+    players_by_team = {
+        team_id: []
+        for team_id in team_ids
+    }
+
+    for player in players:
+        players_by_team[player.team_id].append(player)
+
+    # Validate all rosters before saving anything.
+    for team_id, roster in players_by_team.items():
+        if len(roster) < 5:
+            team = db.session.get(Team, team_id)
+
+            flash(
+                f"Cannot simulate: {team.name} has fewer "
+                f"than 5 players.",
+                "danger"
+            )
+
+            return redirect(url_for("admin_schedule"))
+
+    try:
+        # Generate all results first.
+        # Nothing is saved until the entire round succeeds.
+        generated_results = []
+
+        for game in games:
+
+            result = simulate_game(
+                players_by_team[game.home_team_id],
+                players_by_team[game.away_team_id],
+                
+            )
+
+            generated_results.append((game, result))
+
+        # Save the game results and player performances.
+        for game, result in generated_results:
+
+            game.home_score = result["home_score"]
+            game.away_score = result["away_score"]
+            game.status = "simulated"
+
+            for team_id, key in (
+                (game.home_team_id, "home_players"),
+                (game.away_team_id, "away_players")
+            ):
+
+                for stats in result[key]:
+
+                    player_result = SimulationPlayerStats(
+                        game_id=game.id,
+                        player_id=stats["player_id"],
+                        team_id=team_id,
+                        minutes=stats["minutes"],
+                        points=stats["points"],
+                        rebounds=stats["rebounds"],
+                        assists=stats["assists"],
+                        steals=stats["steals"],
+                        blocks=stats["blocks"],
+                        turnovers=stats["turnovers"],
+                        field_goals_made=stats["field_goals_made"],
+                        field_goals_attempted=stats["field_goals_attempted"],
+                        fantasy_points=stats["fantasy_points"]
+                    )
+
+                    db.session.add(player_result)
+
+        week.status = "simulated"
+
+        db.session.commit()
+
+    except Exception:
+        db.session.rollback()
+        app.logger.exception("Round simulation failed")
+
+        flash(
+            "Simulation failed. No results were saved. "
+            "Check the Flask terminal for details.",
+            "danger"
+        )
+
+        return redirect(url_for("admin_schedule"))
+
+    flash(
+        f"Round {week.week_number} simulated successfully! "
+        f"All 10 games have results.",
+        "success"
+    )
+
+    return redirect(url_for("admin_schedule"))
+
+
+# ============================================================
+# ADMIN - REVIEW SIMULATED ROUND RESULTS
+# ============================================================
+
+@app.route("/admin/schedule/review")
+@admin_required
+def admin_schedule_review():
+
+    season = SimulationSeason.query.filter_by(
+        status="active"
+    ).first()
+
+    if season is None:
+        flash("No active season found.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    week = SimulationWeek.query.filter_by(
+        season_id=season.id,
+        week_number=season.current_week
+    ).first()
+
+    if week is None:
+        flash("Current round not found.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    if week.status not in ("simulated", "finalized"):
+        flash(
+            "Simulate the current round before reviewing results.",
+            "warning"
+        )
+        return redirect(url_for("admin_schedule"))
+
+    games = (
+        SimulationGame.query
+        .filter_by(week_id=week.id)
+        .order_by(SimulationGame.id)
+        .all()
+    )
+
+    game_data = []
+
+    for game in games:
+
+        home_stats = (
+            SimulationPlayerStats.query
+            .filter_by(
+                game_id=game.id,
+                team_id=game.home_team_id
+            )
+            .all()
+        )
+
+        away_stats = (
+            SimulationPlayerStats.query
+            .filter_by(
+                game_id=game.id,
+                team_id=game.away_team_id
+            )
+            .all()
+        )
+
+        home_stats.sort(
+            key=lambda stat: stat.points,
+            reverse=True
+        )
+
+        away_stats.sort(
+            key=lambda stat: stat.points,
+            reverse=True
+        )
+
+        game_data.append({
+            "game": game,
+            "home_stats": home_stats,
+            "away_stats": away_stats
+        })
+
+    return render_template(
+        "admin_schedule_review.html",
+        season=season,
+        week=week,
+        game_data=game_data
+    )
+
+
+# ============================================================
+# ADMIN - EDIT SIMULATED PLAYER STATISTICS
+# ============================================================
+
+@app.route(
+    "/admin/schedule/review/player/<int:stat_id>",
+    methods=["POST"]
+)
+@admin_required
+def admin_schedule_edit_player(stat_id):
+
+    if not valid_admin_form_token():
+        abort(400, description="Invalid form security token.")
+
+    stat = db.get_or_404(SimulationPlayerStats, stat_id)
+
+    game = db.get_or_404(SimulationGame, stat.game_id)
+    week = db.get_or_404(SimulationWeek, game.week_id)
+
+    season = SimulationSeason.query.filter_by(
+        status="active"
+    ).first()
+
+    if (
+        season is None
+        or week.season_id != season.id
+        or week.week_number != season.current_week
+    ):
+        abort(403)
+
+    if week.status != "simulated" or game.status != "simulated":
+        flash(
+            "Only simulated, unfinalized results can be edited.",
+            "warning"
+        )
+        return redirect(url_for("admin_schedule_review"))
+
+    fields = (
+        "points",
+        "rebounds",
+        "assists",
+        "steals",
+        "blocks",
+        "turnovers",
+        "field_goals_made",
+        "field_goals_attempted"
+    )
+
+    values = {}
+
+    try:
+        for field in fields:
+            raw_value = request.form.get(field, "")
+
+            if not raw_value.isdecimal():
+                raise ValueError(
+                    f"{field.replace('_', ' ').title()} "
+                    "must be a nonnegative integer."
+                )
+
+            value = int(raw_value)
+
+            if value > 200:
+                raise ValueError(
+                    f"{field.replace('_', ' ').title()} "
+                    "cannot exceed 200."
+                )
+
+            values[field] = value
+
+        if (
+            values["field_goals_made"]
+            > values["field_goals_attempted"]
+        ):
+            raise ValueError(
+                "Made field goals cannot exceed attempted field goals."
+            )
+
+        # Our current simulator approximates scoring rather than
+        # storing separate 2PT, 3PT and FT totals.
+        #
+        # Preserve the basic constraint that made field goals
+        # cannot account for more points than the player scored.
+
+        if values["field_goals_made"] * 2 > values["points"]:
+            raise ValueError(
+                "A player's points cannot be lower than twice "
+                "their made field goals."
+            )
+
+        old_points = stat.points
+        new_points = values["points"]
+
+        point_difference = new_points - old_points
+
+        if stat.team_id == game.home_team_id:
+            new_team_score = game.home_score + point_difference
+
+            if new_team_score < 0:
+                raise ValueError("Team score cannot be negative.")
+
+            game.home_score = new_team_score
+
+        elif stat.team_id == game.away_team_id:
+            new_team_score = game.away_score + point_difference
+
+            if new_team_score < 0:
+                raise ValueError("Team score cannot be negative.")
+
+            game.away_score = new_team_score
+
+        else:
+            abort(400, description="Player team does not match game.")
+
+        for field, value in values.items():
+            setattr(stat, field, value)
+
+        from services.basketball_simulator import (
+            calculate_fantasy_points
+        )
+
+        stat.fantasy_points = calculate_fantasy_points(values)
+
+        db.session.commit()
+
+        flash(
+            f"Updated {stat.player.name}'s performance successfully.",
+            "success"
+        )
+
+    except ValueError as error:
+
+        db.session.rollback()
+        flash(str(error), "danger")
+
+    except Exception:
+
+        db.session.rollback()
+        app.logger.exception("Failed to update player statistics")
+
+        flash(
+            "Could not save the changes. Check the Flask terminal.",
+            "danger"
+        )
+
+    return redirect(
+        url_for(
+            "admin_schedule_review",
+            _anchor=f"game-{game.id}"
+        )
+    )
+
+
+
+# ============================================================
+# ADMIN - FINALIZE CURRENT ROUND
+# ============================================================
+# ============================================================
+# FANTASY MODE - CALCULATE OFFICIAL ROUND SCORES
+# ============================================================
+
+def fantasy_calculate_round_scores(season, week, games):
+    """
+    Calculate and save Fantasy scores for every complete squad.
+
+    Called when the administrator finalizes a simulated round.
+
+    Scoring:
+        Starter = 100%
+        Bench = 50%
+        Captain = 200% (instead of the normal starter 100%)
+
+    FantasyRoundScore.total_points stores hundredths of a point.
+
+    IMPORTANT:
+    This function does NOT commit.
+    The admin finalization route commits everything together.
+    """
+
+    from decimal import Decimal, ROUND_HALF_UP
+
+    # --------------------------------------------------------
+    # 1. COLLECT ALL SIMULATED PLAYER PERFORMANCES
+    # --------------------------------------------------------
+
+    player_points = {}
+
+    for game in games:
+
+        stats = SimulationPlayerStats.query.filter_by(
+            game_id=game.id
+        ).all()
+
+        for stat in stats:
+
+            if stat.player_id in player_points:
+                raise ValueError(
+                    f"Player {stat.player_id} has multiple "
+                    f"performances in Round {week.week_number}."
+                )
+
+            if stat.fantasy_points is None:
+                raise ValueError(
+                    f"Player {stat.player_id} has no Fantasy points."
+                )
+
+            player_points[stat.player_id] = Decimal(
+                str(stat.fantasy_points)
+            )
+
+    # --------------------------------------------------------
+    # 2. FIND ALL COMPLETE FANTASY SQUADS
+    # --------------------------------------------------------
+
+    squads = FantasySquad.query.filter_by(
+        season_id=season.id
+    ).all()
+
+    scored_squads = 0
+
+    for squad in squads:
+
+        # Incomplete squads cannot participate.
+        if len(squad.players) != 10:
+            continue
+
+        # ----------------------------------------------------
+        # 3. LOAD THE LOCKED LINEUP
+        # ----------------------------------------------------
+
+        lineup = FantasyRoundLineup.query.filter_by(
+            squad_id=squad.id,
+            week_id=week.id
+        ).all()
+
+        if len(lineup) != 10:
+            raise ValueError(
+                f"Fantasy squad {squad.id} does not have "
+                f"a complete locked lineup for "
+                f"Round {week.week_number}."
+            )
+
+        starter_ids = [
+            entry.player_id
+            for entry in lineup
+            if entry.is_starter
+        ]
+
+        captain_ids = [
+            entry.player_id
+            for entry in lineup
+            if entry.is_captain
+        ]
+
+        if len(captain_ids) != 1:
+            raise ValueError(
+                f"Fantasy squad {squad.id} has "
+                f"an invalid captain."
+            )
+
+        captain_id = captain_ids[0]
+
+        # Reuse the validation function from Phase 8.3.
+        fantasy_validate_lineup(
+            squad,
+            starter_ids,
+            captain_id
+        )
+
+        # Ensure the lineup contains exactly the squad's players.
+        squad_player_ids = {
+            entry.player_id
+            for entry in squad.players
+        }
+
+        lineup_player_ids = {
+            entry.player_id
+            for entry in lineup
+        }
+
+        if (
+            len(lineup_player_ids) != 10
+            or lineup_player_ids != squad_player_ids
+        ):
+            raise ValueError(
+                f"Fantasy squad {squad.id} has "
+                f"invalid lineup players."
+            )
+
+        # ----------------------------------------------------
+        # 4. CALCULATE TOTAL FANTASY POINTS
+        # ----------------------------------------------------
+
+        total = Decimal("0")
+
+        for entry in lineup:
+
+            # A player who did not play contributes zero.
+            base_points = player_points.get(
+                entry.player_id,
+                Decimal("0")
+            )
+
+            if entry.is_captain:
+                multiplier = Decimal("2")
+
+            elif entry.is_starter:
+                multiplier = Decimal("1")
+
+            else:
+                multiplier = Decimal("0.5")
+
+            contribution = base_points * multiplier
+
+            total += contribution
+
+        # Convert to hundredths.
+        # Example: 143.75 points -> 14375.
+        total_in_hundredths = int(
+            (total * Decimal("100")).quantize(
+                Decimal("1"),
+                rounding=ROUND_HALF_UP
+            )
+        )
+
+        # ----------------------------------------------------
+        # 5. SAVE OR UPDATE THE ROUND SCORE
+        # ----------------------------------------------------
+
+        round_score = FantasyRoundScore.query.filter_by(
+            squad_id=squad.id,
+            week_id=week.id
+        ).first()
+
+        if round_score is None:
+
+            round_score = FantasyRoundScore(
+                squad_id=squad.id,
+                week_id=week.id,
+                total_points=total_in_hundredths
+            )
+
+            db.session.add(round_score)
+
+        else:
+
+            round_score.total_points = total_in_hundredths
+            round_score.calculated_at = datetime.now(
+                timezone.utc
+            )
+
+        scored_squads += 1
+
+    return scored_squads
+@app.route("/admin/schedule/finalize", methods=["POST"])
+@admin_required
+def admin_schedule_finalize():
+
+    # --------------------------------------------------------
+    # 1. CSRF PROTECTION
+    # --------------------------------------------------------
+
+    if not valid_admin_form_token():
+        abort(400, description="Invalid form security token.")
+
+    # --------------------------------------------------------
+    # 2. FIND ACTIVE SEASON
+    # --------------------------------------------------------
+
+    season = SimulationSeason.query.filter_by(
+        status="active"
+    ).first()
+
+    if season is None:
+        flash("No active season found.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    # --------------------------------------------------------
+    # 3. FIND CURRENT ROUND
+    # --------------------------------------------------------
+
+    week = SimulationWeek.query.filter_by(
+        season_id=season.id,
+        week_number=season.current_week
+    ).first()
+
+    if week is None:
+        flash("Current round not found.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    # Only simulated rounds can be finalized.
+    if week.status != "simulated":
+
+        flash(
+            "Only a simulated round can be finalized.",
+            "warning"
+        )
+
+        return redirect(url_for("admin_schedule"))
+
+    # --------------------------------------------------------
+    # 4. LOAD ALL GAMES
+    # --------------------------------------------------------
+
+    games = (
+        SimulationGame.query
+        .filter_by(week_id=week.id)
+        .order_by(SimulationGame.id)
+        .all()
+    )
+
+    if len(games) != 10:
+
+        flash(
+            "Finalization cancelled: expected exactly 10 games.",
+            "danger"
+        )
+
+        return redirect(url_for("admin_schedule"))
+
+    # --------------------------------------------------------
+    # 5. VALIDATE ALL GAME RESULTS
+    # --------------------------------------------------------
+
+    # Import the same scoring function used by the simulator.
+    from services.basketball_simulator import calculate_fantasy_points
+
+    participating_teams = set()
+
+    for game in games:
+
+        # Check that the game was simulated.
+        if game.status != "simulated":
+
+            flash(
+                "Finalization cancelled: not all games are simulated.",
+                "danger"
+            )
+
+            return redirect(url_for("admin_schedule"))
+
+        # Check that both scores exist.
+        if game.home_score is None or game.away_score is None:
+
+            flash(
+                "Finalization cancelled: a game has missing scores.",
+                "danger"
+            )
+
+            return redirect(url_for("admin_schedule"))
+
+        # Scores must be nonnegative integers.
+        if (
+            type(game.home_score) is not int
+            or type(game.away_score) is not int
+            or game.home_score < 0
+            or game.away_score < 0
+        ):
+
+            flash(
+                "Finalization cancelled: invalid game score.",
+                "danger"
+            )
+
+            return redirect(url_for("admin_schedule"))
+
+        # Basketball games cannot finish in a draw.
+        if game.home_score == game.away_score:
+
+            flash(
+                f"Finalization cancelled: "
+                f"{game.home_team.name} vs {game.away_team.name} "
+                f"is tied {game.home_score}-{game.away_score}. "
+                f"Edit the results before finalizing.",
+                "danger"
+            )
+
+            return redirect(url_for("admin_schedule"))
+
+        # A team should play exactly once per round.
+        if (
+            game.home_team_id == game.away_team_id
+            or game.home_team_id in participating_teams
+            or game.away_team_id in participating_teams
+        ):
+
+            flash(
+                "Finalization cancelled: duplicate team fixture.",
+                "danger"
+            )
+
+            return redirect(url_for("admin_schedule"))
+
+        participating_teams.add(game.home_team_id)
+        participating_teams.add(game.away_team_id)
+
+        # ----------------------------------------------------
+        # 6. LOAD PLAYER STATISTICS
+        # ----------------------------------------------------
+
+        player_stats = SimulationPlayerStats.query.filter_by(
+            game_id=game.id
+        ).all()
+
+        home_stats = []
+        away_stats = []
+        player_ids = set()
+
+        for stat in player_stats:
+
+            # Prevent duplicate player performances.
+            if stat.player_id in player_ids:
+
+                flash(
+                    "Finalization cancelled: duplicate player statistics.",
+                    "danger"
+                )
+
+                return redirect(url_for("admin_schedule"))
+
+            player_ids.add(stat.player_id)
+
+            # Player must belong to one of the competing teams.
+            if stat.team_id == game.home_team_id:
+                home_stats.append(stat)
+
+            elif stat.team_id == game.away_team_id:
+                away_stats.append(stat)
+
+            else:
+
+                flash(
+                    "Finalization cancelled: player statistics "
+                    "contain an invalid team.",
+                    "danger"
+                )
+
+                return redirect(url_for("admin_schedule"))
+
+        # Both teams must have valid player performances.
+        if len(home_stats) < 5 or len(away_stats) < 5:
+
+            flash(
+                f"Finalization cancelled: missing player statistics "
+                f"for {game.home_team.name} vs {game.away_team.name}.",
+                "danger"
+            )
+
+            return redirect(url_for("admin_schedule"))
+
+        # ----------------------------------------------------
+        # 7. VALIDATE INDIVIDUAL PLAYER STATISTICS
+        # ----------------------------------------------------
+
+        for stat in player_stats:
+
+            numeric_fields = (
+                "points",
+                "rebounds",
+                "assists",
+                "steals",
+                "blocks",
+                "turnovers",
+                "field_goals_made",
+                "field_goals_attempted"
+            )
+
+            values = {}
+
+            for field in numeric_fields:
+
+                value = getattr(stat, field)
+
+                if type(value) is not int or value < 0:
+
+                    flash(
+                        f"Finalization cancelled: invalid {field} "
+                        f"for {stat.player.name}.",
+                        "danger"
+                    )
+
+                    return redirect(url_for("admin_schedule"))
+
+                values[field] = value
+
+            # Validate shooting statistics.
+            if (
+                stat.field_goals_made
+                > stat.field_goals_attempted
+            ):
+
+                flash(
+                    f"Finalization cancelled: invalid field goals "
+                    f"for {stat.player.name}.",
+                    "danger"
+                )
+
+                return redirect(url_for("admin_schedule"))
+
+            if stat.field_goals_made * 2 > stat.points:
+
+                flash(
+                    f"Finalization cancelled: inconsistent points "
+                    f"and field goals for {stat.player.name}.",
+                    "danger"
+                )
+
+                return redirect(url_for("admin_schedule"))
+
+            # Validate minutes.
+            if (
+                stat.minutes is None
+                or not math.isfinite(stat.minutes)
+                or stat.minutes < 0
+            ):
+
+                flash(
+                    f"Finalization cancelled: invalid minutes "
+                    f"for {stat.player.name}.",
+                    "danger"
+                )
+
+                return redirect(url_for("admin_schedule"))
+
+            # Recalculate fantasy points to ensure consistency.
+            expected_fantasy_points = calculate_fantasy_points(
+                values
+            )
+
+            if (
+                stat.fantasy_points is None
+                or not math.isfinite(stat.fantasy_points)
+                or not math.isclose(
+                    stat.fantasy_points,
+                    expected_fantasy_points,
+                    abs_tol=0.01
+                )
+            ):
+
+                flash(
+                    f"Finalization cancelled: incorrect fantasy "
+                    f"points for {stat.player.name}.",
+                    "danger"
+                )
+
+                return redirect(url_for("admin_schedule"))
+
+        # ----------------------------------------------------
+        # 8. CHECK PLAYER POINTS AGAINST TEAM SCORES
+        # ----------------------------------------------------
+
+        home_total = sum(
+            stat.points for stat in home_stats
+        )
+
+        away_total = sum(
+            stat.points for stat in away_stats
+        )
+
+        if home_total != game.home_score:
+
+            flash(
+                f"Finalization cancelled: "
+                f"{game.home_team.name}'s player points "
+                f"({home_total}) do not match "
+                f"the game score ({game.home_score}).",
+                "danger"
+            )
+
+            return redirect(url_for("admin_schedule"))
+
+        if away_total != game.away_score:
+
+            flash(
+                f"Finalization cancelled: "
+                f"{game.away_team.name}'s player points "
+                f"({away_total}) do not match "
+                f"the game score ({game.away_score}).",
+                "danger"
+            )
+
+            return redirect(url_for("admin_schedule"))
+
+       # --------------------------------------------------------
+    # 9. FINALIZE RESULTS AND CALCULATE FANTASY SCORES
+    # --------------------------------------------------------
+
+    try:
+
+        # ----------------------------------------------------
+        # 9A. CALCULATE OFFICIAL FANTASY SCORES
+        # ----------------------------------------------------
+
+        # Uses the locked Fantasy lineups and approved
+        # SimulationPlayerStats.fantasy_points values.
+        #
+        # This does not commit anything yet.
+
+        scored_squads = fantasy_calculate_round_scores(
+            season,
+            week,
+            games
+        )
+
+        # ----------------------------------------------------
+        # 9B. FINALIZE ALL BASKETBALL GAMES
+        # ----------------------------------------------------
+
+        for game in games:
+            game.status = "finalized"
+
+        # ----------------------------------------------------
+        # 9C. FINALIZE THE CURRENT ROUND
+        # ----------------------------------------------------
+
+        week.status = "finalized"
+
+        # ----------------------------------------------------
+        # 9D. COMMIT EVERYTHING TOGETHER
+        # ----------------------------------------------------
+
+        # Basketball results, round status, and Fantasy scores
+        # are saved in a single database transaction.
+        #
+        # If anything fails, none of these changes are saved.
+
+        db.session.commit()
+
+    # --------------------------------------------------------
+    # 10. HANDLE FANTASY VALIDATION ERRORS
+    # --------------------------------------------------------
+
+    except ValueError as error:
+
+        db.session.rollback()
+
+        flash(
+            f"Finalization cancelled: {error}",
+            "danger"
+        )
+
+        return redirect(url_for("admin_schedule"))
+
+    # --------------------------------------------------------
+    # 11. HANDLE UNEXPECTED ERRORS
+    # --------------------------------------------------------
+
+    except Exception:
+
+        db.session.rollback()
+
+        app.logger.exception(
+            "Round finalization or Fantasy scoring failed"
+        )
+
+        flash(
+            "Finalization failed. No results or Fantasy scores "
+            "were finalized. Check the Flask terminal.",
+            "danger"
+        )
+
+        return redirect(url_for("admin_schedule"))
+
+    # --------------------------------------------------------
+    # 12. SUCCESS MESSAGE
+    # --------------------------------------------------------
+
+    flash(
+        f"Round {week.week_number} finalized successfully! "
+        f"All 10 game results and player performances "
+        f"are now approved. "
+        f"Fantasy scores calculated for "
+        f"{scored_squads} squad(s).",
+        "success"
+    )
+
+    return redirect(url_for("admin_schedule"))
+
+
+# ============================================================
+# ADMIN - ADVANCE TO NEXT ROUND
+# ============================================================
+
+# ============================================================
+# ADMIN - FANTASY-AWARE SEASON PROGRESSION AND RESETS
+# ============================================================
+
+
+def fantasy_delete_round_data(week_ids):
+    """Delete saved Fantasy results and lineup snapshots for given rounds.
+
+    The caller owns the transaction and must commit or roll back.
+    """
+    if not week_ids:
+        return
+
+    FantasyRoundScore.query.filter(
+        FantasyRoundScore.week_id.in_(week_ids)
+    ).delete(synchronize_session=False)
+
+    FantasyRoundLineup.query.filter(
+        FantasyRoundLineup.week_id.in_(week_ids)
+    ).delete(synchronize_session=False)
+
+
+@app.route("/admin/schedule/next", methods=["POST"])
+@admin_required
+def admin_schedule_next():
+    if not valid_admin_form_token():
+        abort(400, description="Invalid form security token.")
+
+    season = SimulationSeason.query.filter_by(status="active").first()
+    if season is None:
+        flash("No active season found.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    week = SimulationWeek.query.filter_by(
+        season_id=season.id,
+        week_number=season.current_week
+    ).first()
+    if week is None:
+        flash("Current round not found.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    if week.status != "finalized":
+        flash("You must finalize the current round before advancing.", "warning")
+        return redirect(url_for("admin_schedule"))
+
+    games = SimulationGame.query.filter_by(week_id=week.id).all()
+    if len(games) != 10 or any(game.status != "finalized" for game in games):
+        flash("Cannot advance: not all 10 games are finalized.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    # Finalized Fantasy squads must have an official score before advancing.
+    # Incomplete squads are not eligible and do not need a score.
+    eligible_squad_ids = [
+        squad.id
+        for squad in FantasySquad.query.filter_by(season_id=season.id).all()
+        if len(squad.players) == 10
+    ]
+    if eligible_squad_ids:
+        scored_squad_ids = {
+            score.squad_id
+            for score in FantasyRoundScore.query.filter(
+                FantasyRoundScore.week_id == week.id,
+                FantasyRoundScore.squad_id.in_(eligible_squad_ids)
+            ).all()
+        }
+        if scored_squad_ids != set(eligible_squad_ids):
+            flash(
+                "Cannot advance: official Fantasy scores are missing "
+                "for one or more complete squads.",
+                "danger"
+            )
+            return redirect(url_for("admin_schedule"))
+
+    total_weeks = SimulationWeek.query.filter_by(season_id=season.id).count()
+    if total_weeks != 38:
+        flash("Cannot advance: the season must contain 38 rounds.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    if season.current_week >= total_weeks:
+        finalized_count = SimulationWeek.query.filter_by(
+            season_id=season.id, status="finalized"
+        ).count()
+        if finalized_count != total_weeks:
+            flash("Cannot complete season: some rounds are not finalized.", "danger")
+            return redirect(url_for("admin_schedule"))
+        try:
+            # Preserve every Fantasy squad, lineup and score for season review.
+            season.status = "completed"
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            app.logger.exception("Season completion failed")
+            flash("Could not complete the season.", "danger")
+            return redirect(url_for("admin_schedule"))
+        flash(
+            f"Season {season.name} completed successfully! "
+            "All 38 rounds and Fantasy results have been preserved.",
+            "success"
+        )
+        return redirect(url_for("admin_schedule"))
+
+    next_week_number = season.current_week + 1
+    next_week = SimulationWeek.query.filter_by(
+        season_id=season.id, week_number=next_week_number
+    ).first()
+    if next_week is None or next_week.status != "scheduled":
+        flash(f"Cannot advance: Round {next_week_number} is not scheduled.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    next_games = SimulationGame.query.filter_by(week_id=next_week.id).all()
+    if len(next_games) != 10 or any(
+        game.status != "scheduled"
+        or game.home_score is not None
+        or game.away_score is not None
+        for game in next_games
+    ):
+        flash(
+            f"Cannot advance: Round {next_week_number} "
+            "has invalid or incomplete fixtures.",
+            "danger"
+        )
+        return redirect(url_for("admin_schedule"))
+
+    # A future round should not contain results or frozen Fantasy data.
+    if (
+        FantasyRoundScore.query.filter_by(week_id=next_week.id).first()
+        or FantasyRoundLineup.query.filter_by(week_id=next_week.id).first()
+    ):
+        flash("Cannot advance: the next round already has Fantasy data.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    try:
+        # Users can now edit Round N+1 lineups. The lineup page's
+        # fantasy_default_lineup() carries Round N's selection forward.
+        season.current_week = next_week_number
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        app.logger.exception("Advancing to next round failed")
+        flash("Could not advance to the next round.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    flash(
+        f"Round {week.week_number} completed! "
+        f"Round {next_week_number} is now active. "
+        "Fantasy lineups can be edited until the round locks.",
+        "success"
+    )
+    return redirect(url_for("admin_schedule"))
+
+
+@app.route("/admin/schedule/reset-round", methods=["POST"])
+@admin_required
+def admin_schedule_reset_round():
+    if not valid_admin_form_token():
+        abort(400, description="Invalid form security token.")
+
+    season = SimulationSeason.query.filter_by(status="active").first()
+    if season is None:
+        flash("No active season found.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    week = SimulationWeek.query.filter_by(
+        season_id=season.id, week_number=season.current_week
+    ).first()
+    if week is None:
+        flash("Current round not found.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    if week.status == "finalized":
+        flash(
+            "A finalized round cannot be reset individually. "
+            "Use Reset Entire Season in development mode instead.",
+            "warning"
+        )
+        return redirect(url_for("admin_schedule"))
+
+    if week.status not in ("locked", "simulated"):
+        flash("This round is already scheduled. Nothing to reset.", "warning")
+        return redirect(url_for("admin_schedule"))
+
+    if request.form.get("confirmation") != "RESET ROUND":
+        flash("Reset cancelled: incorrect confirmation.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    try:
+        games = SimulationGame.query.filter_by(week_id=week.id).all()
+        game_ids = [game.id for game in games]
+
+        # Clear Fantasy snapshots and any stale score for this round only.
+        # Earlier finalized rounds and their Fantasy results remain untouched.
+        fantasy_delete_round_data([week.id])
+
+        if game_ids:
+            SimulationPlayerStats.query.filter(
+                SimulationPlayerStats.game_id.in_(game_ids)
+            ).delete(synchronize_session=False)
+
+        for game in games:
+            game.home_score = None
+            game.away_score = None
+            game.status = "scheduled"
+
+        week.status = "scheduled"
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        app.logger.exception("Current round reset failed")
+        flash("Could not reset the current round. Check the Flask terminal.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    flash(
+        f"Round {week.week_number} reset successfully! "
+        "Its Fantasy lineups and scores were cleared; "
+        "earlier finalized rounds are unchanged.",
+        "success"
+    )
+    return redirect(url_for("admin_schedule"))
+
+
+@app.route("/admin/schedule/reset-season", methods=["POST"])
+@admin_required
+def admin_schedule_reset_season():
+    if not app.config.get("ALLOW_SEASON_RESET", False):
+        abort(403, description="Season reset is disabled.")
+
+    if not valid_admin_form_token():
+        abort(400, description="Invalid form security token.")
+
+    if request.form.get("confirmation") != "RESET SEASON":
+        flash("Reset cancelled: incorrect confirmation.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    season = SimulationSeason.query.filter_by(status="active").first()
+    if season is None:
+        season = (
+            SimulationSeason.query.filter_by(status="completed")
+            .order_by(SimulationSeason.id.desc()).first()
+        )
+    if season is None:
+        flash("No season found to reset.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    weeks = (
+        SimulationWeek.query.filter_by(season_id=season.id)
+        .order_by(SimulationWeek.week_number).all()
+    )
+    if len(weeks) != 38 or [w.week_number for w in weeks] != list(range(1, 39)):
+        flash("Reset cancelled: expected a complete 38-round season.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    games = (
+        SimulationGame.query.join(
+            SimulationWeek, SimulationGame.week_id == SimulationWeek.id
+        ).filter(SimulationWeek.season_id == season.id).all()
+    )
+    if len(games) != 380:
+        flash("Reset cancelled: expected exactly 380 fixtures.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    try:
+        # Full reset is destructive to results, but preserves user squads,
+        # purchased players, original prices and remaining budgets.
+        fantasy_delete_round_data([week.id for week in weeks])
+
+        game_ids = [game.id for game in games]
+        if game_ids:
+            SimulationPlayerStats.query.filter(
+                SimulationPlayerStats.game_id.in_(game_ids)
+            ).delete(synchronize_session=False)
+
+        for game in games:
+            game.home_score = None
+            game.away_score = None
+            game.status = "scheduled"
+
+        for week in weeks:
+            week.status = "scheduled"
+
+        season.current_week = 1
+        season.status = "active"
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        app.logger.exception("Entire season reset failed")
+        flash("Season reset failed. No changes were saved. Check the Flask terminal.", "danger")
+        return redirect(url_for("admin_schedule"))
+
+    flash(
+        f"{season.name} reset successfully! All 38 rounds are scheduled. "
+        "Fantasy squads and budgets were preserved; "
+        "old Fantasy lineups and scores were cleared.",
+        "success"
+    )
+    return redirect(url_for("admin_schedule"))
 
 
 # DATABASE-POWERED PLAYER API
@@ -3461,10 +5286,952 @@ def api_schedule(week_number):
         "games": games_data
     })
 
+# ============================================================
+# FANTASY MODE - PRICING AND SQUAD BUILDER
+# ============================================================
+
+FANTASY_BUDGET = 10000  # 100.00M
+FANTASY_POSITIONS = ("PG", "SG", "SF", "PF", "C")
 
 
+def fantasy_player_price(player):
+    """
+    Return price in hundredths of a million.
+    1250 = 12.50M.
+
+    Prices are deterministic and based on player ratings.
+    """
+    rating = max(0, min(100, player.rating or 70))
+
+    # 70 rating -> 4.00M
+    # 80 rating -> 8.00M
+    # 90 rating -> 12.00M
+    # 100 rating -> 16.00M
+    price = 400 + (rating - 70) * 40
+
+    return max(100, min(1800, price))
+
+
+def fantasy_current_season():
+    return (
+        SimulationSeason.query
+        .filter_by(status="active")
+        .order_by(SimulationSeason.id.desc())
+        .first()
+    )
+
+
+def fantasy_squad_editable(season):
+    """
+    Squad composition is editable only before Round 1 locks.
+    """
+    if season is None or season.current_week != 1:
+        return False
+
+    first_week = SimulationWeek.query.filter_by(
+        season_id=season.id,
+        week_number=1
+    ).first()
+
+    return (
+        first_week is not None
+        and first_week.status == "scheduled"
+    )
+
+
+def fantasy_validate_squad(player_ids):
+    """
+    Validate the entire squad on the server.
+    Never trust prices or restrictions sent by JavaScript.
+    """
+
+    if not isinstance(player_ids, list):
+        raise ValueError("Invalid squad data.")
+
+    if len(player_ids) != 10:
+        raise ValueError("Your squad must contain exactly 10 players.")
+
+    if any(type(player_id) is not int for player_id in player_ids):
+        raise ValueError("Player IDs must be integers.")
+
+    if len(set(player_ids)) != 10:
+        raise ValueError("You cannot select the same player twice.")
+
+    players = Player.query.filter(
+        Player.id.in_(player_ids)
+    ).all()
+
+    if len(players) != 10:
+        raise ValueError("One or more selected players do not exist.")
+
+    position_counts = {
+        position: 0
+        for position in FANTASY_POSITIONS
+    }
+
+    team_counts = {}
+    total_price = 0
+
+    for player in players:
+
+        if player.position not in position_counts:
+            raise ValueError(
+                f"{player.name} has an unsupported position."
+            )
+
+        position_counts[player.position] += 1
+
+        team_counts[player.team_id] = (
+            team_counts.get(player.team_id, 0) + 1
+        )
+
+        if team_counts[player.team_id] > 4:
+            raise ValueError(
+                "You cannot select more than 4 players "
+                "from the same club."
+            )
+
+        total_price += fantasy_player_price(player)
+
+    for position, count in position_counts.items():
+        if count != 2:
+            raise ValueError(
+                f"You must select exactly 2 {position} players."
+            )
+
+    if total_price > FANTASY_BUDGET:
+        raise ValueError(
+            "Your squad exceeds the 100M budget."
+        )
+
+    return players, total_price
+
+
+# ============================================================
+# FANTASY MODE - SQUAD BUILDER PAGE
+# ============================================================
+
+@app.route("/fantasy")
+@login_required
+def fantasy():
+
+    season = fantasy_current_season()
+
+    if season is None:
+        flash("No active Fantasy season is available.", "warning")
+        return redirect(url_for("home"))
+
+    squad = FantasySquad.query.filter_by(
+        user_id=current_user.id,
+        season_id=season.id
+    ).first()
+
+    selected_ids = []
+
+    if squad:
+        selected_ids = [
+            entry.player_id
+            for entry in squad.players
+        ]
+
+    players = (
+        Player.query
+        .order_by(Player.rating.desc(), Player.name)
+        .all()
+    )
+
+    player_data = []
+
+    for player in players:
+
+        player_data.append({
+            "id": player.id,
+            "name": player.name,
+            "position": player.position,
+            "rating": player.rating or 70,
+            "team_id": player.team_id,
+            "team": player.team.name,
+            "picture_url": player.picture_url,
+            "price": fantasy_player_price(player)
+        })
+
+    teams = Team.query.order_by(Team.name).all()
+
+    return render_template(
+        "fantasy.html",
+        season=season,
+        squad=squad,
+        players=player_data,
+        teams=teams,
+        selected_ids=selected_ids,
+        editable=fantasy_squad_editable(season),
+        budget=FANTASY_BUDGET
+    )
+
+
+# ============================================================
+# FANTASY MODE - SAVE SQUAD
+# ============================================================
+
+@app.route("/fantasy/save", methods=["POST"])
+@login_required
+def fantasy_save():
+
+    if not valid_admin_form_token():
+        abort(400, description="Invalid form security token.")
+
+    season = fantasy_current_season()
+
+    if not fantasy_squad_editable(season):
+        flash(
+            "Squad editing is closed because Round 1 "
+            "has already started.",
+            "danger"
+        )
+        return redirect(url_for("fantasy"))
+
+    try:
+
+        raw_ids = request.form.get("player_ids", "")
+
+        player_ids = [
+            int(value)
+            for value in raw_ids.split(",")
+            if value.strip()
+        ]
+
+        players, total_price = fantasy_validate_squad(
+            player_ids
+        )
+
+        squad = FantasySquad.query.filter_by(
+            user_id=current_user.id,
+            season_id=season.id
+        ).first()
+
+        if squad is None:
+
+            squad = FantasySquad(
+                user_id=current_user.id,
+                season_id=season.id,
+                name="My Fantasy Team"
+            )
+
+            db.session.add(squad)
+            db.session.flush()
+
+        else:
+
+            # A changed squad invalidates previously saved lineups.
+            FantasyRoundLineup.query.filter_by(
+                squad_id=squad.id
+            ).delete(synchronize_session=False)
+
+            squad.players.clear()
+            db.session.flush()
+
+        squad.budget_remaining = (
+            FANTASY_BUDGET - total_price
+        )
+
+        for player in players:
+
+            entry = FantasySquadPlayer(
+                squad_id=squad.id,
+                player_id=player.id,
+                purchase_price=fantasy_player_price(player)
+            )
+
+            squad.players.append(entry)
+
+        db.session.commit()
+
+        flash(
+            "Your Fantasy squad was saved successfully!",
+            "success"
+        )
+
+    except (ValueError, TypeError) as error:
+
+        db.session.rollback()
+        flash(str(error), "danger")
+
+    except Exception:
+
+        db.session.rollback()
+        app.logger.exception("Failed to save Fantasy squad")
+
+        flash(
+            "Could not save your Fantasy squad.",
+            "danger"
+        )
+
+    return redirect(url_for("fantasy"))
+# ============================================================
+# FANTASY MODE - STARTING FIVE AND CAPTAIN
+# ============================================================
+
+def fantasy_get_lineup(squad, week):
+    """Return the saved lineup for a particular round."""
+    return (
+        FantasyRoundLineup.query
+        .filter_by(squad_id=squad.id, week_id=week.id)
+        .all()
+    )
+
+
+def fantasy_lineup_editable(season, week):
+    """Lineups can only be edited before the current round locks."""
+    return (
+        season.status == "active"
+        and week.week_number == season.current_week
+        and week.status == "scheduled"
+    )
+
+# ============================================================
+# FANTASY MODE - AUTOMATIC LINEUP SNAPSHOTS
+# ============================================================
+
+def fantasy_lock_round_lineups(season, week):
+    """
+    Ensure every complete Fantasy squad has a saved lineup
+    before the administrator locks the round.
+
+    Existing valid lineups are preserved.
+    Missing lineups are created automatically.
+
+    Changes are committed by the calling admin route.
+    """
+
+    squads = FantasySquad.query.filter_by(
+        season_id=season.id
+    ).all()
+
+    for squad in squads:
+
+        # Only complete squads can participate.
+        if len(squad.players) != 10:
+            continue
+
+        existing = fantasy_get_lineup(squad, week)
+
+        if existing:
+            # Do not silently overwrite incomplete or invalid
+            # lineups. Abort the entire lock operation instead.
+            if len(existing) != 10:
+                raise ValueError(
+                    f"Squad {squad.id} has an incomplete lineup."
+                )
+
+            starter_ids = [
+                entry.player_id
+                for entry in existing
+                if entry.is_starter
+            ]
+
+            captain_ids = [
+                entry.player_id
+                for entry in existing
+                if entry.is_captain
+            ]
+
+            if len(captain_ids) != 1:
+                raise ValueError(
+                    f"Squad {squad.id} has an invalid captain."
+                )
+
+            fantasy_validate_lineup(
+                squad,
+                starter_ids,
+                captain_ids[0]
+            )
+
+            existing_ids = {
+                entry.player_id for entry in existing
+            }
+
+            squad_ids = {
+                entry.player_id for entry in squad.players
+            }
+
+            if existing_ids != squad_ids:
+                raise ValueError(
+                    f"Squad {squad.id} contains invalid lineup players."
+                )
+
+            continue
+
+        # No lineup saved: generate a default.
+        starter_ids, captain_id = fantasy_default_lineup(
+            squad,
+            week
+        )
+
+        fantasy_validate_lineup(
+            squad,
+            list(starter_ids),
+            captain_id
+        )
+
+        for entry in squad.players:
+
+            db.session.add(
+                FantasyRoundLineup(
+                    squad_id=squad.id,
+                    week_id=week.id,
+                    player_id=entry.player_id,
+                    is_starter=entry.player_id in starter_ids,
+                    is_captain=entry.player_id == captain_id
+                )
+            )
+
+def fantasy_default_lineup(squad, week):
+    """
+    For a new round, use the previous round's lineup.
+    For Round 1, choose the first player at each position.
+    """
+    squad_players = [entry.player for entry in squad.players]
+    squad_ids = {player.id for player in squad_players}
+
+    previous_week = None
+
+    if week.week_number > 1:
+        previous_week = SimulationWeek.query.filter_by(
+            season_id=week.season_id,
+            week_number=week.week_number - 1
+        ).first()
+
+    if previous_week:
+        previous_lineup = fantasy_get_lineup(squad, previous_week)
+
+        if len(previous_lineup) == 10:
+            previous_ids = {
+                entry.player_id for entry in previous_lineup
+            }
+
+            starters = {
+                entry.player_id
+                for entry in previous_lineup
+                if entry.is_starter
+            }
+
+            captains = [
+                entry.player_id
+                for entry in previous_lineup
+                if entry.is_captain
+            ]
+
+            if (
+                previous_ids == squad_ids
+                and len(starters) == 5
+                and len(captains) == 1
+                and captains[0] in starters
+            ):
+                return starters, captains[0]
+
+    starters = set()
+
+    for position in ("PG", "SG", "SF", "PF", "C"):
+        candidates = [
+            player for player in squad_players
+            if player.position == position
+        ]
+
+        if not candidates:
+            raise ValueError(
+                f"Your squad has no {position} player."
+            )
+
+        best_player = max(
+            candidates,
+            key=lambda player: player.rating or 0
+        )
+
+        starters.add(best_player.id)
+
+    captain_id = max(
+        (player for player in squad_players if player.id in starters),
+        key=lambda player: player.rating or 0
+    ).id
+
+    return starters, captain_id
+
+
+def fantasy_validate_lineup(squad, starter_ids, captain_id):
+    """Validate the lineup entirely on the server."""
+
+    if len(starter_ids) != 5 or len(set(starter_ids)) != 5:
+        raise ValueError("Select exactly five different starters.")
+
+    squad_players = [entry.player for entry in squad.players]
+
+    if len(squad_players) != 10:
+        raise ValueError("Complete your 10-player squad first.")
+
+    players_by_id = {
+        player.id: player for player in squad_players
+    }
+
+    if not set(starter_ids).issubset(players_by_id):
+        raise ValueError("A starter does not belong to your squad.")
+
+    positions = [
+        players_by_id[player_id].position
+        for player_id in starter_ids
+    ]
+
+    if set(positions) != {"PG", "SG", "SF", "PF", "C"}:
+        raise ValueError(
+            "Your starting five must contain one player per position."
+        )
+
+    if captain_id not in starter_ids:
+        raise ValueError("Your captain must be a starter.")
+
+
+@app.route("/fantasy/lineup")
+@login_required
+def fantasy_lineup():
+
+    # Support both an active season and the most recently
+    # completed season, so users can review their final lineup.
+    season = (
+        SimulationSeason.query
+        .filter_by(status="active")
+        .order_by(SimulationSeason.id.desc())
+        .first()
+    )
+
+    if season is None:
+        season = (
+            SimulationSeason.query
+            .filter_by(status="completed")
+            .order_by(SimulationSeason.id.desc())
+            .first()
+        )
+
+    if season is None:
+        flash("No Fantasy season is available.", "warning")
+        return redirect(url_for("home"))
+
+    squad = FantasySquad.query.filter_by(
+        user_id=current_user.id,
+        season_id=season.id
+    ).first()
+
+    if squad is None or len(squad.players) != 10:
+        flash("Build your Fantasy squad first.", "warning")
+        return redirect(url_for("fantasy"))
+
+    requested_round = request.args.get(
+        "round", season.current_week, type=int
+    )
+
+    if requested_round < 1 or requested_round > season.current_week:
+        abort(404)
+
+    week = SimulationWeek.query.filter_by(
+        season_id=season.id,
+        week_number=requested_round
+    ).first_or_404()
+
+    lineup_entries = fantasy_get_lineup(squad, week)
+
+    if len(lineup_entries) == 10:
+        starter_ids = [
+            entry.player_id
+            for entry in lineup_entries
+            if entry.is_starter
+        ]
+
+        captain_id = next(
+            (
+                entry.player_id
+                for entry in lineup_entries
+                if entry.is_captain
+            ),
+            None
+        )
+
+    elif fantasy_lineup_editable(season, week):
+        starter_ids, captain_id = fantasy_default_lineup(
+            squad, week
+        )
+        starter_ids = list(starter_ids)
+
+    else:
+        # Do not invent a historical lineup after a round
+        # has already locked.
+        starter_ids = []
+        captain_id = None
+
+    players = sorted(
+        [entry.player for entry in squad.players],
+        key=lambda player: (
+            ("PG", "SG", "SF", "PF", "C").index(player.position),
+            -(player.rating or 0)
+        )
+    )
+
+    return render_template(
+        "fantasy_lineup.html",
+        season=season,
+        week=week,
+        squad=squad,
+        players=players,
+        starter_ids=starter_ids,
+        captain_id=captain_id,
+        editable=fantasy_lineup_editable(season, week),
+        lineup_exists=len(lineup_entries) == 10
+    )
+
+
+@app.route("/fantasy/lineup/save", methods=["POST"])
+@login_required
+def fantasy_lineup_save():
+
+    if not valid_admin_form_token():
+        abort(400, description="Invalid form security token.")
+
+    season = fantasy_current_season()
+
+    if season is None:
+        abort(404)
+
+    week = SimulationWeek.query.filter_by(
+        season_id=season.id,
+        week_number=season.current_week
+    ).first_or_404()
+
+    if not fantasy_lineup_editable(season, week):
+        flash("This round's lineup is locked.", "danger")
+        return redirect(url_for("fantasy_lineup"))
+
+    squad = FantasySquad.query.filter_by(
+        user_id=current_user.id,
+        season_id=season.id
+    ).first()
+
+    if squad is None:
+        flash("Create your Fantasy squad first.", "warning")
+        return redirect(url_for("fantasy"))
+
+    try:
+        raw_starters = request.form.getlist("starters")
+        raw_captain = request.form.get("captain", "")
+
+        starter_ids = [int(value) for value in raw_starters]
+        captain_id = int(raw_captain)
+
+        fantasy_validate_lineup(
+            squad, starter_ids, captain_id
+        )
+
+        # Replace this round's lineup atomically.
+        FantasyRoundLineup.query.filter_by(
+            squad_id=squad.id,
+            week_id=week.id
+        ).delete(synchronize_session=False)
+
+        for entry in squad.players:
+            db.session.add(
+                FantasyRoundLineup(
+                    squad_id=squad.id,
+                    week_id=week.id,
+                    player_id=entry.player_id,
+                    is_starter=entry.player_id in starter_ids,
+                    is_captain=entry.player_id == captain_id
+                )
+            )
+
+        db.session.commit()
+        flash("Starting five and captain saved!", "success")
+
+    except (ValueError, TypeError) as error:
+        db.session.rollback()
+        flash(str(error), "danger")
+
+    except Exception:
+        db.session.rollback()
+        app.logger.exception("Failed to save Fantasy lineup")
+        flash("Could not save the lineup.", "danger")
+
+    return redirect(url_for("fantasy_lineup"))
 # Initialize database only when running app.py directly.
 # This prevents migration scripts from triggering initialization.
+# ============================================================
+# FANTASY MODE - DASHBOARD
+# ============================================================
+
+@app.route("/fantasy/dashboard")
+@login_required
+def fantasy_dashboard():
+
+    from decimal import Decimal, ROUND_HALF_UP
+
+    # --------------------------------------------------------
+    # 1. FIND THE SEASON
+    # --------------------------------------------------------
+
+    season = (
+        SimulationSeason.query
+        .filter_by(status="active")
+        .order_by(SimulationSeason.id.desc())
+        .first()
+    )
+
+    if season is None:
+        season = (
+            SimulationSeason.query
+            .filter_by(status="completed")
+            .order_by(SimulationSeason.id.desc())
+            .first()
+        )
+
+    if season is None:
+        flash("No Fantasy season is available.", "warning")
+        return redirect(url_for("fantasy"))
+
+    # --------------------------------------------------------
+    # 2. FIND THE USER'S FANTASY SQUAD
+    # --------------------------------------------------------
+
+    squad = FantasySquad.query.filter_by(
+        user_id=current_user.id,
+        season_id=season.id
+    ).first()
+
+    if squad is None or len(squad.players) != 10:
+        flash(
+            "Create your 10-player Fantasy squad first.",
+            "warning"
+        )
+        return redirect(url_for("fantasy"))
+
+    # --------------------------------------------------------
+    # 3. LOAD OFFICIAL ROUND SCORES
+    # --------------------------------------------------------
+
+    score_records = (
+        db.session.query(FantasyRoundScore, SimulationWeek)
+        .join(
+            SimulationWeek,
+            FantasyRoundScore.week_id == SimulationWeek.id
+        )
+        .filter(
+            FantasyRoundScore.squad_id == squad.id,
+            SimulationWeek.season_id == season.id,
+            SimulationWeek.status == "finalized"
+        )
+        .order_by(SimulationWeek.week_number)
+        .all()
+    )
+
+    # Use integer hundredths until values are displayed.
+    season_total_cents = sum(
+        score.total_points
+        for score, week in score_records
+    )
+
+    latest_round = (
+        score_records[-1][1].week_number
+        if score_records else None
+    )
+
+    latest_score_cents = (
+        score_records[-1][0].total_points
+        if score_records else 0
+    )
+
+    # --------------------------------------------------------
+    # 4. BUILD ROUND HISTORY
+    # --------------------------------------------------------
+
+    round_history = []
+    running_total_cents = 0
+
+    for score, week in score_records:
+
+        running_total_cents += score.total_points
+
+        round_history.append({
+            "round": week.week_number,
+            "points": score.total_points / 100,
+            "cumulative": running_total_cents / 100
+        })
+
+    # --------------------------------------------------------
+    # 5. SELECT A FINALIZED ROUND
+    # --------------------------------------------------------
+
+    selected_round = request.args.get(
+        "round",
+        type=int
+    )
+
+    if selected_round is None:
+        selected_round = latest_round
+
+    selected_week = None
+    selected_score = None
+
+    if selected_round is not None:
+
+        selected_week = SimulationWeek.query.filter_by(
+            season_id=season.id,
+            week_number=selected_round,
+            status="finalized"
+        ).first()
+
+        if selected_week is None:
+            abort(404)
+
+        selected_score = FantasyRoundScore.query.filter_by(
+            squad_id=squad.id,
+            week_id=selected_week.id
+        ).first()
+
+        if selected_score is None:
+            abort(404)
+
+    # --------------------------------------------------------
+    # 6. BUILD PLAYER PERFORMANCE BREAKDOWN
+    # --------------------------------------------------------
+
+    starters = []
+    bench = []
+
+    if selected_week is not None:
+
+        lineup = FantasyRoundLineup.query.filter_by(
+            squad_id=squad.id,
+            week_id=selected_week.id
+        ).all()
+
+        # Get all performances from the selected round.
+        performances = (
+            db.session.query(SimulationPlayerStats)
+            .join(
+                SimulationGame,
+                SimulationPlayerStats.game_id == SimulationGame.id
+            )
+            .filter(
+                SimulationGame.week_id == selected_week.id,
+                SimulationGame.status == "finalized"
+            )
+            .all()
+        )
+
+        points_by_player = {}
+
+        for stat in performances:
+            if stat.player_id in points_by_player:
+                abort(
+                    500,
+                    description="Duplicate player performance in round."
+                )
+
+            points_by_player[stat.player_id] = Decimal(
+                str(stat.fantasy_points)
+            )
+
+        position_order = {
+            "PG": 0,
+            "SG": 1,
+            "SF": 2,
+            "PF": 3,
+            "C": 4
+        }
+
+        for entry in lineup:
+
+            player = entry.player
+
+            base_points = points_by_player.get(
+                entry.player_id,
+                Decimal("0")
+            )
+
+            if entry.is_captain:
+                multiplier = Decimal("2")
+                role = "Captain"
+
+            elif entry.is_starter:
+                multiplier = Decimal("1")
+                role = "Starter"
+
+            else:
+                multiplier = Decimal("0.5")
+                role = "Bench"
+
+            contribution = base_points * multiplier
+
+            player_data = {
+                "id": player.id,
+                "name": player.name,
+                "position": player.position,
+                "team": player.team.name,
+                "picture_url": player.picture_url,
+                "rating": player.rating or 70,
+                "role": role,
+                "is_captain": entry.is_captain,
+                "base_points": float(base_points),
+                "multiplier": float(multiplier),
+                "contribution": float(contribution)
+            }
+
+            if entry.is_starter:
+                starters.append(player_data)
+            else:
+                bench.append(player_data)
+
+        starters.sort(
+            key=lambda p: position_order.get(p["position"], 99)
+        )
+
+        bench.sort(
+            key=lambda p: position_order.get(p["position"], 99)
+        )
+
+    # --------------------------------------------------------
+    # 7. CHECK WHETHER THE CURRENT LINEUP IS EDITABLE
+    # --------------------------------------------------------
+
+    current_week = SimulationWeek.query.filter_by(
+        season_id=season.id,
+        week_number=season.current_week
+    ).first()
+
+    can_manage_lineup = (
+        current_week is not None
+        and season.status == "active"
+        and current_week.status == "scheduled"
+    )
+
+    # --------------------------------------------------------
+    # 8. RENDER DASHBOARD
+    # --------------------------------------------------------
+
+    return render_template(
+        "fantasy_dashboard.html",
+        season=season,
+        squad=squad,
+        season_total=season_total_cents / 100,
+        latest_round=latest_round,
+        latest_score=latest_score_cents / 100,
+        round_history=round_history,
+        selected_round=selected_round,
+        selected_score=(
+            selected_score.total_points / 100
+            if selected_score is not None else None
+        ),
+        starters=starters,
+        bench=bench,
+        can_manage_lineup=can_manage_lineup,
+        completed_rounds=len(round_history)
+    )
+
+
 if __name__ == "__main__":
     initialize_database()
     app.run(debug=True)

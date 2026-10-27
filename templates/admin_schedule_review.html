@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Review Results | Draft EuroLeague</title>
+
+    <!-- BOOTSTRAP 5 -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- NAVBAR STYLING -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/navbar.css') }}"
+    >
+
+    <!-- ADMIN SEASON MANAGEMENT STYLING -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/admin_schedule.css') }}"
+    >
+
+    <!-- RESULTS REVIEW STYLING -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/admin_schedule_review.css') }}"
+    >
+
+</head>
+
+<body>
+
+    {% include 'navbar.html' %}
+
+
+    <!-- ==================================================
+         HELPER MACRO - TEAM LOGOS
+         ================================================== -->
+
+    {% macro team_logo(team) %}
+
+        {% if team.image_url %}
+
+            {% set logo = team.image_url | trim %}
+
+            {% if logo.startswith('http://')
+                  or logo.startswith('https://')
+                  or logo.startswith('data:') %}
+
+                {% set logo_src = logo %}
+
+            {% elif logo.startswith('/static/') %}
+
+                {% set logo_src = url_for(
+                    'static',
+                    filename=logo[8:]
+                ) %}
+
+            {% elif logo.startswith('static/') %}
+
+                {% set logo_src = url_for(
+                    'static',
+                    filename=logo[7:]
+                ) %}
+
+            {% elif logo.startswith('/') %}
+
+                {% set logo_src = logo %}
+
+            {% else %}
+
+                {% set logo_src = url_for(
+                    'static',
+                    filename=logo
+                ) %}
+
+            {% endif %}
+
+            <img
+                src="{{ logo_src }}"
+                alt="{{ team.name }} logo"
+                class="review-team-logo"
+                loading="lazy"
+            >
+
+        {% endif %}
+
+    {% endmacro %}
+
+
+    <!-- ==================================================
+         HELPER MACRO - PLAYER STATISTICS TABLE
+         ================================================== -->
+
+    {% macro player_table(stats, editable) %}
+
+        <div class="review-table-wrapper">
+
+            <table class="review-stats-table">
+
+                <thead>
+
+                    <tr>
+                        <th>PLAYER</th>
+                        <th>MIN</th>
+                        <th>PTS</th>
+                        <th>REB</th>
+                        <th>AST</th>
+                        <th>STL</th>
+                        <th>BLK</th>
+                        <th>TOV</th>
+                        <th>FGM</th>
+                        <th>FGA</th>
+                        <th>FANTASY</th>
+                        <th>ACTION</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for stat in stats %}
+
+                        <tr>
+
+                            <td class="review-player-name">
+                                {{ stat.player.name }}
+                            </td>
+
+                            <td>
+                                {{ "%.1f"|format(stat.minutes) }}
+                            </td>
+
+                            <td>{{ stat.points }}</td>
+
+                            <td>{{ stat.rebounds }}</td>
+
+                            <td>{{ stat.assists }}</td>
+
+                            <td>{{ stat.steals }}</td>
+
+                            <td>{{ stat.blocks }}</td>
+
+                            <td>{{ stat.turnovers }}</td>
+
+                            <td>{{ stat.field_goals_made }}</td>
+
+                            <td>{{ stat.field_goals_attempted }}</td>
+
+                            <td class="review-fantasy-points">
+
+                                {{ "%.1f"|format(stat.fantasy_points) }}
+
+                            </td>
+
+                            <td>
+
+                                {% if editable %}
+
+                                    <button
+                                        type="button"
+                                        class="review-edit-button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#edit-player-{{ stat.id }}"
+                                    >
+                                        EDIT
+                                    </button>
+
+                                {% else %}
+
+                                    <span class="review-locked-label">
+                                        LOCKED
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                    {% else %}
+
+                        <tr>
+
+                            <td colspan="12" class="text-center">
+
+                                No player statistics available.
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% endmacro %}
+
+
+    <!-- ==================================================
+         MAIN PAGE
+         ================================================== -->
+
+    <main class="admin-season-container">
+
+
+        <!-- ==================================================
+             PAGE HEADER
+             ================================================== -->
+
+        <div class="admin-page-heading">
+
+            <div>
+
+                <p class="admin-eyebrow">
+                    ADMIN CONTROL CENTER
+                </p>
+
+                <h1>
+                    REVIEW <span>RESULTS</span>
+                </h1>
+
+                <p class="admin-description">
+
+                    Review simulated games and individual player
+                    performances before finalizing
+                    Round {{ week.week_number }}.
+
+                </p>
+
+            </div>
+
+            <a
+                href="{{ url_for('admin_schedule') }}"
+                class="view-schedule-button"
+            >
+                ← Back to Season Management
+            </a>
+
+        </div>
+
+
+        <!-- ==================================================
+             FLASH MESSAGES
+             ================================================== -->
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% if messages %}
+
+                {% for category, message in messages %}
+
+                    <div
+                        class="alert alert-{{ category }}"
+                        role="alert"
+                    >
+
+                        {{ message }}
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <!-- ==================================================
+             ROUND OVERVIEW
+             ================================================== -->
+
+        <section class="review-overview">
+
+            <!-- SEASON -->
+
+            <div class="overview-card">
+
+                <span>SEASON</span>
+
+                <strong>
+                    {{ season.name }}
+                </strong>
+
+            </div>
+
+
+            <!-- ROUND -->
+
+            <div class="overview-card">
+
+                <span>ROUND</span>
+
+                <strong>
+                    {{ week.week_number }}
+                </strong>
+
+            </div>
+
+
+            <!-- NUMBER OF GAMES -->
+
+            <div class="overview-card">
+
+                <span>GAMES</span>
+
+                <strong>
+                    {{ game_data | length }}
+                </strong>
+
+            </div>
+
+
+            <!-- ROUND STATUS -->
+
+            <div class="overview-card">
+
+                <span>STATUS</span>
+
+                <strong class="status-value">
+
+                    {{ week.status | upper }}
+
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             REVIEW INFORMATION
+             ================================================== -->
+
+        <div class="review-info">
+
+            {% if week.status == 'simulated' %}
+
+                <strong>
+                    Results awaiting approval
+                </strong>
+
+                <p>
+
+                    All player statistics can be edited before
+                    the round is finalized.
+
+                    Changing a player's points automatically
+                    updates their team's score.
+
+                    Fantasy points are recalculated whenever
+                    you save changes.
+
+                </p>
+
+            {% elif week.status == 'finalized' %}
+
+                <strong>
+                    Round finalized
+                </strong>
+
+                <p>
+
+                    These results have been finalized.
+
+                    Player statistics and game scores
+                    can no longer be edited.
+
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ==================================================
+             ROUND RESULTS
+             ================================================== -->
+
+        <section class="admin-section">
+
+            <div class="section-heading">
+
+                <h2>
+                    Round {{ week.week_number }} Results
+                </h2>
+
+                <span>
+                    {{ game_data | length }} Games
+                </span>
+
+            </div>
+
+
+            <!-- ==================================================
+                 LOOP THROUGH ALL GAMES
+                 ================================================== -->
+
+            {% for item in game_data %}
+
+                {% set game = item.game %}
+
+                <article
+                    class="review-game-card"
+                    id="game-{{ game.id }}"
+                >
+
+
+                    <!-- ==========================================
+                         GAME HEADER
+                         ========================================== -->
+
+                    <div class="review-game-header">
+
+
+                        <!-- HOME TEAM -->
+
+                        <div class="review-team review-team-home">
+
+                            {{ team_logo(game.home_team) }}
+
+                            <h3>
+                                {{ game.home_team.name }}
+                            </h3>
+
+                            <span>
+                                HOME
+                            </span>
+
+                        </div>
+
+
+                        <!-- SCORE -->
+
+                        <div class="review-score-center">
+
+                            <div class="review-final-label">
+
+                                {{ game.status | upper }}
+
+                            </div>
+
+
+                            <div class="review-main-score">
+
+                                <span>
+
+                                    {{ game.home_score }}
+
+                                </span>
+
+                                <span class="review-score-divider">
+
+                                    :
+
+                                </span>
+
+                                <span>
+
+                                    {{ game.away_score }}
+
+                                </span>
+
+                            </div>
+
+
+                            <span class="review-round-label">
+
+                                ROUND {{ week.week_number }}
+
+                            </span>
+
+                        </div>
+
+
+                        <!-- AWAY TEAM -->
+
+                        <div class="review-team review-team-away">
+
+                            {{ team_logo(game.away_team) }}
+
+                            <h3>
+                                {{ game.away_team.name }}
+                            </h3>
+
+                            <span>
+                                AWAY
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ==========================================
+                         EXPAND PLAYER STATISTICS
+                         ========================================== -->
+
+                    <button
+                        type="button"
+                        class="review-expand-button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#boxscore-{{ game.id }}"
+                        aria-expanded="false"
+                        aria-controls="boxscore-{{ game.id }}"
+                    >
+
+                        VIEW PLAYER BOX SCORES
+
+                        <span>↓</span>
+
+                    </button>
+
+
+                    <!-- ==========================================
+                         COLLAPSIBLE BOX SCORE
+                         ========================================== -->
+
+                    <div
+                        class="collapse review-boxscore-collapse"
+                        id="boxscore-{{ game.id }}"
+                    >
+
+
+                        <!-- ======================================
+                             HOME TEAM STATISTICS
+                             ====================================== -->
+
+                        <div class="review-boxscore-section">
+
+                            <div class="review-boxscore-heading">
+
+                                <h4>
+                                    {{ game.home_team.name }}
+                                </h4>
+
+                                <span>
+                                    {{ game.home_score }} POINTS
+                                </span>
+
+                            </div>
+
+
+                            {{ player_table(
+                                item.home_stats,
+                                week.status == 'simulated'
+                            ) }}
+
+                        </div>
+
+
+                        <!-- ======================================
+                             AWAY TEAM STATISTICS
+                             ====================================== -->
+
+                        <div class="review-boxscore-section">
+
+                            <div class="review-boxscore-heading">
+
+                                <h4>
+                                    {{ game.away_team.name }}
+                                </h4>
+
+                                <span>
+                                    {{ game.away_score }} POINTS
+                                </span>
+
+                            </div>
+
+
+                            {{ player_table(
+                                item.away_stats,
+                                week.status == 'simulated'
+                            ) }}
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    No simulated games found for this round.
+
+                </div>
+
+            {% endfor %}
+
+        </section>
+
+
+        <!-- ==================================================
+             PLAYER EDITING MODALS
+             ================================================== -->
+
+        {% if week.status == 'simulated' %}
+
+            {% for item in game_data %}
+
+                {% for stat in item.home_stats + item.away_stats %}
+
+
+                    <div
+                        class="modal fade"
+                        id="edit-player-{{ stat.id }}"
+                        tabindex="-1"
+                        aria-labelledby="edit-title-{{ stat.id }}"
+                        aria-hidden="true"
+                    >
+
+                        <div class="modal-dialog modal-dialog-centered">
+
+                            <div class="modal-content review-modal">
+
+
+                                <!-- MODAL HEADER -->
+
+                                <div class="modal-header">
+
+                                    <h5
+                                        class="modal-title"
+                                        id="edit-title-{{ stat.id }}"
+                                    >
+
+                                        Edit {{ stat.player.name }}
+
+                                    </h5>
+
+                                    <button
+                                        type="button"
+                                        class="btn-close btn-close-white"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close"
+                                    ></button>
+
+                                </div>
+
+
+                                <!-- EDIT FORM -->
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('admin_schedule_edit_player', stat_id=stat.id) }}"
+                                >
+
+                                    <!-- CSRF TOKEN -->
+
+                                    <input
+                                        type="hidden"
+                                        name="csrf_token"
+                                        value="{{ admin_form_token() }}"
+                                    >
+
+
+                                    <div class="modal-body">
+
+                                        <p class="review-modal-description">
+
+                                            Update the player's simulated
+                                            performance.
+
+                                            Fantasy points will be
+                                            recalculated automatically.
+
+                                        </p>
+
+
+                                        <div class="review-edit-grid">
+
+
+                                            <!-- POINTS -->
+
+                                            <div>
+
+                                                <label for="points-{{ stat.id }}">
+                                                    Points
+                                                </label>
+
+                                                <input
+                                                    id="points-{{ stat.id }}"
+                                                    type="number"
+                                                    name="points"
+                                                    min="0"
+                                                    max="200"
+                                                    value="{{ stat.points }}"
+                                                    required
+                                                >
+
+                                            </div>
+
+
+                                            <!-- REBOUNDS -->
+
+                                            <div>
+
+                                                <label for="rebounds-{{ stat.id }}">
+                                                    Rebounds
+                                                </label>
+
+                                                <input
+                                                    id="rebounds-{{ stat.id }}"
+                                                    type="number"
+                                                    name="rebounds"
+                                                    min="0"
+                                                    max="200"
+                                                    value="{{ stat.rebounds }}"
+                                                    required
+                                                >
+
+                                            </div>
+
+
+                                            <!-- ASSISTS -->
+
+                                            <div>
+
+                                                <label for="assists-{{ stat.id }}">
+                                                    Assists
+                                                </label>
+
+                                                <input
+                                                    id="assists-{{ stat.id }}"
+                                                    type="number"
+                                                    name="assists"
+                                                    min="0"
+                                                    max="200"
+                                                    value="{{ stat.assists }}"
+                                                    required
+                                                >
+
+                                            </div>
+
+
+                                            <!-- STEALS -->
+
+                                            <div>
+
+                                                <label for="steals-{{ stat.id }}">
+                                                    Steals
+                                                </label>
+
+                                                <input
+                                                    id="steals-{{ stat.id }}"
+                                                    type="number"
+                                                    name="steals"
+                                                    min="0"
+                                                    max="200"
+                                                    value="{{ stat.steals }}"
+                                                    required
+                                                >
+
+                                            </div>
+
+
+                                            <!-- BLOCKS -->
+
+                                            <div>
+
+                                                <label for="blocks-{{ stat.id }}">
+                                                    Blocks
+                                                </label>
+
+                                                <input
+                                                    id="blocks-{{ stat.id }}"
+                                                    type="number"
+                                                    name="blocks"
+                                                    min="0"
+                                                    max="200"
+                                                    value="{{ stat.blocks }}"
+                                                    required
+                                                >
+
+                                            </div>
+
+
+                                            <!-- TURNOVERS -->
+
+                                            <div>
+
+                                                <label for="turnovers-{{ stat.id }}">
+                                                    Turnovers
+                                                </label>
+
+                                                <input
+                                                    id="turnovers-{{ stat.id }}"
+                                                    type="number"
+                                                    name="turnovers"
+                                                    min="0"
+                                                    max="200"
+                                                    value="{{ stat.turnovers }}"
+                                                    required
+                                                >
+
+                                            </div>
+
+
+                                            <!-- FIELD GOALS MADE -->
+
+                                            <div>
+
+                                                <label for="fgm-{{ stat.id }}">
+                                                    Field Goals Made
+                                                </label>
+
+                                                <input
+                                                    id="fgm-{{ stat.id }}"
+                                                    type="number"
+                                                    name="field_goals_made"
+                                                    min="0"
+                                                    max="200"
+                                                    value="{{ stat.field_goals_made }}"
+                                                    required
+                                                >
+
+                                            </div>
+
+
+                                            <!-- FIELD GOALS ATTEMPTED -->
+
+                                            <div>
+
+                                                <label for="fga-{{ stat.id }}">
+                                                    Field Goals Attempted
+                                                </label>
+
+                                                <input
+                                                    id="fga-{{ stat.id }}"
+                                                    type="number"
+                                                    name="field_goals_attempted"
+                                                    min="0"
+                                                    max="200"
+                                                    value="{{ stat.field_goals_attempted }}"
+                                                    required
+                                                >
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- MODAL FOOTER -->
+
+                                    <div class="modal-footer">
+
+                                        <button
+                                            type="button"
+                                            class="review-cancel-button"
+                                            data-bs-dismiss="modal"
+                                        >
+
+                                            Cancel
+
+                                        </button>
+
+
+                                        <button
+                                            type="submit"
+                                            class="review-save-button"
+                                        >
+
+                                            Save Changes
+
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                {% endfor %}
+
+            {% endfor %}
+
+        {% endif %}
+
+    </main>
+
+
+    <!-- ==================================================
+         BOOTSTRAP JAVASCRIPT
+         ================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ></script>
+
+
+    <!-- ==================================================
+         REOPEN GAME BOX SCORE AFTER EDITING
+         ================================================== -->
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const gameId = window.location.hash;
+
+            if (!gameId || !gameId.startsWith("#game-")) {
+                return;
+            }
+
+            const gameCard = document.querySelector(gameId);
+
+            if (!gameCard) {
+                return;
+            }
+
+            const collapseElement = gameCard.querySelector(
+                ".review-boxscore-collapse"
+            );
+
+            if (collapseElement) {
+
+                bootstrap.Collapse.getOrCreateInstance(
+                    collapseElement,
+                    {
+                        toggle: false
+                    }
+                ).show();
+
+            }
+
+        });
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Fantasy Dashboard | Draft EuroLeague</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/fantasy_dashboard.css') }}"
+    >
+</head>
+
+<body>
+
+<main class="dashboard-container">
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
+    <header class="dashboard-header">
+
+        <div>
+            <p class="eyebrow">DRAFT EUROLEAGUE · FANTASY MODE</p>
+
+            <h1>FANTASY <span>DASHBOARD</span></h1>
+
+            <p class="subtitle">
+                {{ squad.name }} · {{ season.name }}
+            </p>
+        </div>
+
+        <div class="header-actions">
+
+            <a
+                href="{{ url_for('fantasy') }}"
+                class="dashboard-button secondary"
+            >
+                My Squad
+            </a>
+
+            {% if can_manage_lineup %}
+                <a
+                    href="{{ url_for('fantasy_lineup') }}"
+                    class="dashboard-button primary"
+                >
+                    Manage Lineup →
+                </a>
+            {% endif %}
+
+        </div>
+
+    </header>
+
+
+    <!-- ================================================= -->
+    <!-- FLASH MESSAGES -->
+    <!-- ================================================= -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+
+    <!-- ================================================= -->
+    <!-- SEASON OVERVIEW -->
+    <!-- ================================================= -->
+
+    <section class="overview-grid">
+
+        <div class="overview-card highlight">
+
+            <p>SEASON POINTS</p>
+
+            <h2>
+                {{ "%.2f"|format(season_total) }}
+            </h2>
+
+            <span>Total Fantasy points</span>
+
+        </div>
+
+
+        <div class="overview-card">
+
+            <p>LATEST ROUND</p>
+
+            <h2>
+                {% if latest_round %}
+                    {{ latest_round }}
+                {% else %}
+                    —
+                {% endif %}
+            </h2>
+
+            <span>Most recently finalized</span>
+
+        </div>
+
+
+        <div class="overview-card">
+
+            <p>LATEST ROUND SCORE</p>
+
+            <h2>
+                {% if latest_round %}
+                    {{ "%.2f"|format(latest_score) }}
+                {% else %}
+                    —
+                {% endif %}
+            </h2>
+
+            <span>Fantasy points</span>
+
+        </div>
+
+
+        <div class="overview-card">
+
+            <p>ROUNDS COMPLETED</p>
+
+            <h2>
+                {{ completed_rounds }}
+                <small>/ 38</small>
+            </h2>
+
+            <span>Official Fantasy results</span>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- ROUND SELECTOR -->
+    <!-- ================================================= -->
+
+    <section class="dashboard-panel">
+
+        <div class="section-heading">
+
+            <div>
+                <h2>ROUND PERFORMANCE</h2>
+                <p>Review your team's official Fantasy results.</p>
+            </div>
+
+            {% if round_history %}
+
+                <form
+                    method="GET"
+                    action="{{ url_for('fantasy_dashboard') }}"
+                >
+
+                    <select
+                        name="round"
+                        class="round-select"
+                        onchange="this.form.submit()"
+                    >
+
+                        {% for round in round_history %}
+
+                            <option
+                                value="{{ round.round }}"
+                                {% if selected_round == round.round %}
+                                    selected
+                                {% endif %}
+                            >
+                                Round {{ round.round }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </form>
+
+            {% endif %}
+
+        </div>
+
+
+        {% if selected_round %}
+
+            <div class="selected-round-banner">
+
+                <div>
+                    <span>ROUND {{ selected_round }}</span>
+                    <h3>Official Fantasy Score</h3>
+                </div>
+
+                <strong>
+                    {{ "%.2f"|format(selected_score) }}
+                    <small>PTS</small>
+                </strong>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <h3>No finalized rounds yet</h3>
+
+                <p>
+                    Your Fantasy points will appear here after
+                    the administrator finalizes the first round.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- STARTING FIVE AND BENCH -->
+    <!-- ================================================= -->
+
+    {% if selected_round %}
+
+    <div class="lineup-grid">
+
+        <!-- STARTING FIVE -->
+
+        <section class="dashboard-panel">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>STARTING FIVE</h2>
+                    <p>Full points · Captain earns double</p>
+                </div>
+
+                <span class="section-badge">
+                    5 PLAYERS
+                </span>
+
+            </div>
+
+
+            <div class="player-list">
+
+                {% for player in starters %}
+
+                    <div class="performance-player
+                        {% if player.is_captain %}captain{% endif %}
+                    ">
+
+                        <div class="player-avatar">
+
+                            {% if player.picture_url %}
+                                <img
+                                    src="{{ player.picture_url }}"
+                                    alt="{{ player.name }}"
+                                >
+                            {% else %}
+                                <span>{{ player.position }}</span>
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="player-details">
+
+                            <div class="player-name">
+
+                                {{ player.name }}
+
+                                {% if player.is_captain %}
+                                    <span class="captain-badge">
+                                        C
+                                    </span>
+                                {% endif %}
+
+                            </div>
+
+                            <div class="player-meta">
+                                {{ player.position }}
+                                · {{ player.team }}
+                            </div>
+
+                            <div class="player-calculation">
+                                {{ "%.2f"|format(player.base_points) }}
+                                × {{ "%g"|format(player.multiplier) }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="player-points">
+
+                            <strong>
+                                {{ "%.2f"|format(player.contribution) }}
+                            </strong>
+
+                            <span>PTS</span>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- BENCH -->
+
+        <section class="dashboard-panel">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>BENCH</h2>
+                    <p>Bench players earn 50% of their points.</p>
+                </div>
+
+                <span class="section-badge">
+                    5 PLAYERS
+                </span>
+
+            </div>
+
+
+            <div class="player-list">
+
+                {% for player in bench %}
+
+                    <div class="performance-player">
+
+                        <div class="player-avatar">
+
+                            {% if player.picture_url %}
+                                <img
+                                    src="{{ player.picture_url }}"
+                                    alt="{{ player.name }}"
+                                >
+                            {% else %}
+                                <span>{{ player.position }}</span>
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="player-details">
+
+                            <div class="player-name">
+                                {{ player.name }}
+                            </div>
+
+                            <div class="player-meta">
+                                {{ player.position }}
+                                · {{ player.team }}
+                            </div>
+
+                            <div class="player-calculation">
+                                {{ "%.2f"|format(player.base_points) }}
+                                × 0.5
+                            </div>
+
+                        </div>
+
+
+                        <div class="player-points">
+
+                            <strong>
+                                {{ "%.2f"|format(player.contribution) }}
+                            </strong>
+
+                            <span>PTS</span>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- ================================================= -->
+    <!-- ROUND HISTORY -->
+    <!-- ================================================= -->
+
+    <section class="dashboard-panel history-panel">
+
+        <div class="section-heading">
+
+            <div>
+                <h2>ROUND HISTORY</h2>
+                <p>Your Fantasy journey through the season.</p>
+            </div>
+
+        </div>
+
+
+        {% if round_history %}
+
+            <div class="table-responsive">
+
+                <table class="history-table">
+
+                    <thead>
+                        <tr>
+                            <th>ROUND</th>
+                            <th>ROUND POINTS</th>
+                            <th>SEASON TOTAL</th>
+                            <th>DETAILS</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for round in round_history %}
+
+                            <tr
+                                {% if selected_round == round.round %}
+                                    class="selected-history-row"
+                                {% endif %}
+                            >
+
+                                <td>
+                                    <strong>
+                                        Round {{ round.round }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ "%.2f"|format(round.points) }}
+                                </td>
+
+                                <td class="total-column">
+                                    {{ "%.2f"|format(round.cumulative) }}
+                                </td>
+
+                                <td>
+                                    <a
+                                        href="{{ url_for(
+                                            'fantasy_dashboard',
+                                            round=round.round
+                                        ) }}"
+                                        class="history-link"
+                                    >
+                                        View →
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <p>
+                    Your round history will appear here
+                    once games are finalized.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+</body>
+</html>

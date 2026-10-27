@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Season Management | Draft EuroLeague</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Existing Navbar -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/navbar.css') }}"
+    >
+
+    <!-- Admin Schedule Styling -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/admin_schedule.css') }}"
+    >
+</head>
+
+<body>
+
+    {% include 'navbar.html' %}
+
+    <main class="admin-season-container">
+
+        <!-- ================================================== -->
+        <!-- PAGE HEADER                                        -->
+        <!-- ================================================== -->
+
+        <div class="admin-page-heading">
+
+            <div>
+                <p class="admin-eyebrow">ADMIN CONTROL CENTER</p>
+
+                <h1>SEASON <span>MANAGEMENT</span></h1>
+
+                <p class="admin-description">
+                    Manage the fictional EuroLeague season,
+                    monitor fixtures and control each round.
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('schedule') }}"
+                class="view-schedule-button"
+            >
+                View Public Schedule
+            </a>
+
+        </div>
+
+
+        <!-- ================================================== -->
+        <!-- FLASH MESSAGES                                     -->
+        <!-- ================================================== -->
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% if messages %}
+
+                {% for category, message in messages %}
+
+                    <div class="alert alert-{{ category }}" role="alert">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        {% if season %}
+
+            <!-- ============================================== -->
+            <!-- SEASON OVERVIEW                                -->
+            <!-- ============================================== -->
+
+            <section class="admin-overview">
+
+                <!-- Active Season -->
+                <div class="overview-card">
+                    <span>ACTIVE SEASON</span>
+                    <strong>{{ season.name }}</strong>
+                </div>
+
+                <!-- Current Round -->
+                <div class="overview-card">
+                    <span>CURRENT ROUND</span>
+                    <strong>
+                        {{ season.current_week }} / {{ total_weeks }}
+                    </strong>
+                </div>
+
+                <!-- Completed Rounds -->
+                <div class="overview-card">
+                    <span>COMPLETED ROUNDS</span>
+                    <strong>
+                        {{ completed_weeks }} / {{ total_weeks }}
+                    </strong>
+                </div>
+
+                <!-- Round Status -->
+                <div class="overview-card">
+                    <span>ROUND STATUS</span>
+
+                    <strong class="status-value">
+                        {{ week.status | upper if week else 'MISSING' }}
+                    </strong>
+                </div>
+
+            </section>
+
+
+            <!-- ============================================== -->
+            <!-- SEASON PROGRESS                                -->
+            <!-- ============================================== -->
+
+            <section class="admin-section">
+
+                <div class="section-heading">
+
+                    <h2>Season Progress</h2>
+
+                    <span>
+                        {{ completed_weeks }} of {{ total_weeks }} rounds finalized
+                    </span>
+
+                </div>
+
+                <div class="season-progress">
+
+                    <div
+                        class="season-progress-fill"
+                        style="width: {{ (completed_weeks / total_weeks * 100) | round(1) }}%;"
+                    ></div>
+
+                </div>
+
+            </section>
+
+
+            {% if week %}
+
+                <!-- ========================================== -->
+                <!-- ROUND CONTROL                              -->
+                <!-- ========================================== -->
+
+                <section class="admin-section">
+
+                    <div class="section-heading">
+
+                        <h2>Round {{ week.week_number }} Control</h2>
+
+                        <span>{{ week.status | upper }}</span>
+
+                    </div>
+
+                    <div class="control-grid">
+
+
+                        <!-- ================================== -->
+                        <!-- STEP 01 - LOCK ROUND               -->
+                        <!-- ================================== -->
+
+                        <div class="control-card">
+
+                            <div class="control-step">STEP 01</div>
+
+                            <h3>Lock Round</h3>
+
+                            <p>
+                                Close the current round before
+                                generating match results.
+                            </p>
+
+                            {% if week.status == 'scheduled' %}
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('admin_schedule_lock') }}"
+                                    onsubmit="return confirm('Lock Round {{ week.week_number }}?');"
+                                >
+
+                                    <!-- CSRF Protection -->
+                                    <input
+                                        type="hidden"
+                                        name="csrf_token"
+                                        value="{{ admin_form_token() }}"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="control-button"
+                                    >
+                                        Lock Round
+                                    </button>
+
+                                </form>
+
+                            {% else %}
+
+                                <button
+                                    type="button"
+                                    class="control-button"
+                                    disabled
+                                >
+
+                                    {% if week.status == 'locked' %}
+
+                                        Round Locked
+
+                                    {% elif week.status == 'simulated' %}
+
+                                        Simulation Complete
+
+                                    {% elif week.status == 'finalized' %}
+
+                                        Round Finalized
+
+                                    {% else %}
+
+                                        Unavailable
+
+                                    {% endif %}
+
+                                </button>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- ================================== -->
+                        <!-- STEP 02 - SIMULATE GAMES           -->
+                        <!-- ================================== -->
+
+                        <div class="control-card">
+
+                            <div class="control-step">STEP 02</div>
+
+                            <h3>Simulate Games</h3>
+
+                            <p>
+                                Generate results and individual player
+                                statistics for all 10 games in the current round.
+                            </p>
+
+                            {% if week.status == 'locked' %}
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('admin_schedule_simulate') }}"
+                                    onsubmit="return confirm('Simulate all 10 games in Round {{ week.week_number }}?');"
+                                >
+
+                                    <!-- CSRF Protection -->
+                                    <input
+                                        type="hidden"
+                                        name="csrf_token"
+                                        value="{{ admin_form_token() }}"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="control-button"
+                                    >
+                                        Simulate Round {{ week.week_number }}
+                                    </button>
+
+                                </form>
+
+                            {% elif week.status == 'simulated' %}
+
+                                <button
+                                    type="button"
+                                    class="control-button"
+                                    disabled
+                                >
+                                    Simulation Complete
+                                </button>
+
+                            {% elif week.status == 'finalized' %}
+
+                                <button
+                                    type="button"
+                                    class="control-button"
+                                    disabled
+                                >
+                                    Round Finalized
+                                </button>
+
+                            {% else %}
+
+                                <button
+                                    type="button"
+                                    class="control-button"
+                                    disabled
+                                >
+                                    Lock Round First
+                                </button>
+
+                            {% endif %}
+
+                        </div>
+
+
+<!-- ================================== -->
+<!-- STEP 03 - REVIEW RESULTS           -->
+<!-- ================================== -->
+
+<div class="control-card">
+
+    <div class="control-step">STEP 03</div>
+
+    <h3>Review Results</h3>
+
+    <p>
+        Inspect simulated game scores, review individual
+        player performances and correct statistics.
+    </p>
+
+    {% if week.status in ['simulated', 'finalized'] %}
+
+        <a
+            href="{{ url_for('admin_schedule_review') }}"
+            class="control-button"
+            style="
+                display: inline-block;
+                text-align: center;
+                text-decoration: none;
+            "
+        >
+            Review Round {{ week.week_number }}
+        </a>
+
+    {% else %}
+
+        <button
+            type="button"
+            class="control-button"
+            disabled
+        >
+            Simulate Games First
+        </button>
+
+    {% endif %}
+
+</div>
+
+
+                       <!-- ================================== -->
+<!-- STEP 04 - FINALIZE ROUND           -->
+<!-- ================================== -->
+
+<div class="control-card">
+
+    <div class="control-step">
+        STEP 04
+    </div>
+
+    <h3>Finalize Round</h3>
+
+    <p>
+        Approve all simulated game results and player
+        statistics. Finalized results cannot be edited.
+    </p>
+
+    {% if week.status == 'simulated' %}
+
+        <form
+            method="POST"
+            action="{{ url_for('admin_schedule_finalize') }}"
+            onsubmit="return confirm(
+                'Finalize Round {{ week.week_number }}?\n\n' +
+                'All game results and player statistics will become permanent.\n\n' +
+                'This action cannot be undone through the admin panel.'
+            );"
+        >
+
+            <!-- CSRF PROTECTION -->
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ admin_form_token() }}"
+            >
+
+            <button
+                type="submit"
+                class="control-button"
+            >
+                Finalize Round {{ week.week_number }}
+            </button>
+
+        </form>
+
+    {% elif week.status == 'finalized' %}
+
+        <button
+            type="button"
+            class="control-button"
+            disabled
+        >
+            Round Finalized ✓
+        </button>
+
+    {% else %}
+
+        <button
+            type="button"
+            class="control-button"
+            disabled
+        >
+            Review Results First
+        </button>
+
+    {% endif %}
+
+</div>
+
+
+<!-- ================================== -->
+<!-- STEP 05 - NEXT ROUND               -->
+<!-- ================================== -->
+
+<div class="control-card">
+
+    <div class="control-step">
+        STEP 05
+    </div>
+
+    <h3>Next Round</h3>
+
+    <p>
+        Advance the fictional EuroLeague season after
+        all current-round results have been finalized.
+    </p>
+
+    {% if week.status == 'finalized' %}
+
+        <form
+            method="POST"
+            action="{{ url_for('admin_schedule_next') }}"
+            onsubmit="return confirm(
+                'Advance from Round {{ week.week_number }}?\n\n' +
+                'The finalized results will be preserved.\n' +
+                'You will not be able to return to this round through the admin controls.'
+            );"
+        >
+
+            <!-- CSRF PROTECTION -->
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ admin_form_token() }}"
+            >
+
+            <button
+                type="submit"
+                class="control-button"
+            >
+
+                {% if week.week_number >= total_weeks %}
+
+                    Complete Season
+
+                {% else %}
+
+                    Advance to Round {{ week.week_number + 1 }}
+
+                {% endif %}
+
+            </button>
+
+        </form>
+
+    {% else %}
+
+        <button
+            type="button"
+            class="control-button"
+            disabled
+        >
+            Finalize Round First
+        </button>
+
+    {% endif %}
+
+</div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ========================================== -->
+                <!-- SEASON SETTINGS                            -->
+                <!-- ========================================== -->
+
+                <section class="admin-section">
+                    <div class="section-heading">
+                        <h2>Season Settings</h2>
+                        <span>ADMIN TOOLS</span>
+                    </div>
+
+                    <div class="control-grid">
+                        <!-- RESET CURRENT ROUND -->
+                        <div class="control-card">
+                            <div class="control-step">ROUND MANAGEMENT</div>
+                            <h3>Reset Current Round</h3>
+                            <p>
+                                Clear this round's simulated scores and player statistics.
+                                Previously finalized rounds will remain unchanged.
+                            </p>
+
+                            {% if season.status == 'active' and week.status in ['locked', 'simulated'] %}
+                                <form method="POST"
+                                      action="{{ url_for('admin_schedule_reset_round') }}"
+                                      onsubmit="return confirmResetRound(this);">
+                                    <input type="hidden" name="csrf_token" value="{{ admin_form_token() }}">
+                                    <input type="hidden" name="confirmation" value="">
+                                    <button type="submit" class="control-button"
+                                            style="background: #d97706; color: white;">
+                                        Reset Round {{ week.week_number }}
+                                    </button>
+                                </form>
+                            {% else %}
+                                <button type="button" class="control-button" disabled>
+                                    {% if week.status == 'finalized' %}
+                                        Round Already Finalized
+                                    {% else %}
+                                        Nothing to Reset
+                                    {% endif %}
+                                </button>
+                            {% endif %}
+                        </div>
+
+                        <!-- RESET ENTIRE SEASON: DEVELOPMENT ONLY -->
+                        {% if config.ALLOW_SEASON_RESET %}
+                            <div class="control-card">
+                                <div class="control-step">DEVELOPMENT TOOL</div>
+                                <h3>Reset Entire Season</h3>
+                                <p>
+                                    Delete all simulated results and player performances,
+                                    then restart at Round 1. Fixtures, teams, players and
+                                    user accounts will be preserved.
+                                </p>
+                                <form method="POST"
+                                      action="{{ url_for('admin_schedule_reset_season') }}"
+                                      onsubmit="return confirmResetSeason(this);">
+                                    <input type="hidden" name="csrf_token" value="{{ admin_form_token() }}">
+                                    <input type="hidden" name="confirmation" value="">
+                                    <button type="submit" class="control-button"
+                                            style="background: #dc2626; color: white;">
+                                        Reset Entire Season
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+
+                <!-- ========================================== -->
+                <!-- CURRENT ROUND FIXTURES                     -->
+                <!-- ========================================== -->
+
+                <section class="admin-section">
+
+                    <div class="section-heading">
+
+                        <h2>Round {{ week.week_number }} Fixtures</h2>
+
+                        <span>{{ games | length }} Games</span>
+
+                    </div>
+
+                    <div class="fixtures-list">
+
+                        {% for game in games %}
+
+                            <div class="fixture-row">
+
+                                <!-- Home Team -->
+                                <div class="fixture-home">
+                                    {{ game.home_team.name }}
+                                </div>
+
+                                <!-- Score -->
+                                <div class="fixture-score">
+
+                                    {% if game.home_score is not none
+                                          and game.away_score is not none %}
+
+                                        {{ game.home_score }}
+                                        -
+                                        {{ game.away_score }}
+
+                                    {% else %}
+
+                                        VS
+
+                                    {% endif %}
+
+                                </div>
+
+                                <!-- Away Team -->
+                                <div class="fixture-away">
+                                    {{ game.away_team.name }}
+                                </div>
+
+                                <!-- Game Status -->
+                                <span class="fixture-status">
+                                    {{ game.status | upper }}
+                                </span>
+
+                            </div>
+
+                        {% else %}
+
+                            <p class="empty-state">
+                                No fixtures found for this round.
+                            </p>
+
+                        {% endfor %}
+
+                    </div>
+
+                </section>
+
+
+            {% else %}
+
+                <!-- ========================================== -->
+                <!-- MISSING CURRENT ROUND                      -->
+                <!-- ========================================== -->
+
+                <div class="empty-state">
+                    The current round could not be found.
+                </div>
+
+            {% endif %}
+
+
+        {% else %}
+
+            <!-- ============================================== -->
+            <!-- NO ACTIVE SEASON                               -->
+            <!-- ============================================== -->
+
+            <section class="admin-section empty-state">
+
+                <h2>No Active Season</h2>
+
+                <p>
+                    Create a fictional EuroLeague season
+                    before managing its rounds.
+                </p>
+
+            </section>
+
+        {% endif %}
+
+    </main>
+
+
+    <!-- Bootstrap JavaScript -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ></script>
+
+    <script>
+        function confirmResetRound(form) {
+            const answer = prompt(
+                "WARNING: This will delete the current round's simulated scores " +
+                "and player statistics. Previously finalized rounds are preserved.\n\n" +
+                "Type RESET ROUND to confirm:"
+            );
+            if (answer !== "RESET ROUND") {
+                if (answer !== null) alert("Incorrect confirmation. Reset cancelled.");
+                return false;
+            }
+            form.elements["confirmation"].value = answer;
+            return true;
+        }
+
+        function confirmResetSeason(form) {
+            const answer = prompt(
+                "DANGER: RESET ENTIRE SEASON\n\n" +
+                "This permanently deletes all simulated game results, player " +
+                "performances and completed-round progress.\n\n" +
+                "The 380 fixtures, teams, players and accounts are preserved.\n\n" +
+                "Type RESET SEASON to confirm:"
+            );
+            if (answer !== "RESET SEASON") {
+                if (answer !== null) alert("Incorrect confirmation. Reset cancelled.");
+                return false;
+            }
+            form.elements["confirmation"].value = answer;
+            return true;
+        }
+    </script>
+
+</body>
+
+</html>
