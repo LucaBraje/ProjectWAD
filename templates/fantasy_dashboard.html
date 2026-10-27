@@ -24,47 +24,41 @@
         <div class="hero-kicker"><i></i> DRAFT EUROLEAGUE / FANTASY MODE</div>
         <h1>THE ROAD TO <span>GREATNESS.</span></h1>
         <p>Every round matters. Every point counts. Track your legacy.</p>
-        <div class="hero-season">{{ squad.name }} <span>·</span> {{ season.name }}</div>
+        <nav class="header-actions" aria-label="Fantasy dashboard navigation">
+            <a href="{{ url_for('schedule') }}" class="dashboard-button secondary">Season Schedule →</a>
+            <a href="{{ url_for('fantasy') }}" class="dashboard-button secondary">My Squad →</a>
+            {% if can_manage_lineup %}
+            <a href="{{ url_for('fantasy_lineup') }}" class="dashboard-button secondary">Manage Lineup →</a>
+            {% endif %}
+        </nav>
     </div>
 </header>
 <div class="hero-divider" aria-hidden="true"></div>
+<section class="overview-strip" aria-label="Season statistics">
+    <div class="dashboard-container overview-grid">
+        <div class="overview-card highlight">
+            <p>SEASON POINTS <span class="card-symbol">★</span></p>
+            <h2>{{ "%.2f"|format(season_total) }}</h2>
+            <span>Total Fantasy points</span>
+        </div>
+        <div class="overview-card">
+            <p>LATEST ROUND SCORE <span class="card-symbol">◈</span></p>
+            <h2>{% if latest_round %}{{ "%.2f"|format(latest_score) }}{% else %}—{% endif %}</h2>
+            <span>Fantasy points</span>
+        </div>
+        <div class="overview-card">
+            <p>ROUNDS COMPLETED <span class="card-symbol">◷</span></p>
+            <h2>{{ completed_rounds }} <small>/ 38</small></h2>
+            <span>Official Fantasy results</span>
+        </div>
+    </div>
+</section>
 <main class="dashboard-container">
-
-    <!-- ================================================= -->
-    <!-- HEADER -->
-    <!-- ================================================= -->
-
-    <header class="dashboard-header">
-
-        <div>
-            <p class="eyebrow">YOUR FRANCHISE / PERFORMANCE CENTER</p>
-            <h1>FANTASY <span>DASHBOARD</span></h1>
-            <p class="subtitle">Season statistics, official scores, and your round-by-round journey.</p>
-        </div>
-
-        <div class="header-actions">
-
-            <a href="{{ url_for('schedule') }}" class="dashboard-button secondary">Season Schedule </a>
-            <a
-                href="{{ url_for('fantasy') }}"
-                class="dashboard-button secondary"
-            >
-                My Squad
-            </a>
-
-            {% if can_manage_lineup %}
-                <a
-                    href="{{ url_for('fantasy_lineup') }}"
-                    class="dashboard-button primary"
-                >
-                    Manage Lineup
-                </a>
-            {% endif %}
-
-        </div>
-
-    </header>
-
+    <div class="dashboard-page-intro">
+        <p class="eyebrow">YOUR FRANCHISE / PERFORMANCE CENTER</p>
+        <h2>FANTASY <span>DASHBOARD</span></h2>
+        <p class="subtitle">Season statistics, official scores, and your round-by-round journey.</p>
+    </div>
 
     <!-- ================================================= -->
     <!-- FLASH MESSAGES -->
@@ -77,63 +71,6 @@
             </div>
         {% endfor %}
     {% endwith %}
-
-
-    <!-- ================================================= -->
-    <!-- SEASON OVERVIEW -->
-    <!-- ================================================= -->
-
-    <section class="overview-grid">
-
-        <div class="overview-card highlight">
-
-            <p>SEASON POINTS <span class="card-symbol">★</span></p>
-
-            <h2>
-                {{ "%.2f"|format(season_total) }}
-            </h2>
-
-            <span>Total Fantasy points</span>
-
-        </div>
-
-
-
-        <div class="overview-card">
-
-            <p>LATEST ROUND SCORE <span class="card-symbol">◈</span></p>
-
-            <h2>
-                {% if latest_round %}
-                    {{ "%.2f"|format(latest_score) }}
-                {% else %}
-                    —
-                {% endif %}
-            </h2>
-
-            <span>Fantasy points</span>
-
-        </div>
-
-
-        <div class="overview-card">
-
-            <p>ROUNDS COMPLETED <span class="card-symbol">◷</span></p>
-
-            <h2>
-                {{ completed_rounds }}
-                <small>/ 38</small>
-            </h2>
-
-            <span>Official Fantasy results</span>
-
-        </div>
-
-    </section>
-
-
-
-
     <!-- ================================================= -->
     <!-- ROUND SELECTOR -->
     <!-- ================================================= -->

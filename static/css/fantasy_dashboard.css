@@ -584,3 +584,99 @@ body.fantasy-dashboard-page { background:#080809; font-family:Inter,Arial,sans-s
 }
 @media(max-width:370px) {.overview-grid {grid-template-columns:1fr;}}
 @media(prefers-reduced-motion:reduce) {*,*::before,*::after {transition:none!important;scroll-behavior:auto!important;}}
+
+
+/* ==========================================================
+   FLAT FANTASY DASHBOARD — shared Draft / Guess the Player style
+   Banner image placeholder: static/images/fantasy/dashboard_header.jpg
+   ========================================================== */
+body.fantasy-dashboard-page { background:#080809; color:#f7f5f2; }
+.dashboard-hero {
+    min-height:540px;
+    display:flex;
+    align-items:center;
+    background-color:#080809;
+    background-image:linear-gradient(90deg,rgba(5,5,6,.97) 0%,rgba(5,5,6,.79) 55%,rgba(5,5,6,.48) 100%),url('../images/fantasy_dashboard.jpeg');
+    background-size:100% 100%,cover;
+    background-position:center,center 50%;
+    background-repeat:no-repeat;
+    border-bottom:2px solid #fa5500;
+}
+.dashboard-hero::after { display:none; }
+.dashboard-hero-inner { width:100%; padding:75px 30px; }
+.dashboard-hero p { margin-bottom:26px; }
+.hero-divider { height:3px; background:#fa5500; }
+.header-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:24px; }
+.dashboard-button,.dashboard-button.primary,.dashboard-button.secondary {
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:12px 18px; min-height:44px;
+    background:#101013; border:1px solid #5a5a63;
+    border-radius:0; color:#f7f5f2; font-size:12px;
+    font-weight:900; letter-spacing:.6px; text-transform:uppercase;
+    text-decoration:none; transition:border-color .15s,color .15s,background .15s;
+}
+.dashboard-button:hover,.dashboard-button.primary:hover,.dashboard-button.secondary:hover {
+    background:#19191d; border-color:#fa5500; color:#fff;
+}
+.overview-strip { background:#101013; border-bottom:1px solid #302d2d; }
+.overview-strip .overview-grid {
+    display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:20px; margin:0 auto; padding-top:25px; padding-bottom:25px;
+}
+.overview-strip .overview-card,.overview-strip .overview-card.highlight {
+    min-height:0; padding:0; background:none; border:0;
+    border-radius:0; box-shadow:none; transform:none;
+}
+.overview-strip .overview-card:hover { transform:none; border:0; }
+.overview-strip .overview-card p {
+    display:flex; justify-content:flex-start; gap:8px; align-items:center;
+    margin:0 0 8px; font-size:10px; font-weight:900;
+    letter-spacing:1.7px; color:#aaa6a3;
+}
+.overview-strip .card-symbol { font-size:15px; color:#fa5500; }
+.overview-strip .overview-card h2,.overview-strip .overview-card.highlight h2 {
+    margin:0 0 4px; color:#fa5500;
+    font-size:clamp(27px,4vw,48px); font-weight:950; letter-spacing:-1px;
+}
+.overview-strip .overview-card h2 small { color:#aaa6a3; font-size:.42em; }
+.overview-strip .overview-card > span { color:#aaa6a3; font-size:12px; }
+.dashboard-container { padding-top:38px; }
+.dashboard-page-intro { margin-bottom:34px; padding-bottom:22px; border-bottom:1px solid #34343c; }
+.dashboard-page-intro h2 { margin:0 0 9px; font-size:clamp(27px,3.5vw,43px); font-weight:950; letter-spacing:-.7px; }
+.dashboard-page-intro h2 span { color:#fa5500; }
+.dashboard-panel { background:none; border:0; border-radius:0; padding:0; margin-bottom:40px; }
+.section-heading { padding-bottom:16px; border-bottom:1px solid #34343c; }
+.section-heading h2 { font-size:clamp(20px,2.4vw,27px); font-weight:950; }
+.section-badge { background:none; border:0; border-radius:0; padding:0; color:#ff893e; }
+.round-select { border-radius:0; background:#101013; }
+.selected-round-banner { background:#101013; border:1px solid #34343c; border-radius:0; padding:23px; }
+.selected-round-banner::after { display:none; }
+.selected-round-banner span,.selected-round-banner strong { color:#ff893e; }
+.lineup-grid { gap:34px; }
+.player-list { gap:7px; }
+.performance-player,.performance-player.captain {
+    background:#101013; border:1px solid #34343c;
+    border-radius:0; padding:11px 13px; transform:none;
+}
+.performance-player:hover { transform:none; border-color:#fa5500; }
+.performance-player.captain { border-left:3px solid #fa5500; }
+.player-avatar { background:#19191d; border-radius:0; width:60px; height:68px; min-width:60px; }
+.player-avatar img { object-fit:contain; }
+.captain-badge { border-radius:0; }
+.history-table { background:none; }
+.history-table th,.history-table td { border-bottom:1px solid #34343c; }
+.history-table tbody tr:hover { background:#151519; }
+.selected-history-row { background:#1b1716; }
+.empty-state { border:1px dashed #34343c; }
+@media(max-width:700px) {
+    .dashboard-hero { min-height:540px; }
+    .dashboard-hero-inner { padding:55px 18px; }
+    .overview-strip .overview-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:25px 15px; }
+    .dashboard-container { padding-left:16px; padding-right:16px; }
+    .header-actions { gap:8px; }
+    .dashboard-button { font-size:11px; padding:11px 12px; }
+}
+@media(max-width:420px) {
+    .overview-strip .overview-grid { grid-template-columns:1fr; }
+    .section-heading { align-items:flex-start; }
+}

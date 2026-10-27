@@ -1,1 +1,277 @@
 :root{--orange:#fa5500;--orange-light:#ff893e;--bg:#080809;--panel:#151517;--line:#34343c;--muted:#a7a4a5;--text:#f7f5f2}*{box-sizing:border-box}body.fantasy-builder-page{background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}.fantasy-hero{position:relative;overflow:hidden;background:radial-gradient(ellipse at 76% 32%,#61210f 0%,#211310 36%,#0b0a0b 73%);border-bottom:1px solid #4b2920}.fantasy-hero:after{content:'FANTASY';position:absolute;right:-2%;top:7%;font-size:clamp(100px,18vw,310px);font-weight:950;letter-spacing:-.08em;color:#ffffff06;pointer-events:none}.fantasy-hero-inner{max-width:1450px;margin:auto;padding:78px 25px 72px;position:relative;z-index:1}.fantasy-hero-kicker,.fantasy-section-kicker{font-size:11px;font-weight:900;letter-spacing:2.4px;color:var(--orange-light)}.fantasy-hero-kicker span{display:inline-block;width:27px;height:2px;background:var(--orange);vertical-align:middle;margin-right:9px}.fantasy-hero h1{font-size:clamp(46px,6.5vw,96px);font-weight:950;letter-spacing:-3px;line-height:1.04;margin:20px 0 12px}.fantasy-hero h1 em{font-style:normal;color:var(--orange)}.fantasy-hero p{font-size:17px;color:#c2b8b4;max-width:610px}.fantasy-hero-meta{display:inline-block;margin-top:20px;padding:10px 17px;border:1px solid #79402d;border-radius:8px;color:#ffd2b9;background:#fa550010;font-size:12px;letter-spacing:1.3px;font-weight:900;text-transform:uppercase}.fantasy-hero-meta b{color:var(--orange);margin:0 10px}.fantasy-hero-divider{height:4px;background:linear-gradient(90deg,var(--orange),#fa550033 50%,transparent)}.fantasy-container{max-width:1450px;margin:auto;padding:38px 25px 100px}.fantasy-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:0 0 24px}.summary-card,.fantasy-panel{background:linear-gradient(145deg,#1c1c22,#111115);border:1px solid var(--line);border-radius:16px}.summary-card{padding:24px 26px;min-width:0}.summary-card span{display:block;color:#a9a6a9;font-size:11px;letter-spacing:1.7px;font-weight:900}.summary-card strong{display:block;color:#fff;font-size:clamp(24px,3vw,37px);font-weight:950;letter-spacing:-1px;margin-top:10px}.summary-card:first-child strong{color:var(--orange-light)}.fantasy-meter{height:5px;border-radius:10px;background:#333139;overflow:hidden;margin-top:16px}.fantasy-meter>div{width:0;height:100%;background:linear-gradient(90deg,#fa5500,#ffa56b);transition:width .25s}.fantasy-quicklinks{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 24px}.fantasy-link-button{width:auto!important;display:inline-flex!important;align-items:center;text-decoration:none!important}.fantasy-layout{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(315px,.9fr);gap:22px;align-items:start}.fantasy-panel{padding:25px;min-width:0}.panel-heading{margin-bottom:22px}.panel-heading h2{font-size:27px;font-weight:950;letter-spacing:-.6px;margin:8px 0}.panel-heading h2 span{color:var(--orange)}.panel-heading p{color:var(--muted);margin:0;font-size:14px}.fantasy-filters{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(2,minmax(0,1fr));gap:10px;margin:20px 0}.fantasy-filters input,.fantasy-filters select{min-width:0;width:100%;padding:13px 12px;background:#101014;border:1px solid #414047;border-radius:9px;color:#f6f6f7;outline:none}.fantasy-filters input:focus,.fantasy-filters select:focus{border-color:var(--orange);box-shadow:0 0 0 3px #fa550022}.market-meta{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-top:1px solid #323039;color:#99959c;font-size:10px;letter-spacing:1.2px;font-weight:900}.player-market{max-height:850px;overflow-y:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:5px 3px 5px 0;scrollbar-color:#6c3930 #151517}.market-player{--rarity:#55545c;display:grid;grid-template-columns:84px minmax(0,1fr);grid-template-rows:auto auto;gap:10px 12px;background:linear-gradient(145deg,#222127,#111115);border:1px solid #35343c;border-top:2px solid var(--rarity);border-radius:12px;padding:13px;min-width:0;transition:transform .18s,border-color .18s}.market-player:hover{transform:translateY(-2px);border-color:var(--rarity)}.market-player.selected{background:linear-gradient(145deg,#3a251e,#171316);border-color:var(--orange)}.rarity-basic{--rarity:#666}.rarity-common{--rarity:#b9c0c9}.rarity-uncommon{--rarity:#40cf79}.rarity-rare{--rarity:#49a7ff}.rarity-epic{--rarity:#bc78ff}.rarity-legendary{--rarity:#ffae45}.rarity-mythic{--rarity:#ff4b62}.market-player-photo{width:84px;height:112px;border-radius:8px;background:radial-gradient(ellipse at center,#3c3030,#151518 75%);display:grid;place-items:center;font-size:31px;overflow:hidden}.market-player-photo img{width:100%;height:100%;object-fit:contain}.market-player-info{min-width:0;display:flex;flex-direction:column;gap:5px}.market-player-top{display:flex;align-items:center;gap:8px}.market-rating{color:var(--rarity);font-size:26px;font-weight:950;line-height:1}.market-position{border:1px solid #4a4140;padding:3px 6px;border-radius:5px;color:#e9c3ad;font-size:10px;font-weight:900}.player-name{font-size:14px;font-weight:900;line-height:1.25;overflow-wrap:anywhere}.player-details{font-size:11px;color:#c5b3aa}.market-average{font-size:10px;color:#96929b}.market-player-actions{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:9px;border-top:1px solid #353239}.player-price{font-size:19px;font-weight:950;color:#ff9a62}.select-player-button,.save-squad-button{background:var(--orange);color:#fff;border:1px solid var(--orange);border-radius:8px;padding:10px 14px;font-weight:900;font-size:12px;letter-spacing:.4px;cursor:pointer;transition:background .18s,transform .18s}.select-player-button:hover:not(:disabled),.save-squad-button:hover:not(:disabled){background:#ff7932;transform:translateY(-1px)}.selected .select-player-button{background:#30221e;border-color:#89513b;color:#ffd3bd}.select-player-button:disabled,.save-squad-button:disabled{opacity:.45;cursor:not-allowed;transform:none}.squad-panel{position:sticky;top:20px}.position-group{margin-bottom:18px}.position-heading{font-size:12px;color:#ff8c4d;font-weight:900;letter-spacing:1.5px;margin:0 0 9px}.squad-player,.empty-position{min-height:46px;padding:11px 12px;margin-bottom:7px;border-radius:8px;font-size:12px}.squad-player{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#242126;border:1px solid #443b3b;font-weight:750}.empty-position{border:1px dashed #454049;color:#77727c;display:flex;align-items:center}.remove-player-button{border:0;background:none;color:#ff7c65;font-size:23px;cursor:pointer;line-height:1}.save-squad-button{width:100%;padding:15px}.locked-message{background:#3a2420;border:1px solid #704135;border-radius:8px;color:#ffd0bd;padding:14px}.squad-warning{color:#ff8d82;font-size:13px;margin:14px 0 0;min-height:1em}.empty-market{grid-column:1/-1;color:#aaa;padding:30px;text-align:center}.alert{border-radius:9px;margin-bottom:22px}@media(max-width:1150px){.player-market{grid-template-columns:1fr}}@media(max-width:950px){.fantasy-layout{grid-template-columns:1fr}.squad-panel{position:static}.player-market{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none}}@media(max-width:650px){.fantasy-hero-inner{padding:58px 17px}.fantasy-hero h1{letter-spacing:-1.8px}.fantasy-container{padding:25px 14px 65px}.fantasy-summary{grid-template-columns:1fr;gap:10px}.summary-card{padding:17px}.fantasy-panel{padding:16px}.fantasy-filters{grid-template-columns:1fr}.player-market{grid-template-columns:1fr}.market-player{grid-template-columns:78px minmax(0,1fr)}.market-player-photo{width:78px}.fantasy-quicklinks{flex-direction:column}.fantasy-link-button{width:100%!important;justify-content:center}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+
+
+/* ================================================================
+   FANTASY HEADER + FLAT SCORE STRIP — OCT 2026
+   Banner image placeholder: static/images/fantasy/fantasy_header.jpg
+   ================================================================ */
+body.fantasy-builder-page .fantasy-hero {
+    min-height: 540px;
+    display: flex;
+    align-items: center;
+    isolation: isolate;
+    background-color: #080809;
+    background-image: linear-gradient(90deg, rgba(5,5,6,.97) 0%, rgba(5,5,6,.76) 58%, rgba(5,5,6,.45) 100%), url('../images/fantasy.jpg');
+    background-size: 100% 100%, cover;
+    background-position: center, center 10%;
+    background-repeat: no-repeat;
+    border-bottom: 2px solid var(--orange);
+}
+body.fantasy-builder-page .fantasy-hero::after { content: none; }
+body.fantasy-builder-page .fantasy-hero-inner {
+    width: 100%;
+    padding: 72px 25px;
+}
+body.fantasy-builder-page .fantasy-hero-meta {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    color: #d2c7c0;
+}
+.fantasy-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 34px;
+}
+.fantasy-hero-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 45px;
+    padding: 12px 20px;
+    background: #111114;
+    border: 1px solid #55545d;
+    border-radius: 0;
+    color: #f7f5f2;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .5px;
+    text-decoration: none;
+    transition: border-color .15s, background-color .15s;
+}
+.fantasy-hero-button:hover,
+.fantasy-hero-button:focus-visible {
+    background: #1b1b1f;
+    border-color: var(--orange);
+    color: white;
+}
+/* Same flat scoreboard structure as Guess the Player. */
+body.fantasy-builder-page .fantasy-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    padding: 25px 0;
+    margin: 0;
+}
+.fantasy-score-strip {
+    width: 100%;
+    background: #101013;
+    border-bottom: 1px solid #302d2d;
+}
+body.fantasy-builder-page .fantasy-container {
+    padding-top: 38px;
+}
+body.fantasy-builder-page .summary-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    min-width: 0;
+}
+body.fantasy-builder-page .summary-stat span {
+    display: block;
+    color: #aaa6a3;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.7px;
+}
+body.fantasy-builder-page .summary-stat strong {
+    display: block;
+    margin: 0;
+    font-size: clamp(27px, 4vw, 48px);
+    font-weight: 950;
+    line-height: 1.15;
+    color: var(--orange);
+    letter-spacing: -1px;
+}
+body.fantasy-builder-page .fantasy-meter[hidden] { display: none !important; }
+@media (max-width: 650px) {
+    body.fantasy-builder-page .fantasy-hero { min-height: 540px; }
+    body.fantasy-builder-page .fantasy-hero-inner { padding: 60px 17px; }
+    body.fantasy-builder-page .fantasy-summary { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+    body.fantasy-builder-page .summary-stat strong { font-size: clamp(19px, 5vw, 29px); }
+    body.fantasy-builder-page .summary-stat span { font-size: 9px; letter-spacing: .6px; }
+    .fantasy-hero-actions { flex-direction: column; align-items: flex-start; }
+    .fantasy-hero-button { width: 100%; }
+}
+
+body.fantasy-builder-page .fantasy-score-inner { padding-top: 0; padding-bottom: 0; }
+
+
+/* ================================================================
+   FANTASY / DRAFT VISUAL ALIGNMENT — FLAT WORKSPACE
+   Keeps existing JS-generated selectors and all form IDs unchanged.
+   ================================================================ */
+
+/* Remove the large rounded boxes around both work areas. */
+body.fantasy-builder-page .fantasy-layout {
+    grid-template-columns: minmax(0, 1.8fr) minmax(315px, .9fr);
+    gap: 32px;
+    align-items: start;
+}
+body.fantasy-builder-page .fantasy-layout > .fantasy-panel {
+    background: transparent;
+    background-image: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+}
+body.fantasy-builder-page .fantasy-layout .panel-heading {
+    padding: 0 0 18px;
+    margin: 0 0 22px;
+    border-bottom: 1px solid #30292a;
+}
+body.fantasy-builder-page .fantasy-layout .panel-heading h2 {
+    font-size: clamp(24px, 2.5vw, 30px);
+    letter-spacing: -.6px;
+    margin: 9px 0 7px;
+}
+body.fantasy-builder-page .fantasy-layout .panel-heading p {
+    color: #aaa6a3;
+    line-height: 1.5;
+}
+
+/* Scouting controls: clean, square-edged dark inputs. */
+body.fantasy-builder-page .fantasy-filters {
+    gap: 10px;
+    margin: 0 0 24px;
+}
+body.fantasy-builder-page .fantasy-filters input,
+body.fantasy-builder-page .fantasy-filters select {
+    background: #111114;
+    border: 1px solid #38383f;
+    border-radius: 0;
+    color: #f7f5f2;
+    box-shadow: none;
+    min-height: 46px;
+}
+body.fantasy-builder-page .fantasy-filters input:focus,
+body.fantasy-builder-page .fantasy-filters select:focus {
+    outline: 1px solid #fa5500;
+    outline-offset: 0;
+    border-color: #fa5500;
+    box-shadow: none;
+}
+body.fantasy-builder-page .market-meta {
+    border-top: 0;
+    border-bottom: 1px solid #30292a;
+    padding: 0 0 12px;
+    margin-bottom: 14px;
+}
+
+/* Market players remain individually selectable, but lose the bubble look. */
+body.fantasy-builder-page .market-player {
+    background: #111114;
+    background-image: none;
+    border: 1px solid #303037;
+    border-top: 2px solid var(--rarity);
+    border-radius: 0;
+    box-shadow: none;
+    padding: 13px;
+    transform: none;
+}
+body.fantasy-builder-page .market-player:hover {
+    transform: none;
+    border-color: var(--rarity);
+}
+body.fantasy-builder-page .market-player.selected {
+    background: #1e1715;
+    border-color: #fa5500;
+}
+body.fantasy-builder-page .market-player-photo,
+body.fantasy-builder-page .market-position,
+body.fantasy-builder-page .select-player-button {
+    border-radius: 0;
+}
+body.fantasy-builder-page .select-player-button:hover:not(:disabled) {
+    transform: none;
+}
+
+/* My Squad matches Draft's STARTING FIVE: heading rule and dark roster rows. */
+body.fantasy-builder-page .squad-panel {
+    position: sticky;
+    top: 24px;
+}
+body.fantasy-builder-page .squad-panel .position-group {
+    margin: 0 0 22px;
+}
+body.fantasy-builder-page .squad-panel .position-heading {
+    color: #ff873e;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.6px;
+    border-bottom: 1px solid #30292a;
+    padding-bottom: 9px;
+    margin: 0 0 10px;
+}
+body.fantasy-builder-page .squad-panel .squad-player,
+body.fantasy-builder-page .squad-panel .empty-position {
+    min-height: 65px;
+    margin: 0 0 8px;
+    padding: 13px;
+    border-radius: 0;
+    background: #111116;
+    border: 1px solid #36363e;
+    box-shadow: none;
+    font-size: 13px;
+}
+body.fantasy-builder-page .squad-panel .squad-player {
+    font-weight: 800;
+}
+body.fantasy-builder-page .squad-panel .empty-position {
+    border-style: dashed;
+    color: #888892;
+}
+body.fantasy-builder-page .squad-panel .remove-player-button {
+    color: #ff873e;
+    padding: 4px 8px;
+}
+body.fantasy-builder-page .squad-panel .remove-player-button:hover {
+    color: #fff;
+}
+body.fantasy-builder-page .squad-panel .save-squad-button {
+    background: #fa5500;
+    border: 1px solid #fa5500;
+    border-radius: 0;
+    color: #fff;
+    min-height: 48px;
+    margin-top: 12px;
+    transition: background-color .15s, border-color .15s;
+}
+body.fantasy-builder-page .squad-panel .save-squad-button:hover:not(:disabled) {
+    background: #ff7932;
+    transform: none;
+}
+body.fantasy-builder-page .squad-panel .locked-message {
+    background: transparent;
+    border: 0;
+    border-top: 1px solid #44332d;
+    border-radius: 0;
+    color: #c8b4aa;
+    padding: 16px 0 0;
+}
+
+@media (max-width: 950px) {
+    body.fantasy-builder-page .fantasy-layout { grid-template-columns: minmax(0, 1fr); }
+    body.fantasy-builder-page .squad-panel { position: static; }
+}
+@media (max-width: 650px) {
+    body.fantasy-builder-page .fantasy-layout { gap: 38px; }
+    body.fantasy-builder-page .fantasy-filters { grid-template-columns: minmax(0, 1fr); }
+    body.fantasy-builder-page .player-market { grid-template-columns: minmax(0, 1fr); }
+}

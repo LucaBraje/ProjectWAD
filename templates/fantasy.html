@@ -33,32 +33,31 @@
         <h1>BUILD YOUR <em>LEGACY.</em></h1>
         <p>Scout the league. Balance your budget. Assemble your ultimate ten.</p>
         <div class="fantasy-hero-meta">{{ season.name }} <b>•</b> ROUND {{ season.current_week }}</div>
+        {% if squad and selected_ids | length == 10 %}
+        <nav class="fantasy-hero-actions" aria-label="Fantasy squad navigation">
+            <a href="{{ url_for('fantasy_lineup') }}" class="fantasy-hero-button">Manage Starting Five &amp; Captain →</a>
+            <a href="{{ url_for('fantasy_dashboard') }}" class="fantasy-hero-button">View Fantasy Dashboard →</a>
+        </nav>
+        {% endif %}
+
     </div>
 </header>
 <div class="fantasy-hero-divider"></div>
-<main class="fantasy-container">
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endwith %}
-
+<section class="fantasy-score-strip" aria-label="Squad overview">
+  <div class="fantasy-container fantasy-score-inner">
         <section class="fantasy-summary" aria-label="Squad overview">
 
-            <div class="summary-card">
+            <div class="summary-stat">
                 <span>REMAINING BUDGET</span>
-                <strong id="budget-display">100.00M</strong><div class="fantasy-meter"><div id="fantasy-budget-fill"></div></div>
+                <strong id="budget-display">100.00M</strong><div class="fantasy-meter" hidden><div id="fantasy-budget-fill"></div></div>
             </div>
 
-            <div class="summary-card">
+            <div class="summary-stat">
                 <span>PLAYERS SELECTED</span>
-                <strong id="players-display">0 / 10</strong><div class="fantasy-meter"><div id="fantasy-progress-fill"></div></div>
+                <strong id="players-display">0 / 10</strong><div class="fantasy-meter" hidden><div id="fantasy-progress-fill"></div></div>
             </div>
 
-            <div class="summary-card">
+            <div class="summary-stat">
                 <span>TEAM STATUS</span>
                 <strong>
                     {% if not editable %}
@@ -72,35 +71,30 @@
             </div>
 
         </section>
-{% if squad and selected_ids | length == 10 %}
-<div class="fantasy-quicklinks">
+  </div>
+</section>
+<main class="fantasy-container">
 
-    <a
-        href="{{ url_for('fantasy_lineup') }}"
-        class="save-squad-button fantasy-link-button"
-    >
-        Manage Starting Five & Captain →
-    </a>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
 
-    <a
-        href="{{ url_for('fantasy_dashboard') }}"
-        class="save-squad-button fantasy-link-button"
-    >
-        View Fantasy Dashboard →
-    </a>
 
-</div>
-{% endif %}
+
         <div class="fantasy-layout">
 
             <!-- ========================================== -->
             <!-- PLAYER MARKET                              -->
             <!-- ========================================== -->
 
-            <section class="fantasy-panel">
+            <section class="fantasy-panel fantasy-market-panel" aria-label="Player scouting and market">
 
                 <div class="panel-heading">
-                    <span class="fantasy-section-kicker">01 / SCOUTING DEPARTMENT</span>
+                    
                     <h2>PLAYER <span>MARKET</span></h2>
                     <p>Select your EuroLeague players.</p>
                 </div>
@@ -144,10 +138,10 @@
             <!-- MY FANTASY SQUAD                           -->
             <!-- ========================================== -->
 
-            <aside class="fantasy-panel squad-panel">
+            <aside class="fantasy-panel squad-panel" aria-label="Your fantasy roster">
 
                 <div class="panel-heading">
-                    <span class="fantasy-section-kicker">02 / YOUR FRANCHISE</span>
+                    
                     <h2>MY <span>SQUAD</span></h2>
                     <p>Two players per position.</p>
                 </div>

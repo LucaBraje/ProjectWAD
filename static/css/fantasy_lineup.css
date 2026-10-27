@@ -1,16 +1,880 @@
-/* Fantasy tactical lineup — Draft EuroLeague visual system */
-:root{--fl-orange:#fa5500;--fl-orange-light:#ff893e;--fl-bg:#080809;--fl-panel:#141416;--fl-border:#30292a;--fl-muted:#aaa6a3}
-body.fantasy-lineup-page{background:var(--fl-bg);color:#f7f5f2;font-family:Inter,Arial,sans-serif}
-.lineup-hero{background:radial-gradient(ellipse at 76% 20%,#68270765,transparent 48%),linear-gradient(110deg,#151113,#080809);border-bottom:1px solid #463022;padding:70px 24px 58px}
-.lineup-hero-inner{max-width:1400px;margin:auto}.lineup-eyebrow{color:var(--fl-orange-light);font-size:11px;font-weight:900;letter-spacing:2.4px}.lineup-hero h1{font-size:clamp(44px,7vw,92px);font-weight:950;letter-spacing:-3px;margin:12px 0 6px}.lineup-hero h1 span{color:var(--fl-orange)}.lineup-hero p{color:#b5aead;font-size:17px}.lineup-hero-progress{display:flex;gap:22px;margin-top:27px;font-size:12px;font-weight:900;letter-spacing:1.3px;color:#f3c7aa}
-.lineup-shell{max-width:1450px;padding-top:32px}.lineup-shell .btn-outline-light{border-color:#51413c;color:#eee;font-weight:800}.lineup-shell .btn-outline-light:hover{background:var(--fl-orange);border-color:var(--fl-orange);color:white}
-.lineup-status{padding:13px 18px;border:1px solid #4b362a;border-radius:10px;background:#1c1613;color:#f8ad77;font-weight:800;margin:22px 0}.lineup-status.is-locked{border-color:#5a4242;color:#ffb6b6}
-.lineup-grid{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(315px,1fr);gap:20px;align-items:start}.lineup-shell .fantasy-panel{background:linear-gradient(145deg,#1c1c20,#111114);border:1px solid #34343c;border-radius:17px;padding:25px}.lineup-shell .panel-heading h2{font-weight:950;letter-spacing:-.6px;margin:8px 0}.lineup-shell .panel-heading p{color:var(--fl-muted)}
-.tactical-court{position:relative;min-height:660px;border-radius:20px;overflow:hidden;margin-top:22px;background:radial-gradient(ellipse at 50% 65%,#27221f 0,#171719 62%,#101014 100%);border:2px solid #a94920;box-shadow:inset 0 0 65px #0008,0 16px 38px #0005}
-.tactical-court:before{content:"";position:absolute;inset:20px;border:2px solid #fa550069;border-radius:8px;pointer-events:none}.court-center-circle{position:absolute;left:50%;top:49%;transform:translate(-50%,-50%);width:160px;height:160px;border:2px solid #fa550060;border-radius:50%}.court-key{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);width:39%;height:37%;border:2px solid #fa55008c;border-bottom:0;background:#fa550009}.court-arc{position:absolute;left:50%;bottom:-200px;transform:translateX(-50%);width:85%;height:520px;border:2px solid #fa550080;border-radius:50%}.court-hoop{position:absolute;left:50%;bottom:58px;transform:translateX(-50%);width:38px;height:38px;border:3px solid var(--fl-orange);border-radius:50%;box-shadow:0 0 18px #fa550055}
-.court-players{position:absolute;inset:0}.court-slot{position:absolute;width:31%;max-width:215px;transform:translate(-50%,-50%);z-index:1}.court-slot-pg{left:50%;top:20%}.court-slot-sg{left:20%;top:40%}.court-slot-sf{left:80%;top:40%}.court-slot-pf{left:29%;top:72%}.court-slot-c{left:71%;top:72%}.position-heading{color:#ffb485;font-size:12px;letter-spacing:2px;font-weight:950;text-align:center;margin-bottom:8px}
-.lineup-player{position:relative;display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:11px;background:linear-gradient(145deg,#282329,#121217);border:1px solid #4a4140;border-radius:12px;min-width:0}.lineup-player.is-starter{border-color:#fa5500aa;box-shadow:0 4px 24px #0005}.lineup-player.is-captain{border-color:#ffb05d;box-shadow:0 0 22px #fa550040}.lineup-photo{width:50px;height:56px;display:grid;place-items:center;border-radius:7px;background:radial-gradient(circle,#55423a,#222025);overflow:hidden}.lineup-photo img{width:100%;height:100%;object-fit:contain}.lineup-ovr{font-size:22px;font-weight:950;color:var(--fl-orange)}.lineup-player-info{flex:1 1 100px;min-width:0}.lineup-player-info strong{font-size:12px;line-height:1.2;display:block;overflow-wrap:anywhere}.lineup-player-info small{font-size:10px;color:#aaa6a3;line-height:1.4;display:block;margin-top:4px}.lineup-actions{display:flex;gap:8px;flex-wrap:wrap;width:100%}.lineup-actions label{font-size:10px;display:flex;gap:4px;align-items:center;cursor:pointer;font-weight:800}.lineup-actions input{accent-color:var(--fl-orange)}.captain-badge{position:absolute;right:-8px;top:-10px;padding:5px 8px;border-radius:6px;background:var(--fl-orange);color:white;font-size:10px;font-weight:950}.empty-position{text-align:center;font-size:12px;color:#e2aaa0;padding:24px 8px;background:#1b1719;border:1px dashed #8b513b;border-radius:9px}
-.court-caption{text-align:center;color:#9e8b82;font-size:10px;letter-spacing:1.2px;font-weight:800;margin:16px 0 0}.bench-players{display:grid;gap:10px;margin-top:24px}.bench-slot{display:grid;grid-template-columns:35px minmax(0,1fr);gap:10px;align-items:center}.bench-slot .position-heading{margin:0}.bench-slot .lineup-player{padding:10px}.bench-slot .lineup-player-info{flex-basis:125px}.lineup-explainer{margin-top:24px;border-top:1px solid #393138;padding-top:20px}.lineup-explainer strong{color:var(--fl-orange-light);font-size:12px;letter-spacing:2px}.lineup-explainer p{color:var(--fl-muted);font-size:13px;margin-top:8px}.lineup-save{margin-top:22px!important;background:var(--fl-orange)!important;border:1px solid var(--fl-orange)!important;color:white!important;font-weight:900!important;border-radius:9px!important;padding:15px 25px!important}.lineup-save:hover{background:#ff7831!important}.squad-warning{color:#ffaaa4;font-weight:700;margin-top:15px}
-@media(max-width:1080px){.lineup-grid{grid-template-columns:1fr}.bench-players{grid-template-columns:repeat(2,minmax(0,1fr))}.tactical-court{min-height:620px}}
-@media(max-width:650px){.lineup-hero{padding:44px 18px}.lineup-hero h1{letter-spacing:-1.5px}.lineup-shell .fantasy-panel{padding:14px}.tactical-court{min-height:610px}.court-slot{width:35%}.court-slot-sg{left:19%}.court-slot-sf{left:81%}.court-slot-pf{left:25%}.court-slot-c{left:75%}.lineup-player{padding:7px;gap:4px}.lineup-photo{width:34px;height:38px}.lineup-ovr{font-size:17px}.lineup-player-info strong{font-size:10px}.lineup-player-info small{font-size:9px}.lineup-actions label{font-size:9px}.bench-players{grid-template-columns:1fr}.court-caption{font-size:9px}}
-@media(prefers-reduced-motion:no-preference){.lineup-player{transition:border-color .2s,transform .2s}.lineup-player:hover{border-color:var(--fl-orange);transform:translateY(-2px)}}
+/* ============================================================
+   DRAFT EUROLEAGUE — FANTASY LINEUP
+   COMPLETE CLEAN STYLESHEET
+   ============================================================ */
+
+:root {
+    --fl-bg: #080809;
+    --fl-surface: #111114;
+    --fl-border: #34343c;
+    --fl-orange: #fa5500;
+    --fl-orange-light: #ff893e;
+    --fl-text: #f7f5f2;
+    --fl-muted: #aaa6a3;
+}
+
+body.fantasy-lineup-page {
+    background: var(--fl-bg);
+    color: var(--fl-text);
+    font-family: Inter, Arial, sans-serif;
+}
+
+.fantasy-lineup-page * {
+    box-sizing: border-box;
+}
+
+/* ============================================================
+   1. HERO — KEEP THE CURRENT LOOK
+   ============================================================ */
+
+.lineup-hero {
+    position: relative;
+    isolation: isolate;
+
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    min-height: 540px;
+
+    background-color: #080809;
+
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(5, 5, 6, 0.97) 0%,
+            rgba(5, 5, 6, 0.78) 50%,
+            rgba(5, 5, 6, 0.45) 100%
+        ),
+        url('../images/euroRA.webp');
+
+    background-size: cover;
+    background-position: center 10%;
+    background-repeat: no-repeat;
+
+    border-bottom: 2px solid #fa5500;
+}
+.lineup-hero-inner {
+    width: 100%;
+    max-width: 1450px;
+    margin: 0 auto;
+    padding: 72px 25px;
+}
+.lineup-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 48px;
+    padding: 11px 15px;
+
+    color: #fff;
+    background: #111114;
+    border: 1px solid #45454d;
+    border-radius: 0;
+
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .7px;
+    text-decoration: none;
+}
+
+.lineup-back-link:hover {
+    color: white;
+    border-color: var(--fl-orange);
+    background: #1b1b1f;
+}
+
+.lineup-eyebrow {
+    color: var(--fl-orange-light);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 2.2px;
+    text-transform: uppercase;
+}
+
+.lineup-hero h1 {
+    margin: 18px 0 15px;
+    color: #fff;
+    font-size: clamp(48px, 7vw, 96px);
+    font-weight: 950;
+    letter-spacing: -3px;
+    line-height: 1.04;
+}
+
+.lineup-hero h1 span {
+    color: var(--fl-orange);
+}
+
+.lineup-hero p {
+    color: #c2b8b4;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.lineup-hero-progress {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 30px;
+    color: #d2c7c0;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+/* ============================================================
+   2. PAGE STRUCTURE
+   ============================================================ */
+
+.lineup-shell {
+    width: 100%;
+    max-width: 1450px;
+    margin: 0 auto;
+    padding: 38px 25px 100px;
+}
+
+.lineup-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 46px;
+    margin: 0 0 28px;
+    padding: 12px 18px;
+
+    color: #f7f5f2;
+    background: #151518;
+    border: 1px solid #34343c;
+    border-left: 3px solid var(--fl-orange);
+    border-radius: 0;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.lineup-status.is-locked {
+    border-left-color: #85858d;
+}
+
+.lineup-status-indicator {
+    width: 6px;
+    height: 6px;
+    flex-shrink: 0;
+    background: var(--fl-orange);
+}
+
+.lineup-status.is-locked .lineup-status-indicator {
+    background: #85858d;
+}
+
+/* Main two-column layout */
+
+.lineup-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.8fr) minmax(330px, 1fr);
+    gap: 28px;
+    align-items: start;
+}
+
+/* Flat sections — no giant rounded panels */
+
+.lineup-shell .fantasy-panel {
+    min-width: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.lineup-shell .panel-heading {
+    padding-bottom: 18px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #34343c;
+}
+
+.lineup-shell .panel-heading h2 {
+    margin: 8px 0;
+    color: white;
+    font-size: 30px;
+    font-weight: 950;
+    letter-spacing: -.6px;
+}
+
+.lineup-shell .panel-heading p {
+    margin: 0;
+    color: var(--fl-muted);
+    font-size: 13px;
+}
+
+/* ============================================================
+   3. BASKETBALL COURT
+   ============================================================ */
+
+.tactical-court {
+    position: relative;
+    isolation: isolate;
+
+    width: 100%;
+    min-height: 650px;
+    padding: 50px 25px 38px;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            #18181c 0%,
+            #101013 100%
+        );
+
+    border: 1px solid #744029;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Court outline */
+
+.tactical-court::before {
+    content: "";
+    position: absolute;
+    inset: 15px;
+    z-index: 0;
+
+    border: 1px solid rgba(250, 85, 0, .24);
+    pointer-events: none;
+}
+
+/* Subtle court markings */
+
+.court-center-circle {
+    position: absolute;
+    z-index: 0;
+    width: 220px;
+    height: 220px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    border: 1px solid rgba(250, 85, 0, .14);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.court-key {
+    position: absolute;
+    z-index: 0;
+    left: 32%;
+    top: 0;
+    width: 36%;
+    height: 120px;
+
+    border: 1px solid rgba(250, 85, 0, .16);
+    border-top: none;
+    pointer-events: none;
+}
+
+.court-arc {
+    position: absolute;
+    z-index: 0;
+    left: 15%;
+    top: -145px;
+    width: 70%;
+    height: 340px;
+
+    border: 1px solid rgba(250, 85, 0, .12);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.court-hoop {
+    position: absolute;
+    z-index: 0;
+    left: 50%;
+    top: 22px;
+    width: 30px;
+    height: 30px;
+    transform: translateX(-50%);
+
+    border: 2px solid rgba(250, 85, 0, .45);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* ============================================================
+   4. STARTING FIVE — THE ACTUAL GRID FIX
+   ============================================================ */
+
+/*
+   VERY IMPORTANT:
+
+   Neither .court-players nor .court-slot uses
+   position: absolute.
+
+   The grid is allowed to determine its own height.
+*/
+
+.court-players {
+    position: relative;
+    inset: auto;
+    z-index: 2;
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 30px 18px;
+
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 20px 0;
+}
+
+/* Reset all previous absolute-position logic */
+
+.court-slot {
+    position: static;
+    left: auto;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
+
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    height: auto;
+
+    grid-column: auto;
+    grid-row: auto;
+    justify-self: stretch;
+    align-self: start;
+
+    z-index: 2;
+}
+
+/* PG + SG */
+
+.court-slot-pg {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.court-slot-sg {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+/* SF + PF */
+
+.court-slot-sf {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.court-slot-pf {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+/* Center */
+
+.court-slot-c {
+    grid-column: 1 / -1;
+    grid-row: 3;
+
+    width: calc(50% - 9px);
+    justify-self: center;
+}
+
+/* Player position label */
+
+.court-slot .position-heading {
+    margin: 0 0 10px;
+    padding: 0;
+    color: var(--fl-orange-light);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-align: left;
+}
+
+/* ============================================================
+   5. STARTER PLAYER CARDS
+   ============================================================ */
+
+.court-slot .lineup-player {
+    position: relative;
+
+    display: grid;
+    grid-template-columns: 60px minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    gap: 10px;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 185px;
+    padding: 12px;
+
+    background: #111114;
+    border: 1px solid #38383f;
+    border-top: 2px solid var(--fl-orange);
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.court-slot .lineup-player:hover {
+    background: #19191d;
+    border-color: var(--fl-orange);
+    transform: none;
+}
+
+.lineup-player.is-captain {
+    border-color: var(--fl-orange);
+}
+
+/* Photo */
+
+.court-slot .lineup-photo {
+    grid-column: 1;
+    grid-row: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 60px;
+    min-width: 60px;
+    height: 70px;
+    overflow: hidden;
+
+    background: #222227;
+    border-radius: 0;
+}
+
+.lineup-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Name and team */
+
+.court-slot .lineup-player-info {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+}
+
+.lineup-player-info strong {
+    display: block;
+    color: #f7f5f2;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1.35;
+
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
+.lineup-player-info small {
+    display: block;
+    color: #a7a4a5;
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+/* Overall */
+
+.court-slot .lineup-rating {
+    grid-column: 1 / -1;
+    grid-row: 2;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 7px;
+
+    padding-top: 9px;
+    border-top: 1px solid #303037;
+}
+
+.lineup-rating strong {
+    color: var(--fl-orange);
+    font-size: 21px;
+    font-weight: 950;
+    line-height: 1;
+}
+
+.lineup-rating small {
+    color: #aaa6a3;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+/* Buttons */
+
+.court-slot .lineup-actions {
+    grid-column: 1 / -1;
+    grid-row: 3;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 7px;
+
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.lineup-actions button {
+    min-width: 0;
+    min-height: 34px;
+    padding: 8px;
+
+    border-radius: 0;
+    font-size: 10px;
+    font-weight: 900;
+    cursor: pointer;
+
+    transition:
+        background-color .18s ease,
+        border-color .18s ease;
+}
+
+.court-slot .lineup-actions button {
+    flex: 1 1 0;
+}
+
+/* Swap */
+
+.lineup-swap-btn {
+    background: #25252b;
+    color: #fff;
+    border: 1px solid #474750;
+}
+
+.lineup-swap-btn:hover:not(:disabled) {
+    background: #302019;
+    border-color: var(--fl-orange);
+}
+
+/* Captain */
+
+.lineup-captain-btn {
+    background: transparent;
+    color: #ff893e;
+    border: 1px solid #75412b;
+}
+
+.lineup-captain-btn:hover:not(:disabled) {
+    background: #302019;
+}
+
+.lineup-captain-btn.active {
+    background: var(--fl-orange);
+    border-color: var(--fl-orange);
+    color: #fff;
+}
+
+.lineup-actions button:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+/* Captain badge */
+
+.captain-badge {
+    position: absolute;
+    top: -10px;
+    right: -7px;
+    z-index: 5;
+
+    padding: 5px 8px;
+    background: var(--fl-orange);
+    color: #fff;
+    border-radius: 0;
+
+    font-size: 10px;
+    font-weight: 950;
+}
+
+/* Empty starting slot */
+
+.empty-position {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 185px;
+
+    padding: 15px;
+    background: #111114;
+    border: 1px dashed #504139;
+    border-radius: 0;
+
+    color: #bcb3af;
+    font-size: 11px;
+    font-weight: 800;
+    text-align: center;
+}
+
+/* ============================================================
+   6. BENCH
+   ============================================================ */
+
+.bench-players {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    margin-top: 0;
+}
+
+/* Position label to the left of card */
+
+.bench-slot {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.bench-slot .position-heading {
+    margin: 0;
+    color: var(--fl-orange-light);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+/* Compact horizontal bench card */
+
+.bench-slot .lineup-player {
+    position: relative;
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr) 42px;
+    grid-template-rows: auto auto;
+    gap: 0 10px;
+    align-items: center;
+
+    width: 100%;
+    min-width: 0;
+    padding: 11px;
+
+    background: #17171b;
+    border: 1px solid #38383f;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.bench-slot .lineup-player:hover {
+    border-color: var(--fl-orange);
+    background: #1c1c20;
+    transform: none;
+}
+
+.bench-slot .lineup-photo {
+    grid-column: 1;
+    grid-row: 1;
+    width: 54px;
+    min-width: 54px;
+    height: 59px;
+
+    background: #25252b;
+    overflow: hidden;
+}
+
+.bench-slot .lineup-player-info {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+}
+
+.bench-slot .lineup-rating {
+    grid-column: 3;
+    grid-row: 1;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.bench-slot .lineup-actions {
+    grid-column: 1 / -1;
+    grid-row: 2;
+
+    display: flex;
+    width: 100%;
+    margin-top: 11px;
+    padding-top: 9px;
+    border-top: 1px solid #35353b;
+}
+
+.bench-slot .lineup-swap-btn {
+    width: 100%;
+    min-height: 32px;
+}
+
+/* ============================================================
+   7. RULES, CAPTION AND SAVE
+   ============================================================ */
+
+.court-caption {
+    margin: 16px 0 0;
+    color: #9e9798;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.lineup-explainer {
+    margin-top: 27px;
+    padding-top: 20px;
+    background: transparent;
+    border: 0;
+    border-top: 1px solid #34343c;
+    border-radius: 0;
+}
+
+.lineup-explainer strong {
+    color: var(--fl-orange-light);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+}
+
+.lineup-explainer p {
+    color: var(--fl-muted);
+    font-size: 12px;
+    line-height: 1.8;
+    margin: 10px 0 0;
+}
+
+#lineup-error {
+    color: #ff8d82;
+    font-size: 12px;
+}
+
+.lineup-save-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 30px;
+}
+
+body.fantasy-lineup-page .lineup-save {
+    width: auto;
+    min-height: 48px;
+    margin-top: 24px;
+    padding: 13px 22px;
+
+    background: var(--fl-orange);
+    color: white;
+    border: 1px solid var(--fl-orange);
+    border-radius: 0;
+
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .4px;
+    box-shadow: none;
+}
+
+body.fantasy-lineup-page .lineup-save:hover {
+    background: #ff7932;
+    border-color: #ff7932;
+    transform: none;
+}
+
+.fantasy-lineup-page .alert {
+    border-radius: 0;
+    border-left: 3px solid var(--fl-orange);
+}
+
+/* ============================================================
+   8. RESPONSIVE
+   ============================================================ */
+
+/* Keep the cards readable by stacking court and bench */
+
+@media (max-width: 1050px) {
+    .lineup-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 45px;
+    }
+
+    .tactical-court {
+        min-height: 0;
+    }
+
+    .bench-players {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+}
+
+@media (max-width: 700px) {
+    .lineup-hero-inner {
+        padding: 40px 17px 55px;
+    }
+
+    .lineup-hero h1 {
+        font-size: 48px;
+        letter-spacing: -2px;
+    }
+
+    .lineup-shell {
+        padding: 28px 14px 70px;
+    }
+
+    .tactical-court {
+        padding: 35px 15px;
+    }
+
+    /* One card per row on small screens */
+
+    .court-players {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+    }
+
+    .court-slot-pg,
+    .court-slot-sg,
+    .court-slot-sf,
+    .court-slot-pf,
+    .court-slot-c {
+        grid-column: 1;
+        grid-row: auto;
+        width: 100%;
+    }
+
+    .court-slot .lineup-player {
+        min-height: 0;
+    }
+
+    .bench-players {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fantasy-lineup-page *,
+    .fantasy-lineup-page *::before,
+    .fantasy-lineup-page *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+}
